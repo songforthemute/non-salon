@@ -2,7 +2,7 @@
 
 **Version:** 1.0 Draft  
 **Date:** 2025-01-22  
-**Author:** Coco  
+**Author:** songforthemute  
 
 ---
 
@@ -71,6 +71,15 @@
 ### OG Image
 - **Cloudflare Pages Functions**
 - 동적 생성 (v1: SVG, v2: PNG)
+
+### Language
+- **TypeScript** (strict)
+
+### Linter / Formatter
+- **Biome**
+
+### Test
+- **Vitest**
 
 ---
 
