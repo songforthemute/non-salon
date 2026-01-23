@@ -16,6 +16,7 @@ const siteTitle = title === "Home" ? "whitespace" : `${title} | whitespace`;
 		<meta name="description" content={description} />
 		<title>{siteTitle}</title>
 		<link rel="stylesheet" href="/styles/layout.css" />
+		<link rel="alternate" type="application/rss+xml" title="whitespace RSS" href="/feed.xml" />
 	</head>
 	<body>
 		<header>
@@ -27,7 +28,7 @@ const siteTitle = title === "Home" ? "whitespace" : `${title} | whitespace`;
 			<slot />
 		</main>
 		<footer>
-			<p>&copy; {new Date().getFullYear()} songforthemute</p>
+			<p>&copy; {new Date().getFullYear()} songforthemute · <a href="/feed.xml">RSS</a></p>
 		</footer>
 	</body>
 </html>

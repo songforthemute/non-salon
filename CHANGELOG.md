@@ -10,6 +10,7 @@
 - Astro 페이지 생성 (홈, 개별 포스트)
 - 빌드 스크립트 (`published-dates.json` 자동 관리)
 - 이미지 로컬 다운로드 (Notion URL 만료 대응)
+- RSS Feed (`/feed.xml`)
 
 ## [0.1.0] - 2025-01-24
 
