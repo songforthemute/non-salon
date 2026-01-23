@@ -1,0 +1,26 @@
+/* PRD 철학: 브라우저 기본 존중, 레이아웃만 */
+body {
+	max-width: 42rem;
+	margin: 0 auto;
+	padding: 2rem 1rem;
+	font-family: system-ui, sans-serif;
+	line-height: 1.6;
+}
+
+img {
+	max-width: 100%;
+	height: auto;
+}
+
+pre {
+	overflow-x: auto;
+}
+
+header {
+	margin-bottom: 2rem;
+}
+
+footer {
+	margin-top: 4rem;
+	color: #666;
+}

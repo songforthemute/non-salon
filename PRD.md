@@ -606,18 +606,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
-      
-      - run: npm ci
+          node-version: '24'
+          cache: 'pnpm'
+
+      - run: pnpm install --frozen-lockfile
       
       - name: Build
         env:
           NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
           NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
-        run: npm run build
+        run: pnpm build
       
       - name: Deploy
         uses: cloudflare/wrangler-action@v3
@@ -709,15 +710,15 @@ Cloudflare Pages:
 
 ```bash
 # 1. Notion 데이터 가져오기
-npm run fetch
+pnpm fetch:notion
 # → data/posts.json 생성
 
 # 2. 로컬 개발 서버
-npm run dev
+pnpm dev
 # → http://localhost:4321
 
 # 3. 빌드 (증분)
-npm run build
+pnpm build
 # → dist/ 생성
 
 # 4. 배포
@@ -732,7 +733,7 @@ git push
   "scripts": {
     "dev": "astro dev",
     "build": "node scripts/build.js",
-    "fetch": "node scripts/fetch-to-json.js",
+    "fetch:notion": "node scripts/fetch-notion.js",
     "preview": "astro preview"
   }
 }
@@ -828,7 +829,7 @@ blog/
 │       └── og-image.js
 ├── scripts/
 │   ├── build.js
-│   └── fetch-to-json.js
+│   └── fetch-notion.js
 ├── data/
 │   ├── last-build.json
 │   └── posts.json
@@ -854,6 +855,7 @@ blog/
 | Version | Date | Changes |
 |---------|------|---------|
 | 1.0 Draft | 2025-01-22 | Initial PRD creation |
+| 1.1 Draft | 2025-01-24 | Node 24 + pnpm으로 변경 |
 
 ---
 

@@ -1,0 +1,37 @@
+# Dependencies
+node_modules/
+
+# Claude Code
+.claude/
+
+# Build output
+dist/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Astro
+.astro/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Debug
+npm-debug.log*
+pnpm-debug.log*
+
+# Data (빌드 시 생성)
+data/posts.json
+data/last-build.json
+
+# Downloaded images (빌드 시 생성)
+public/images/
+
+# Test coverage
+coverage/
