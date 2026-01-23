@@ -1,5 +1,6 @@
 ---
 import Layout from "@/layouts/Layout.astro";
+import { SITE } from "@/config";
 import { blocksToHtml } from "@/lib/block-to-html";
 import fs from "node:fs";
 import path from "node:path";
@@ -43,7 +44,7 @@ const publishedDate = publishedDates[post.slug] || post.lastEditedTime.split("T"
 const content = blocksToHtml(post.blocks as Parameters<typeof blocksToHtml>[0]);
 
 function formatDate(dateStr: string): string {
-	return new Date(dateStr).toLocaleDateString("ko-KR", {
+	return new Date(dateStr).toLocaleDateString(SITE.language, {
 		year: "numeric",
 		month: "long",
 		day: "numeric",

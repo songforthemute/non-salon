@@ -1,6 +1,7 @@
 import type { APIContext } from "astro";
 import fs from "node:fs";
 import path from "node:path";
+import { SITE } from "@/config";
 
 interface Post {
 	id: string;
@@ -9,10 +10,6 @@ interface Post {
 	description: string | null;
 	lastEditedTime: string;
 }
-
-const SITE_URL = "https://whitespace.blog"; // 추후 환경변수로 변경
-const SITE_TITLE = "whitespace";
-const SITE_DESCRIPTION = "개인 아카이브 블로그";
 
 function escapeXml(text: string): string {
 	return text
@@ -51,12 +48,12 @@ export async function GET({ site }: APIContext) {
 	const items = recentPosts
 		.map((post) => {
 			const pubDate = publishedDates[post.slug] || post.lastEditedTime.split("T")[0];
-			const description = post.description || `${post.title} - ${SITE_TITLE}`;
+			const description = post.description || `${post.title} - ${SITE.name}`;
 
 			return `    <item>
       <title>${escapeXml(post.title)}</title>
-      <link>${SITE_URL}/posts/${post.slug}</link>
-      <guid isPermaLink="true">${SITE_URL}/posts/${post.slug}</guid>
+      <link>${SITE.url}/posts/${post.slug}</link>
+      <guid isPermaLink="true">${SITE.url}/posts/${post.slug}</guid>
       <description>${escapeXml(description)}</description>
       <pubDate>${new Date(pubDate).toUTCString()}</pubDate>
     </item>`;
@@ -66,12 +63,12 @@ export async function GET({ site }: APIContext) {
 	const rss = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>${escapeXml(SITE_TITLE)}</title>
-    <link>${SITE_URL}</link>
-    <description>${escapeXml(SITE_DESCRIPTION)}</description>
-    <language>ko-KR</language>
+    <title>${escapeXml(SITE.name)}</title>
+    <link>${SITE.url}</link>
+    <description>${escapeXml(SITE.description)}</description>
+    <language>${SITE.language}</language>
     <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
-    <atom:link href="${SITE_URL}/feed.xml" rel="self" type="application/rss+xml"/>
+    <atom:link href="${SITE.url}/feed.xml" rel="self" type="application/rss+xml"/>
 ${items}
   </channel>
 </rss>`;

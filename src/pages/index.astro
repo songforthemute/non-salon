@@ -1,5 +1,6 @@
 ---
 import Layout from "@/layouts/Layout.astro";
+import { SITE } from "@/config";
 import fs from "node:fs";
 import path from "node:path";
 
@@ -34,7 +35,7 @@ posts.sort((a, b) => {
 });
 
 function formatDate(dateStr: string): string {
-	return new Date(dateStr).toLocaleDateString("ko-KR", {
+	return new Date(dateStr).toLocaleDateString(SITE.language, {
 		year: "numeric",
 		month: "long",
 		day: "numeric",
@@ -43,7 +44,7 @@ function formatDate(dateStr: string): string {
 ---
 
 <Layout title="Home">
-	<h1>whitespace</h1>
+	<h1>{SITE.name}</h1>
 	{posts.length === 0 ? (
 		<p>아직 글이 없습니다.</p>
 	) : (

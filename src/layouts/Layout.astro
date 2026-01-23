@@ -1,34 +1,36 @@
 ---
+import { SITE } from "@/config";
+
 interface Props {
 	title: string;
 	description?: string;
 }
 
-const { title, description = "whitespace - songforthemute의 블로그" } = Astro.props;
-const siteTitle = title === "Home" ? "whitespace" : `${title} | whitespace`;
+const { title, description = `${SITE.name} - ${SITE.author}의 블로그` } = Astro.props;
+const siteTitle = title === "Home" ? SITE.name : `${title} | ${SITE.name}`;
 ---
 
 <!doctype html>
-<html lang="ko">
+<html lang={SITE.language}>
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<meta name="description" content={description} />
 		<title>{siteTitle}</title>
 		<link rel="stylesheet" href="/styles/layout.css" />
-		<link rel="alternate" type="application/rss+xml" title="whitespace RSS" href="/feed.xml" />
+		<link rel="alternate" type="application/rss+xml" title={`${SITE.name} RSS`} href="/feed.xml" />
 	</head>
 	<body>
 		<header>
 			<nav>
-				<a href="/">whitespace</a>
+				<a href="/">{SITE.name}</a>
 			</nav>
 		</header>
 		<main>
 			<slot />
 		</main>
 		<footer>
-			<p>&copy; {new Date().getFullYear()} songforthemute · <a href="/feed.xml">RSS</a></p>
+			<p>&copy; {new Date().getFullYear()} {SITE.author} · <a href="/feed.xml">RSS</a></p>
 		</footer>
 	</body>
 </html>
