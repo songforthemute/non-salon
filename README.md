@@ -15,28 +15,53 @@ Notion 기반 미니멀 정적 블로그.
 
 ## 시작하기
 
+### 요구 사항
+
+- Node.js 24+
+- pnpm
+
+### 설치
+
 ```bash
+# 저장소 클론
+git clone https://github.com/songforthemute/whitespace.git
+cd whitespace
+
 # 의존성 설치
 pnpm install
 
-# 개발 서버
-pnpm dev
+# 환경 변수 설정
+cp .env.example .env
+# .env 파일에 NOTION_API_KEY, NOTION_DATABASE_ID 입력
+```
 
-# 빌드
+### 로컬 개발
+
+```bash
+# Notion에서 데이터 가져오기
+pnpm fetch:notion
+
+# 개발 서버 실행
+pnpm dev
+# → http://localhost:4321
+```
+
+### 프로덕션 빌드
+
+```bash
+# 전체 빌드 (Notion fetch → 이미지 다운로드 → Astro 빌드 → Pagefind 인덱싱)
 pnpm build
 
-# 테스트
-pnpm test
+# 빌드 결과 미리보기
+pnpm preview
 ```
 
 ## 환경 변수
 
-`.env.example`을 `.env`로 복사 후 값 설정:
-
-```bash
-NOTION_API_KEY=secret_xxxxx
-NOTION_DATABASE_ID=xxxxx
-```
+| 변수 | 설명 |
+|------|------|
+| `NOTION_API_KEY` | Notion Integration 토큰 (`secret_xxx` 형식) |
+| `NOTION_DATABASE_ID` | Notion DB ID (32자리 hex) |
 
 ## 스크립트
 
