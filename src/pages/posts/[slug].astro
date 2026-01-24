@@ -58,11 +58,7 @@ function formatDate(dateStr: string): string {
 			<h1>{post.title}</h1>
 			<time datetime={publishedDate}>{formatDate(publishedDate)}</time>
 			{post.tags.length > 0 && (
-				<ul class="tags">
-					{post.tags.map((tag) => (
-						<li>{tag}</li>
-					))}
-				</ul>
+				<p class="tags">{post.tags.join(", ")}</p>
 			)}
 		</header>
 		<div class="content" data-pagefind-body set:html={content} />
@@ -80,16 +76,8 @@ function formatDate(dateStr: string): string {
 		color: #666;
 	}
 	.tags {
-		display: flex;
-		gap: 0.5rem;
-		list-style: none;
-		padding: 0;
-		margin-top: 1rem;
-	}
-	.tags li {
-		background: #f0f0f0;
-		padding: 0.25rem 0.5rem;
-		border-radius: 0.25rem;
+		margin-top: 0.5rem;
 		font-size: 0.875rem;
+		color: #666;
 	}
 </style>

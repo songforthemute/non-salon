@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Changed
+- 본문 서체 Palatino로 변경 (크로스 플랫폼)
+- 태그 스타일 간소화 (comma-separated)
+
 ### Added
 - `fetch:notion` 스크립트 (Notion API v5)
 - Block → HTML 변환 모듈 (TDD)
