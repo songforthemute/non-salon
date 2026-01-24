@@ -816,25 +816,30 @@ const notebooks = await getAllContent('notebook');
 ```
 blog/
 ├── src/
+│   ├── config.ts                        # SITE, PATHS, NAV_LINKS, ROUTE_TYPE_MAP
+│   ├── types.ts                         # ContentType, Block, RichTextItem, Post
 │   ├── pages/
-│   │   ├── index.astro                  # Landing (Notion)
-│   │   ├── whois.astro                  # Whois (Notion)
-│   │   ├── resume.astro                 # Resume (Notion)
+│   │   ├── index.astro                  # Landing (Notion) - TODO
+│   │   ├── whois.astro                  # Whois (Notion) - TODO
+│   │   ├── resume.astro                 # Resume (Notion) - TODO
+│   │   ├── [type]/
+│   │   │   └── [slug].astro             # 통합 상세 페이지 (모든 콘텐츠 타입)
 │   │   ├── publications/
-│   │   │   ├── index.astro              # Publications 목록
-│   │   │   └── [slug].astro             # Publication (Notion)
+│   │   │   └── index.astro              # Publications 목록 (카드 스타일)
 │   │   ├── thoughts/
-│   │   │   ├── index.astro              # Thoughts 목록
-│   │   │   └── [slug].astro             # Thought (Notion)
+│   │   │   └── index.astro              # Thoughts 목록 (타임라인 스타일)
 │   │   └── notebooks/
-│   │       ├── index.astro              # Notebooks 목록
-│   │       └── [slug].astro             # Notebook (Notion)
+│   │       └── index.astro              # Notebooks 목록 (리스트 스타일)
 │   ├── components/
-│   │   └── Nav.astro                    # 전역 Navigation
+│   │   └── Nav.astro                    # 전역 Navigation (NAV_LINKS 사용)
 │   ├── layouts/
 │   │   └── Layout.astro                 # 공통 레이아웃
 │   └── lib/
-│       └── notion.ts                    # Notion API 헬퍼
+│       ├── utils.ts                     # 공용 유틸 (escapeHtml)
+│       ├── posts.ts                     # 포스트 로딩/필터
+│       ├── format.ts                    # 날짜 포맷
+│       ├── block-to-html.ts             # Notion Block → HTML
+│       └── image-handler.ts             # 이미지 다운로드/URL 교체
 ├── public/
 │   ├── images/                          # Notion 이미지
 │   │   ├── publications/

@@ -21,6 +21,13 @@
 - Nav 컴포넌트 (active 상태 bold + `aria-current`)
 - Index 페이지 스타일: Publications 카드, Thoughts 타임라인, Notebooks 리스트
 - 공통 타입 정의 (`src/types.ts`)
+
+### Refactored
+- 타입 통합: `Block`, `RichTextItem` 공용 타입을 `types.ts`로 이동 (중복 제거)
+- 유틸 분리: `escapeHtml`을 `lib/utils.ts`로 추출
+- 라우트 통합: `[type]/[slug].astro` 단일 파일로 3개 중복 페이지 통합
+- 상수 추출: `ROUTE_TYPE_MAP` 추가 (URL segment ↔ ContentType 매핑)
+- 의존성 정리: `fetch-notion.ts`가 공용 `Post` 타입 사용
 - `fetch:notion` 스크립트 (Notion API v5)
 - Block → HTML 변환 모듈 (TDD)
 - Astro 페이지 생성 (홈, 개별 포스트)
