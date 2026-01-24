@@ -774,6 +774,32 @@ const publications = await getAllContent('publication');
 </Layout>
 ```
 
+### Thoughts Index
+
+```astro
+---
+// src/pages/thoughts/index.astro
+const thoughts = await getAllContent('thought');
+---
+
+<Layout title="Thoughts - whitespace">
+  <header>
+    <h1>💭 Thoughts</h1>
+    <p>짧은 에세이, 생각, 관점</p>
+  </header>
+
+  <!-- Timeline Style -->
+  <div class="timeline">
+    {thoughts.map(thought => (
+      <article class="thought-item">
+        <time>{thought.date}</time>
+        <h3><a href={`/thoughts/${thought.slug}`}>{thought.title}</a></h3>
+      </article>
+    ))}
+  </div>
+</Layout>
+```
+
 ### Notebooks Index
 
 ```astro
@@ -788,18 +814,15 @@ const notebooks = await getAllContent('notebook');
     <p>학습 메모, 코드 스니펫, 실험</p>
   </header>
 
-  <!-- Timeline Style -->
-  <div class="timeline">
+  <!-- List Style -->
+  <ul class="notebook-list">
     {notebooks.map(note => (
-      <article class="note-item">
+      <li>
         <time>{note.date}</time>
-        <h3><a href={`/notebooks/${note.slug}`}>{note.title}</a></h3>
-        <div class="tags">
-          {note.tags.map(tag => <span>{tag}</span>)}
-        </div>
-      </article>
+        <a href={`/notebooks/${note.slug}`}>{note.title}</a>
+      </li>
     ))}
-  </div>
+  </ul>
 </Layout>
 ```
 
