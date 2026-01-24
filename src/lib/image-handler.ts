@@ -1,7 +1,8 @@
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
+import { PATHS } from "@/config";
 
-const PUBLIC_IMAGES_DIR = path.join(process.cwd(), "public", "images");
+const PUBLIC_IMAGES_DIR = path.join(process.cwd(), PATHS.images);
 
 interface ImageBlock {
 	id: string;

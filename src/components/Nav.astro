@@ -1,12 +1,7 @@
 ---
-const { pathname } = Astro.url;
+import { NAV_LINKS } from "@/config";
 
-const links = [
-	{ href: "/", label: "Home" },
-	{ href: "/publications", label: "Publications" },
-	{ href: "/thoughts", label: "Thoughts" },
-	{ href: "/notebooks", label: "Notebooks" },
-];
+const { pathname } = Astro.url;
 
 function isActive(href: string): boolean {
 	if (href === "/") {
@@ -17,7 +12,7 @@ function isActive(href: string): boolean {
 ---
 
 <nav>
-	{links.map((link) => (
+	{NAV_LINKS.map((link) => (
 		<a
 			href={link.href}
 			class:list={[{ active: isActive(link.href) }]}

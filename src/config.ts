@@ -12,3 +12,10 @@ export const PATHS = {
 	publishedDates: "data/published-dates.json",
 	images: "public/images",
 } as const;
+
+export const NAV_LINKS = [
+	{ href: "/", label: "Home" },
+	{ href: "/publications", label: "Publications" },
+	{ href: "/thoughts", label: "Thoughts" },
+	{ href: "/notebooks", label: "Notebooks" },
+] as const;
