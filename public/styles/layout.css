@@ -15,6 +15,10 @@ pre {
 	overflow-x: auto;
 }
 
+a {
+	word-break: break-all;
+}
+
 header {
 	margin-bottom: 2rem;
 }
