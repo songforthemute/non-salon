@@ -96,6 +96,14 @@ describe("blockToHtml", () => {
 		expect(blockToHtml(block)).toBe("<p>Hello world</p>");
 	});
 
+	it("empty paragraph returns empty", () => {
+		const block = {
+			type: "paragraph",
+			paragraph: { rich_text: [] },
+		};
+		expect(blockToHtml(block)).toBe("");
+	});
+
 	it("heading_1 → h2", () => {
 		const block = {
 			type: "heading_1",

@@ -97,7 +97,9 @@ export function blockToHtml(block: Block): string {
 	switch (type) {
 		case "paragraph": {
 			const data = block.paragraph as { rich_text: RichTextItem[] };
-			return `<p>${richTextToHtml(data.rich_text)}</p>`;
+			const content = richTextToHtml(data.rich_text);
+			if (!content) return "";
+			return `<p>${content}</p>`;
 		}
 
 		case "heading_1": {
