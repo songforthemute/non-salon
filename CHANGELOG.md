@@ -7,6 +7,11 @@
 ### Changed
 - 본문 서체 Palatino로 변경 (크로스 플랫폼)
 - 태그 스타일 간소화 (comma-separated)
+- 링크 줄바꿈 개선 (`word-break: break-all`)
+
+### Fixed
+- Notion mention 타입 rich text 파싱 지원
+- 빈 paragraph 렌더링 제거
 
 ### Added
 - `fetch:notion` 스크립트 (Notion API v5)
