@@ -1,9 +1,16 @@
 type RichTextItem = {
 	type: string;
-	text: {
+	text?: {
 		content: string;
 		link?: { url: string } | null;
 	};
+	mention?: {
+		type: string;
+		page?: { id: string };
+		link_preview?: { url: string };
+	};
+	plain_text?: string;
+	href?: string | null;
 	annotations: {
 		bold?: boolean;
 		italic?: boolean;
@@ -32,9 +39,19 @@ function escapeHtml(text: string): string {
 export function richTextToHtml(richText: RichTextItem[]): string {
 	return richText
 		.map((item) => {
-			if (item.type !== "text") return "";
+			let content: string;
+			let href: string | null = null;
 
-			let content = escapeHtml(item.text.content);
+			if (item.type === "text" && item.text) {
+				content = escapeHtml(item.text.content);
+				href = item.text.link?.url || null;
+			} else if (item.type === "mention") {
+				content = escapeHtml(item.plain_text || "");
+				href = item.href || null;
+			} else {
+				return "";
+			}
+
 			const { annotations } = item;
 
 			// 순서: bold > italic > code > strikethrough
@@ -51,8 +68,8 @@ export function richTextToHtml(richText: RichTextItem[]): string {
 				content = `<strong>${content}</strong>`;
 			}
 
-			if (item.text.link?.url) {
-				content = `<a href="${escapeHtml(item.text.link.url)}">${content}</a>`;
+			if (href) {
+				content = `<a href="${escapeHtml(href)}">${content}</a>`;
 			}
 
 			return content;

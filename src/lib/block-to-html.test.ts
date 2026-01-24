@@ -57,6 +57,32 @@ describe("richTextToHtml", () => {
 		];
 		expect(richTextToHtml(richText)).toBe("&lt;script&gt;alert(&#039;xss&#039;)&lt;/script&gt;");
 	});
+
+	it("mention with href", () => {
+		const richText = [
+			{
+				type: "mention",
+				mention: { type: "page", page: { id: "abc123" } },
+				plain_text: "Linked Page",
+				href: "https://notion.so/abc123",
+				annotations: {},
+			},
+		];
+		expect(richTextToHtml(richText)).toBe('<a href="https://notion.so/abc123">Linked Page</a>');
+	});
+
+	it("mention with annotations", () => {
+		const richText = [
+			{
+				type: "mention",
+				mention: { type: "link_preview", link_preview: { url: "https://example.com" } },
+				plain_text: "Example",
+				href: "https://example.com",
+				annotations: { bold: true },
+			},
+		];
+		expect(richTextToHtml(richText)).toBe('<a href="https://example.com"><strong>Example</strong></a>');
+	});
 });
 
 describe("blockToHtml", () => {
