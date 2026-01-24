@@ -8,12 +8,19 @@
 - 본문 서체 Palatino로 변경 (크로스 플랫폼)
 - 태그 스타일 간소화 (comma-separated)
 - 링크 줄바꿈 개선 (`word-break: break-all`)
+- URL 구조 변경: `/posts` → `/publications`, `/thoughts`, `/notebooks`
+- 이미지 경로 구조: `/images/{type}/{slug}/`
+- RSS Feed: Publications만 포함
 
 ### Fixed
 - Notion mention 타입 rich text 파싱 지원
 - 빈 paragraph 렌더링 제거
 
 ### Added
+- 콘텐츠 타입 분리 (Publication, Thought, Notebook)
+- Nav 컴포넌트 (active 상태 bold + `aria-current`)
+- Index 페이지 스타일: Publications 카드, Thoughts 타임라인, Notebooks 리스트
+- 공통 타입 정의 (`src/types.ts`)
 - `fetch:notion` 스크립트 (Notion API v5)
 - Block → HTML 변환 모듈 (TDD)
 - Astro 페이지 생성 (홈, 개별 포스트)
