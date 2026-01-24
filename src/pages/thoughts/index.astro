@@ -1,48 +1,10 @@
 ---
-import fs from "node:fs";
-import path from "node:path";
-import { SITE } from "@/config";
 import Layout from "@/layouts/Layout.astro";
+import { formatDateShort } from "@/lib/format";
+import { getPostsByType, getPublishedDate, loadPublishedDates, sortByDate } from "@/lib/posts";
 
-interface Post {
-	id: string;
-	title: string;
-	slug: string;
-	type: string;
-	description: string | null;
-	tags: string[];
-	lastEditedTime: string;
-}
-
-const postsPath = path.join(process.cwd(), "data", "posts.json");
-const publishedDatesPath = path.join(process.cwd(), "data", "published-dates.json");
-
-let posts: Post[] = [];
-let publishedDates: Record<string, string> = {};
-
-if (fs.existsSync(postsPath)) {
-	const allPosts: Post[] = JSON.parse(fs.readFileSync(postsPath, "utf-8"));
-	posts = allPosts.filter((p) => p.type === "thought");
-}
-
-if (fs.existsSync(publishedDatesPath)) {
-	publishedDates = JSON.parse(fs.readFileSync(publishedDatesPath, "utf-8"));
-}
-
-// 출판일 기준 내림차순 정렬
-posts.sort((a, b) => {
-	const dateA = publishedDates[a.slug] || a.lastEditedTime;
-	const dateB = publishedDates[b.slug] || b.lastEditedTime;
-	return new Date(dateB).getTime() - new Date(dateA).getTime();
-});
-
-function formatDate(dateStr: string): string {
-	return new Date(dateStr).toLocaleDateString(SITE.language, {
-		year: "numeric",
-		month: "short",
-		day: "numeric",
-	});
-}
+const publishedDates = loadPublishedDates();
+const posts = sortByDate(getPostsByType("thought"), publishedDates);
 ---
 
 <Layout title="Thoughts">
@@ -55,14 +17,15 @@ function formatDate(dateStr: string): string {
 		<p>아직 글이 없습니다.</p>
 	) : (
 		<div class="timeline">
-			{posts.map((post) => (
-				<article>
-					<time datetime={publishedDates[post.slug] || post.lastEditedTime}>
-						{formatDate(publishedDates[post.slug] || post.lastEditedTime)}
-					</time>
-					<h3><a href={`/thoughts/${post.slug}`}>{post.title}</a></h3>
-				</article>
-			))}
+			{posts.map((post) => {
+				const date = getPublishedDate(post, publishedDates);
+				return (
+					<article>
+						<time datetime={date}>{formatDateShort(date)}</time>
+						<h3><a href={`/thoughts/${post.slug}`}>{post.title}</a></h3>
+					</article>
+				);
+			})}
 		</div>
 	)}
 </Layout>

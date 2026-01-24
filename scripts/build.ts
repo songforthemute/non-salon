@@ -2,12 +2,12 @@ import "dotenv/config";
 import { execSync } from "node:child_process";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
+import { PATHS } from "../src/config.js";
 import { cleanupOrphanedImages, processPostImages } from "../src/lib/image-handler.js";
 import type { ContentType } from "../src/types.js";
 
-const DATA_DIR = path.join(process.cwd(), "data");
-const POSTS_PATH = path.join(DATA_DIR, "posts.json");
-const PUBLISHED_DATES_PATH = path.join(DATA_DIR, "published-dates.json");
+const POSTS_PATH = path.join(process.cwd(), PATHS.posts);
+const PUBLISHED_DATES_PATH = path.join(process.cwd(), PATHS.publishedDates);
 
 interface Post {
 	id: string;

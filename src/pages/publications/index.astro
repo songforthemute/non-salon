@@ -1,48 +1,10 @@
 ---
-import fs from "node:fs";
-import path from "node:path";
-import { SITE } from "@/config";
 import Layout from "@/layouts/Layout.astro";
+import { formatDate } from "@/lib/format";
+import { getPostsByType, getPublishedDate, loadPublishedDates, sortByDate } from "@/lib/posts";
 
-interface Post {
-	id: string;
-	title: string;
-	slug: string;
-	type: string;
-	description: string | null;
-	tags: string[];
-	lastEditedTime: string;
-}
-
-const postsPath = path.join(process.cwd(), "data", "posts.json");
-const publishedDatesPath = path.join(process.cwd(), "data", "published-dates.json");
-
-let posts: Post[] = [];
-let publishedDates: Record<string, string> = {};
-
-if (fs.existsSync(postsPath)) {
-	const allPosts: Post[] = JSON.parse(fs.readFileSync(postsPath, "utf-8"));
-	posts = allPosts.filter((p) => p.type === "publication");
-}
-
-if (fs.existsSync(publishedDatesPath)) {
-	publishedDates = JSON.parse(fs.readFileSync(publishedDatesPath, "utf-8"));
-}
-
-// 출판일 기준 내림차순 정렬
-posts.sort((a, b) => {
-	const dateA = publishedDates[a.slug] || a.lastEditedTime;
-	const dateB = publishedDates[b.slug] || b.lastEditedTime;
-	return new Date(dateB).getTime() - new Date(dateA).getTime();
-});
-
-function formatDate(dateStr: string): string {
-	return new Date(dateStr).toLocaleDateString(SITE.language, {
-		year: "numeric",
-		month: "long",
-		day: "numeric",
-	});
-}
+const publishedDates = loadPublishedDates();
+const posts = sortByDate(getPostsByType("publication"), publishedDates);
 ---
 
 <Layout title="Publications">
@@ -55,18 +17,17 @@ function formatDate(dateStr: string): string {
 		<p>아직 글이 없습니다.</p>
 	) : (
 		<div class="posts">
-			{posts.map((post) => (
-				<article>
-					<h2><a href={`/publications/${post.slug}`}>{post.title}</a></h2>
-					<time datetime={publishedDates[post.slug] || post.lastEditedTime}>
-						{formatDate(publishedDates[post.slug] || post.lastEditedTime)}
-					</time>
-					{post.description && <p class="description">{post.description}</p>}
-					{post.tags.length > 0 && (
-						<p class="tags">{post.tags.join(", ")}</p>
-					)}
-				</article>
-			))}
+			{posts.map((post) => {
+				const date = getPublishedDate(post, publishedDates);
+				return (
+					<article>
+						<h2><a href={`/publications/${post.slug}`}>{post.title}</a></h2>
+						<time datetime={date}>{formatDate(date)}</time>
+						{post.description && <p class="description">{post.description}</p>}
+						{post.tags.length > 0 && <p class="tags">{post.tags.join(", ")}</p>}
+					</article>
+				);
+			})}
 		</div>
 	)}
 </Layout>

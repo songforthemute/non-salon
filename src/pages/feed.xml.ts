@@ -1,16 +1,5 @@
-import fs from "node:fs";
-import path from "node:path";
-import type { APIContext } from "astro";
 import { SITE } from "@/config";
-
-interface Post {
-	id: string;
-	title: string;
-	slug: string;
-	type: string;
-	description: string | null;
-	lastEditedTime: string;
-}
+import { getPostsByType, getPublishedDate, loadPublishedDates, sortByDate } from "@/lib/posts";
 
 function escapeXml(text: string): string {
 	return text
@@ -21,36 +10,13 @@ function escapeXml(text: string): string {
 		.replace(/'/g, "&apos;");
 }
 
-export async function GET({ site }: APIContext) {
-	const postsPath = path.join(process.cwd(), "data", "posts.json");
-	const publishedDatesPath = path.join(process.cwd(), "data", "published-dates.json");
+export async function GET() {
+	const publishedDates = loadPublishedDates();
+	const posts = sortByDate(getPostsByType("publication"), publishedDates).slice(0, 20);
 
-	let posts: Post[] = [];
-	let publishedDates: Record<string, string> = {};
-
-	if (fs.existsSync(postsPath)) {
-		const allPosts: Post[] = JSON.parse(fs.readFileSync(postsPath, "utf-8"));
-		// Publications만 RSS에 포함
-		posts = allPosts.filter((p) => p.type === "publication");
-	}
-
-	if (fs.existsSync(publishedDatesPath)) {
-		publishedDates = JSON.parse(fs.readFileSync(publishedDatesPath, "utf-8"));
-	}
-
-	// 출판일 기준 내림차순 정렬
-	posts.sort((a, b) => {
-		const dateA = publishedDates[a.slug] || a.lastEditedTime;
-		const dateB = publishedDates[b.slug] || b.lastEditedTime;
-		return new Date(dateB).getTime() - new Date(dateA).getTime();
-	});
-
-	// 최근 20개만
-	const recentPosts = posts.slice(0, 20);
-
-	const items = recentPosts
+	const items = posts
 		.map((post) => {
-			const pubDate = publishedDates[post.slug] || post.lastEditedTime.split("T")[0];
+			const pubDate = getPublishedDate(post, publishedDates);
 			const description = post.description || `${post.title} - ${SITE.name}`;
 
 			return `    <item>
