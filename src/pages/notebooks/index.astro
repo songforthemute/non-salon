@@ -1,0 +1,102 @@
+---
+import fs from "node:fs";
+import path from "node:path";
+import { SITE } from "@/config";
+import Layout from "@/layouts/Layout.astro";
+
+interface Post {
+	id: string;
+	title: string;
+	slug: string;
+	type: string;
+	description: string | null;
+	tags: string[];
+	lastEditedTime: string;
+}
+
+const postsPath = path.join(process.cwd(), "data", "posts.json");
+const publishedDatesPath = path.join(process.cwd(), "data", "published-dates.json");
+
+let posts: Post[] = [];
+let publishedDates: Record<string, string> = {};
+
+if (fs.existsSync(postsPath)) {
+	const allPosts: Post[] = JSON.parse(fs.readFileSync(postsPath, "utf-8"));
+	posts = allPosts.filter((p) => p.type === "notebook");
+}
+
+if (fs.existsSync(publishedDatesPath)) {
+	publishedDates = JSON.parse(fs.readFileSync(publishedDatesPath, "utf-8"));
+}
+
+// 출판일 기준 내림차순 정렬
+posts.sort((a, b) => {
+	const dateA = publishedDates[a.slug] || a.lastEditedTime;
+	const dateB = publishedDates[b.slug] || b.lastEditedTime;
+	return new Date(dateB).getTime() - new Date(dateA).getTime();
+});
+
+function formatDate(dateStr: string): string {
+	return new Date(dateStr).toLocaleDateString(SITE.language, {
+		year: "numeric",
+		month: "short",
+		day: "numeric",
+	});
+}
+---
+
+<Layout title="Notebooks">
+	<header>
+		<h1>Notebooks</h1>
+		<p class="subtitle">학습 메모, 코드 스니펫, 실험</p>
+	</header>
+
+	{posts.length === 0 ? (
+		<p>아직 글이 없습니다.</p>
+	) : (
+		<ul class="notebook-list">
+			{posts.map((post) => (
+				<li>
+					<time datetime={publishedDates[post.slug] || post.lastEditedTime}>
+						{formatDate(publishedDates[post.slug] || post.lastEditedTime)}
+					</time>
+					<a href={`/notebooks/${post.slug}`}>{post.title}</a>
+				</li>
+			))}
+		</ul>
+	)}
+</Layout>
+
+<style>
+	header {
+		margin-bottom: 2rem;
+	}
+	.subtitle {
+		color: #666;
+		margin-top: 0.5rem;
+	}
+	.notebook-list {
+		list-style: none;
+		padding: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+	}
+	.notebook-list li {
+		display: flex;
+		align-items: baseline;
+		gap: 1rem;
+	}
+	.notebook-list time {
+		flex-shrink: 0;
+		width: 6rem;
+		color: #666;
+		font-size: 0.875rem;
+	}
+	.notebook-list a {
+		text-decoration: none;
+	}
+	.notebook-list a:hover {
+		text-decoration: underline;
+	}
+</style>

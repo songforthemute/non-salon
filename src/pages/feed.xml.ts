@@ -1,12 +1,13 @@
-import type { APIContext } from "astro";
 import fs from "node:fs";
 import path from "node:path";
+import type { APIContext } from "astro";
 import { SITE } from "@/config";
 
 interface Post {
 	id: string;
 	title: string;
 	slug: string;
+	type: string;
 	description: string | null;
 	lastEditedTime: string;
 }
@@ -28,7 +29,9 @@ export async function GET({ site }: APIContext) {
 	let publishedDates: Record<string, string> = {};
 
 	if (fs.existsSync(postsPath)) {
-		posts = JSON.parse(fs.readFileSync(postsPath, "utf-8"));
+		const allPosts: Post[] = JSON.parse(fs.readFileSync(postsPath, "utf-8"));
+		// Publications만 RSS에 포함
+		posts = allPosts.filter((p) => p.type === "publication");
 	}
 
 	if (fs.existsSync(publishedDatesPath)) {
@@ -52,8 +55,8 @@ export async function GET({ site }: APIContext) {
 
 			return `    <item>
       <title>${escapeXml(post.title)}</title>
-      <link>${SITE.url}/posts/${post.slug}</link>
-      <guid isPermaLink="true">${SITE.url}/posts/${post.slug}</guid>
+      <link>${SITE.url}/publications/${post.slug}</link>
+      <guid isPermaLink="true">${SITE.url}/publications/${post.slug}</guid>
       <description>${escapeXml(description)}</description>
       <pubDate>${new Date(pubDate).toUTCString()}</pubDate>
     </item>`;

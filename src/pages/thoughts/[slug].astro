@@ -1,14 +1,15 @@
 ---
-import Layout from "@/layouts/Layout.astro";
-import { SITE } from "@/config";
-import { blocksToHtml } from "@/lib/block-to-html";
 import fs from "node:fs";
 import path from "node:path";
+import { SITE } from "@/config";
+import Layout from "@/layouts/Layout.astro";
+import { blocksToHtml } from "@/lib/block-to-html";
 
 interface Post {
 	id: string;
 	title: string;
 	slug: string;
+	type: string;
 	description: string | null;
 	tags: string[];
 	lastUpdated: string | null;
@@ -24,8 +25,9 @@ export function getStaticPaths() {
 	}
 
 	const posts: Post[] = JSON.parse(fs.readFileSync(postsPath, "utf-8"));
+	const thoughts = posts.filter((p) => p.type === "thought");
 
-	return posts.map((post) => ({
+	return thoughts.map((post) => ({
 		params: { slug: post.slug },
 		props: { post },
 	}));

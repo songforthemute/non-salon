@@ -1,4 +1,5 @@
 ---
+import Nav from "@/components/Nav.astro";
 import { SITE } from "@/config";
 
 interface Props {
@@ -33,10 +34,8 @@ const canonicalUrl = Astro.url.href.replace(Astro.url.origin, SITE.url);
 	</head>
 	<body>
 		<header>
-			<nav>
-				<a href="/">{SITE.name}</a>
-				<div id="search"></div>
-			</nav>
+			<Nav />
+			<div id="search"></div>
 		</header>
 		<script>
 			window.addEventListener("DOMContentLoaded", () => {

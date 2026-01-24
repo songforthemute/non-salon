@@ -104,10 +104,12 @@ async function downloadImage(url: string, destPath: string): Promise<string> {
 }
 
 export async function processPostImages(
+	type: string,
 	slug: string,
 	blocks: Block[],
 ): Promise<{ blocks: Block[]; downloadedCount: number }> {
-	const postImageDir = path.join(PUBLIC_IMAGES_DIR, slug);
+	// /images/{type}/{slug}/ 구조
+	const postImageDir = path.join(PUBLIC_IMAGES_DIR, type, slug);
 
 	// 기존 이미지 폴더 삭제 후 재생성 (PRD: 전체 재다운로드)
 	await fs.rm(postImageDir, { recursive: true, force: true });
@@ -129,7 +131,7 @@ export async function processPostImages(
 
 		try {
 			const finalPath = await downloadImage(img.originalUrl, tempPath);
-			const relativePath = `/images/${slug}/${path.basename(finalPath)}`;
+			const relativePath = `/images/${type}/${slug}/${path.basename(finalPath)}`;
 			urlMapping[img.originalUrl] = relativePath;
 			console.log(`  📷 ${path.basename(finalPath)}`);
 		} catch (error) {
@@ -168,16 +170,34 @@ export async function processPostImages(
 	};
 }
 
-export async function cleanupOrphanedImages(currentSlugs: Set<string>): Promise<number> {
+export async function cleanupOrphanedImages(
+	currentPosts: Array<{ type: string; slug: string }>,
+): Promise<number> {
 	let removedCount = 0;
+	const validPaths = new Set(currentPosts.map((p) => `${p.type}/${p.slug}`));
 
 	try {
-		const dirs = await fs.readdir(PUBLIC_IMAGES_DIR);
+		const types = await fs.readdir(PUBLIC_IMAGES_DIR);
 
-		for (const dir of dirs) {
-			if (!currentSlugs.has(dir)) {
-				await fs.rm(path.join(PUBLIC_IMAGES_DIR, dir), { recursive: true, force: true });
-				removedCount++;
+		for (const type of types) {
+			const typePath = path.join(PUBLIC_IMAGES_DIR, type);
+			const stat = await fs.stat(typePath);
+
+			if (!stat.isDirectory()) continue;
+
+			const slugs = await fs.readdir(typePath);
+
+			for (const slug of slugs) {
+				if (!validPaths.has(`${type}/${slug}`)) {
+					await fs.rm(path.join(typePath, slug), { recursive: true, force: true });
+					removedCount++;
+				}
+			}
+
+			// 빈 type 폴더도 삭제
+			const remaining = await fs.readdir(typePath);
+			if (remaining.length === 0) {
+				await fs.rm(typePath, { recursive: true, force: true });
 			}
 		}
 	} catch {

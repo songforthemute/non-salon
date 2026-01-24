@@ -7,6 +7,7 @@ import type {
 	PageObjectResponse,
 	RichTextItemResponse,
 } from "@notionhq/client/build/src/api-endpoints";
+import { CONTENT_TYPES, type ContentType } from "../src/types.js";
 
 const DATA_DIR = path.join(process.cwd(), "data");
 
@@ -17,6 +18,7 @@ interface Post {
 	id: string;
 	title: string;
 	slug: string;
+	type: ContentType;
 	status: string;
 	description: string | null;
 	tags: string[];
@@ -37,6 +39,12 @@ function extractPostProperties(page: PageObjectResponse): Omit<Post, "blocks"> {
 
 	const slugProp = props.Slug;
 	const slug = slugProp.type === "rich_text" ? getRichTextContent(slugProp.rich_text) : "";
+
+	const typeProp = props.Type;
+	const typeRaw = typeProp?.type === "select" ? (typeProp.select?.name?.toLowerCase() ?? "") : "";
+	const type: ContentType = CONTENT_TYPES.includes(typeRaw as ContentType)
+		? (typeRaw as ContentType)
+		: "publication";
 
 	const statusProp = props.Status;
 	const status = statusProp.type === "status" ? (statusProp.status?.name ?? "") : "";
@@ -60,6 +68,7 @@ function extractPostProperties(page: PageObjectResponse): Omit<Post, "blocks"> {
 		id: page.id,
 		title,
 		slug,
+		type,
 		status,
 		description,
 		tags,

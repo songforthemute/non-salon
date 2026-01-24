@@ -1,8 +1,9 @@
 import "dotenv/config";
+import { execSync } from "node:child_process";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
-import { execSync } from "node:child_process";
-import { processPostImages, cleanupOrphanedImages } from "../src/lib/image-handler.js";
+import { cleanupOrphanedImages, processPostImages } from "../src/lib/image-handler.js";
+import type { ContentType } from "../src/types.js";
 
 const DATA_DIR = path.join(process.cwd(), "data");
 const POSTS_PATH = path.join(DATA_DIR, "posts.json");
@@ -12,6 +13,7 @@ interface Post {
 	id: string;
 	title: string;
 	slug: string;
+	type: ContentType;
 	blocks: unknown[];
 }
 
@@ -82,15 +84,17 @@ async function main() {
 	for (const post of posts) {
 		console.log(`Processing: ${post.title}`);
 		const { blocks, downloadedCount } = await processPostImages(
+			post.type,
 			post.slug,
-			post.blocks as Parameters<typeof processPostImages>[1],
+			post.blocks as Parameters<typeof processPostImages>[2],
 		);
 		post.blocks = blocks;
 		totalImages += downloadedCount;
 	}
 
 	// 8. 삭제된 글의 이미지 폴더 정리
-	const removedImageDirs = await cleanupOrphanedImages(currentSlugs);
+	const currentPosts = posts.map((p) => ({ type: p.type, slug: p.slug }));
+	const removedImageDirs = await cleanupOrphanedImages(currentPosts);
 	if (removedImageDirs > 0) {
 		console.log(`🗑️  Cleaned up ${removedImageDirs} orphaned image directories`);
 	}

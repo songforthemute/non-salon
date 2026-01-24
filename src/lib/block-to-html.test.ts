@@ -81,7 +81,9 @@ describe("richTextToHtml", () => {
 				annotations: { bold: true },
 			},
 		];
-		expect(richTextToHtml(richText)).toBe('<a href="https://example.com"><strong>Example</strong></a>');
+		expect(richTextToHtml(richText)).toBe(
+			'<a href="https://example.com"><strong>Example</strong></a>',
+		);
 	});
 });
 
