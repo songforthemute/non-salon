@@ -1,7 +1,7 @@
 # Notion Blog - Phase 2 PRD: Static Pages & Content Sections
 
-**Version:** 2.0 Final  
-**Date:** 2025-01-22  
+**Version:** 2.1 Draft
+**Date:** 2025-01-25  
 **Author:** songforthemute  
 **Blog:** whitespace  
 **Dependency:** Phase 1 완료 필요
@@ -30,10 +30,10 @@ Phase 1의 블로그 시스템을 확장하여 다양한 콘텐츠 섹션과 정
   - Thoughts (짧은 에세이)
   - Notebooks (학습 메모, 스니펫)
 
-정적 페이지:
-  - Landing (/)
-  - Whois (소개)
-  - Resume (이력서)
+정적 페이지 (TODO):
+  - Landing (/) - 동적 섹션 구현 방식 미정
+  - Whois (소개) - 스타일 미정
+  - Resume (이력서) - outlink 가능성
 
 기타:
   - 전역 Navigation
@@ -1025,9 +1025,8 @@ Analytics:
      - 코드는 렌더링만
      - 퍼블릭 리포지터리
 
-  ✅ 2개 Database
-     - Content (publications, thoughts, notebooks)
-     - Static Pages (landing, whois, resume)
+  ✅ Content Database
+     - Type: publication, thought, notebook
 
   ✅ 통합 RSS (모든 타입)
 
@@ -1035,10 +1034,13 @@ Analytics:
 
   ✅ 증분 빌드 유지
 
-미결정:
+미결정 (TODO):
+  🤔 Static Pages (Landing, Whois, Resume)
+     - DB 구조 미정 (별도 DB vs Content DB 통합)
+     - Resume는 outlink 가능성 있음
+  🤔 Landing 동적 섹션 구현 방법 (일단 빈 페이지로)
   🤔 Whois 스타일 (일반 vs 터미널)
   🤔 Resume PDF 생성 방식
-  🤔 Landing 동적 섹션 구현 방법
 ```
 
 ---
