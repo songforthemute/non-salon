@@ -41,7 +41,12 @@ function extractPostProperties(page: PageObjectResponse): Omit<Post, "blocks"> {
 	const slug = slugProp.type === "rich_text" ? getRichTextContent(slugProp.rich_text) : "";
 
 	const typeProp = props.Type;
-	const typeRaw = typeProp?.type === "select" ? (typeProp.select?.name?.toLowerCase() ?? "") : "";
+	const typeRaw =
+		typeProp?.type === "select"
+			? (typeProp.select?.name?.toLowerCase() ?? "")
+			: typeProp?.type === "status"
+				? (typeProp.status?.name?.toLowerCase() ?? "")
+				: "";
 	const type: ContentType = CONTENT_TYPES.includes(typeRaw as ContentType)
 		? (typeRaw as ContentType)
 		: "publication";
