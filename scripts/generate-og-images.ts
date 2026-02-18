@@ -21,10 +21,10 @@ function truncateTitle(title: string): string {
 function buildSvg(title: string, subtitle: string): string {
 	return `<svg width="${WIDTH}" height="${HEIGHT}" xmlns="http://www.w3.org/2000/svg">
   <rect fill="#ffffff" width="${WIDTH}" height="${HEIGHT}"/>
-  <text x="100" y="315" font-size="48" font-family="${FONT_FAMILY}" fill="#000000">
+  <text x="100" y="315" font-size="48" font-family='${FONT_FAMILY}' fill="#000000">
     ${escapeHtml(truncateTitle(title))}
   </text>
-  <text x="100" y="380" font-size="24" font-family="${FONT_FAMILY}" fill="#666666">
+  <text x="100" y="380" font-size="24" font-family='${FONT_FAMILY}' fill="#666666">
     ${escapeHtml(subtitle)}
   </text>
 </svg>`;
