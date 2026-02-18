@@ -3,7 +3,7 @@
 **Version:** 2.1 Draft
 **Date:** 2025-01-25  
 **Author:** songforthemute  
-**Blog:** whitespace  
+**Blog:** non.salon
 **Dependency:** Phase 1 완료 필요
 
 ---
@@ -464,7 +464,7 @@ Static Pages Database
 Page: Landing
 
 Content:
-  # whitespace
+  # non.salon
 
   Frontend Developer & Blockchain Enthusiast
 
@@ -643,13 +643,13 @@ async function buildResumePage(page) {
 <?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0">
   <channel>
-    <title>whitespace</title>
-    <link>https://whitespace.dev</link>
+    <title>non.salon</title>
+    <link>https://non.salon</link>
     <description>Publications by songforthemute</description>
 
     <item>
       <title>React Performance Optimization</title>
-      <link>https://whitespace.dev/publications/react-perf</link>
+      <link>https://non.salon/publications/react-perf</link>
       <pubDate>Thu, 22 Jan 2025 00:00:00 GMT</pubDate>
       <description>...</description>
     </item>
@@ -671,55 +671,55 @@ async function buildResumePage(page) {
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <!-- Landing -->
   <url>
-    <loc>https://whitespace.dev/</loc>
+    <loc>https://non.salon/</loc>
     <lastmod>2025-01-22</lastmod>
     <priority>1.0</priority>
   </url>
 
   <!-- Static Pages -->
   <url>
-    <loc>https://whitespace.dev/whois</loc>
+    <loc>https://non.salon/whois</loc>
     <lastmod>2025-01-20</lastmod>
     <priority>0.8</priority>
   </url>
 
   <url>
-    <loc>https://whitespace.dev/resume</loc>
+    <loc>https://non.salon/resume</loc>
     <lastmod>2025-01-15</lastmod>
     <priority>0.8</priority>
   </url>
 
   <!-- Index Pages -->
   <url>
-    <loc>https://whitespace.dev/publications</loc>
+    <loc>https://non.salon/publications</loc>
     <priority>0.9</priority>
   </url>
 
   <url>
-    <loc>https://whitespace.dev/thoughts</loc>
+    <loc>https://non.salon/thoughts</loc>
     <priority>0.7</priority>
   </url>
 
   <url>
-    <loc>https://whitespace.dev/notebooks</loc>
+    <loc>https://non.salon/notebooks</loc>
     <priority>0.7</priority>
   </url>
 
   <!-- Content -->
   <url>
-    <loc>https://whitespace.dev/publications/react-perf</loc>
+    <loc>https://non.salon/publications/react-perf</loc>
     <lastmod>2025-01-22</lastmod>
     <priority>0.6</priority>
   </url>
 
   <url>
-    <loc>https://whitespace.dev/thoughts/ai-era</loc>
+    <loc>https://non.salon/thoughts/ai-era</loc>
     <lastmod>2025-01-21</lastmod>
     <priority>0.5</priority>
   </url>
 
   <url>
-    <loc>https://whitespace.dev/notebooks/css-grid</loc>
+    <loc>https://non.salon/notebooks/css-grid</loc>
     <lastmod>2025-01-20</lastmod>
     <priority>0.4</priority>
   </url>
@@ -741,7 +741,7 @@ import { getAllContent } from '../../lib/notion';
 const publications = await getAllContent('publication');
 ---
 
-<Layout title="Publications - whitespace">
+<Layout title="Publications - non.salon">
   <header>
     <h1>📰 Publications</h1>
     <p>긴 기술 글, 튜토리얼, 심층 분석</p>
@@ -770,7 +770,7 @@ const publications = await getAllContent('publication');
 const thoughts = await getAllContent('thought');
 ---
 
-<Layout title="Thoughts - whitespace">
+<Layout title="Thoughts - non.salon">
   <header>
     <h1>💭 Thoughts</h1>
     <p>짧은 에세이, 생각, 관점</p>
@@ -796,7 +796,7 @@ const thoughts = await getAllContent('thought');
 const notebooks = await getAllContent('notebook');
 ---
 
-<Layout title="Notebooks - whitespace">
+<Layout title="Notebooks - non.salon">
   <header>
     <h1>📓 Notebooks</h1>
     <p>학습 메모, 코드 스니펫, 실험</p>
@@ -1025,7 +1025,7 @@ Analytics:
 
 ```yaml
 확정사항:
-  ✅ Blog: whitespace
+  ✅ Blog: non.salon
   ✅ Author: songforthemute
   ✅ Status: Draft / Published / Archived
 
@@ -1135,9 +1135,9 @@ Analytics:
   ✅ 독특하면서도 의미있음
 
 도메인 추천:
-  - whitespace.dev ⭐
+  - non.salon ⭐
   - whitespace.io
-  - whitespace.blog
+  - non.salon
   - songforthemute.dev
 ```
 

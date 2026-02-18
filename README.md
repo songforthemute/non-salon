@@ -1,4 +1,4 @@
-# whitespace
+# non.salon
 
 Notion 기반 미니멀 정적 블로그.
 
