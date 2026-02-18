@@ -7,11 +7,11 @@ const publishedDates = loadPublishedDates();
 const posts = sortByDate(getPostsByType("thought"), publishedDates);
 ---
 
-<Layout title="Thoughts" showSearch>
+<Layout title="Thoughts" description="Short essays" showSearch>
 	<h1>Thoughts</h1>
 
 	{posts.length === 0 ? (
-		<p>아직 글이 없습니다.</p>
+		<p>No posts yet.</p>
 	) : (
 		<div class="timeline">
 			{posts.map((post) => {
@@ -44,8 +44,8 @@ const posts = sortByDate(getPostsByType("thought"), publishedDates);
 	article time {
 		flex-shrink: 0;
 		width: 6rem;
-		color: #666;
-		font-size: 0.875rem;
+		color: var(--color-muted);
+		font-size: var(--font-size-sm);
 	}
 	article h3 {
 		margin: 0;

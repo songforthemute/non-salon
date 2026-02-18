@@ -7,11 +7,11 @@ const publishedDates = loadPublishedDates();
 const posts = sortByDate(getPostsByType("publication"), publishedDates);
 ---
 
-<Layout title="Publications" showSearch>
+<Layout title="Publications" description="Long-form writing" showSearch>
 	<h1>Publications</h1>
 
 	{posts.length === 0 ? (
-		<p>아직 글이 없습니다.</p>
+		<p>No posts yet.</p>
 	) : (
 		<div class="posts">
 			{posts.map((post) => {
@@ -40,7 +40,7 @@ const posts = sortByDate(getPostsByType("publication"), publishedDates);
 	}
 	article {
 		padding-bottom: 2rem;
-		border-bottom: 1px solid #eee;
+		border-bottom: 1px solid var(--color-border);
 	}
 	article:last-child {
 		border-bottom: none;
@@ -56,16 +56,16 @@ const posts = sortByDate(getPostsByType("publication"), publishedDates);
 	}
 	article time {
 		display: block;
-		color: #666;
-		font-size: 0.875rem;
+		color: var(--color-muted);
+		font-size: var(--font-size-sm);
 	}
 	.description {
 		margin-top: 0.5rem;
-		color: #444;
+		color: var(--color-subtle);
 	}
 	.tags {
 		margin-top: 0.5rem;
-		font-size: 0.875rem;
-		color: #666;
+		font-size: var(--font-size-sm);
+		color: var(--color-muted);
 	}
 </style>
