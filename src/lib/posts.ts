@@ -31,13 +31,17 @@ export function sortByDate(
 	order: "asc" | "desc" = "desc",
 ): Post[] {
 	return [...posts].sort((a, b) => {
-		const dateA = publishedDates[a.slug] || a.lastEditedTime;
-		const dateB = publishedDates[b.slug] || b.lastEditedTime;
+		const dateA = a.publishedDate || publishedDates[a.slug] || a.lastEditedTime;
+		const dateB = b.publishedDate || publishedDates[b.slug] || b.lastEditedTime;
 		const diff = new Date(dateB).getTime() - new Date(dateA).getTime();
-		return order === "desc" ? diff : -diff;
+		if (diff !== 0) return order === "desc" ? diff : -diff;
+
+		// 동점 시 createdTime으로 tiebreak
+		const tiebreak = new Date(b.createdTime).getTime() - new Date(a.createdTime).getTime();
+		return order === "desc" ? tiebreak : -tiebreak;
 	});
 }
 
 export function getPublishedDate(post: Post, publishedDates: Record<string, string>): string {
-	return publishedDates[post.slug] || post.lastEditedTime.split("T")[0];
+	return post.publishedDate || publishedDates[post.slug] || post.lastEditedTime.split("T")[0];
 }

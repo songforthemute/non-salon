@@ -47,8 +47,9 @@ async function main() {
 	const today = new Date().toISOString().split("T")[0];
 	let newPostCount = 0;
 
-	// 4. 새 글에 출판일 부여
+	// 4. 새 글에 출판일 부여 (Notion Published Date가 지정된 글은 건너뜀)
 	for (const post of posts) {
+		if (post.publishedDate) continue;
 		if (!publishedDates[post.slug]) {
 			publishedDates[post.slug] = today;
 			console.log(`📅 New post: "${post.title}" → ${today}`);

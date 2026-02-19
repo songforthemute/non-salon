@@ -49,5 +49,8 @@ export interface Post {
 	tags: string[];
 	lastUpdated: string | null;
 	lastEditedTime: string;
+	createdTime: string;
+	// Notion "Published Date" 프로퍼티 — null이면 published-dates.json fallback
+	publishedDate: string | null;
 	blocks: Block[];
 }

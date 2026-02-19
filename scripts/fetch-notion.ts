@@ -59,6 +59,11 @@ function extractPostProperties(page: PageObjectResponse): Omit<FetchedPost, "blo
 				? lastUpdatedProp.last_edited_time
 				: null;
 
+	// Notion "Published Date" 프로퍼티 — 사용자가 직접 지정한 게시일
+	const publishedDateProp = props["Published Date"];
+	const publishedDate =
+		publishedDateProp?.type === "date" ? (publishedDateProp.date?.start ?? null) : null;
+
 	return {
 		id: page.id,
 		title,
@@ -69,6 +74,8 @@ function extractPostProperties(page: PageObjectResponse): Omit<FetchedPost, "blo
 		tags,
 		lastUpdated,
 		lastEditedTime: page.last_edited_time,
+		createdTime: page.created_time,
+		publishedDate,
 	};
 }
 
@@ -127,6 +134,7 @@ async function fetchPublishedPosts(notion: Client, dataSourceId: string): Promis
 				property: "Status",
 				status: { equals: "Published" },
 			},
+			sorts: [{ timestamp: "created_time", direction: "descending" }],
 			start_cursor: cursor,
 		});
 
