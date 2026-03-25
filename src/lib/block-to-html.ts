@@ -15,6 +15,19 @@ function getImageUrl(image: {
 	return "";
 }
 
+const CONTAINER_CLOSING_TAGS: Record<string, string> = {
+	quote: "</blockquote>",
+	callout: "</aside>",
+};
+
+function insertChildren(type: string, html: string, childrenHtml: string): string {
+	const closingTag = CONTAINER_CLOSING_TAGS[type];
+	if (closingTag) {
+		return html.replace(closingTag, `${childrenHtml}${closingTag}`);
+	}
+	return `${html}<div class="indent">${childrenHtml}</div>`;
+}
+
 export function richTextToHtml(richText: RichTextItem[]): string {
 	return richText
 		.map((item) => {
@@ -82,9 +95,20 @@ export function blockToHtml(block: Block): string {
 			return `<h4>${richTextToHtml(data.rich_text)}</h4>`;
 		}
 
+		case "heading_4": {
+			const data = block.heading_4 as { rich_text: RichTextItem[] };
+			return `<h5>${richTextToHtml(data.rich_text)}</h5>`;
+		}
+
 		case "quote": {
 			const data = block.quote as { rich_text: RichTextItem[] };
 			return `<blockquote>${richTextToHtml(data.rich_text)}</blockquote>`;
+		}
+
+		case "callout": {
+			const data = block.callout as { rich_text: RichTextItem[]; icon?: { emoji?: string } };
+			const icon = data.icon?.emoji ? `<span>${data.icon.emoji}</span> ` : "";
+			return `<aside>${icon}${richTextToHtml(data.rich_text)}</aside>`;
 		}
 
 		case "code": {
@@ -137,7 +161,6 @@ export function blocksToHtml(blocks: Block[]): string {
 		const block = blocks[i];
 		const { type } = block;
 
-		// 리스트 그룹핑
 		if (type === "bulleted_list_item" || type === "numbered_list_item") {
 			const tag = type === "bulleted_list_item" ? "ul" : "ol";
 			const items: string[] = [];
@@ -146,10 +169,8 @@ export function blocksToHtml(blocks: Block[]): string {
 				const currentBlock = blocks[i];
 				let itemHtml = blockToHtml(currentBlock);
 
-				// 중첩 리스트 처리
 				if (currentBlock.children && currentBlock.children.length > 0) {
 					const nestedHtml = blocksToHtml(currentBlock.children);
-					// </li> 앞에 중첩 리스트 삽입
 					itemHtml = itemHtml.replace("</li>", `${nestedHtml}</li>`);
 				}
 
@@ -159,7 +180,11 @@ export function blocksToHtml(blocks: Block[]): string {
 
 			result.push(`<${tag}>${items.join("")}</${tag}>`);
 		} else {
-			const html = blockToHtml(block);
+			let html = blockToHtml(block);
+			if (html && block.children && block.children.length > 0) {
+				const childrenHtml = blocksToHtml(block.children);
+				html = insertChildren(type, html, childrenHtml);
+			}
 			if (html) {
 				result.push(html);
 			}

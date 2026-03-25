@@ -39,7 +39,7 @@ Astro Content Collections를 사용하지 않음. `data/posts.json`은 gitignore
 
 **게시일 영속화:** `data/published-dates.json`에 slug별 최초 발견 날짜 기록. 삭제된 slug는 정리됨.
 
-**Block → HTML 변환:** `src/lib/block-to-html.ts`에서 Notion 블록을 직접 HTML로 변환 (서드파티 없음). Heading 레벨 시프트: `heading_1` → `<h2>`, `heading_2` → `<h3>`, `heading_3` → `<h4>`.
+**Block → HTML 변환:** `src/lib/block-to-html.ts`에서 Notion 블록을 직접 HTML로 변환 (서드파티 없음). Heading 레벨 시프트: `heading_1` → `<h2>`, `heading_2` → `<h3>`, `heading_3` → `<h4>`, `heading_4` → `<h5>`. Callout → `<aside>`. 비-리스트 블록의 children은 `<div class="indent">`로 렌더링 (재귀, 최대 4단계).
 
 **OG 이미지:** `functions/api/og-image.ts` — Cloudflare Pages Function으로 SVG 동적 생성.
 
