@@ -136,6 +136,16 @@ describe("blockToHtml", () => {
 		expect(blockToHtml(block)).toBe("<h4>Section</h4>");
 	});
 
+	it("heading_4 → h5", () => {
+		const block = {
+			type: "heading_4",
+			heading_4: {
+				rich_text: [{ type: "text", text: { content: "Detail" }, annotations: {} }],
+			},
+		};
+		expect(blockToHtml(block)).toBe("<h5>Detail</h5>");
+	});
+
 	it("quote", () => {
 		const block = {
 			type: "quote",
@@ -208,6 +218,27 @@ describe("blockToHtml", () => {
 		expect(blockToHtml(block)).toBe(
 			'<figure><img src="https://example.com/image.png" alt=""></figure>',
 		);
+	});
+
+	it("callout with icon", () => {
+		const block = {
+			type: "callout",
+			callout: {
+				rich_text: [{ type: "text", text: { content: "Note here" }, annotations: {} }],
+				icon: { emoji: "💡" },
+			},
+		};
+		expect(blockToHtml(block)).toBe("<aside><span>💡</span> Note here</aside>");
+	});
+
+	it("callout without icon", () => {
+		const block = {
+			type: "callout",
+			callout: {
+				rich_text: [{ type: "text", text: { content: "Plain callout" }, annotations: {} }],
+			},
+		};
+		expect(blockToHtml(block)).toBe("<aside>Plain callout</aside>");
 	});
 
 	it("unsupported block returns empty", () => {
@@ -295,5 +326,187 @@ describe("blocksToHtml", () => {
 			},
 		];
 		expect(blocksToHtml(blocks)).toBe("<p>Intro</p><ul><li>Item</li></ul><p>Outro</p>");
+	});
+
+	it("paragraph with indented children", () => {
+		const blocks = [
+			{
+				type: "paragraph",
+				paragraph: {
+					rich_text: [{ type: "text", text: { content: "Parent" }, annotations: {} }],
+				},
+				children: [
+					{
+						type: "paragraph",
+						paragraph: {
+							rich_text: [{ type: "text", text: { content: "Indented" }, annotations: {} }],
+						},
+					},
+				],
+			},
+		];
+		expect(blocksToHtml(blocks)).toBe('<p>Parent</p><div class="indent"><p>Indented</p></div>');
+	});
+
+	it("quote with nested children renders inside blockquote", () => {
+		const blocks = [
+			{
+				type: "quote",
+				quote: {
+					rich_text: [{ type: "text", text: { content: "Main quote" }, annotations: {} }],
+				},
+				children: [
+					{
+						type: "paragraph",
+						paragraph: {
+							rich_text: [{ type: "text", text: { content: "Attribution" }, annotations: {} }],
+						},
+					},
+				],
+			},
+		];
+		expect(blocksToHtml(blocks)).toBe("<blockquote>Main quote<p>Attribution</p></blockquote>");
+	});
+
+	it("callout with nested children renders inside aside", () => {
+		const blocks = [
+			{
+				type: "callout",
+				callout: {
+					rich_text: [{ type: "text", text: { content: "Tip" }, annotations: {} }],
+					icon: { emoji: "💡" },
+				},
+				children: [
+					{
+						type: "paragraph",
+						paragraph: {
+							rich_text: [{ type: "text", text: { content: "Details" }, annotations: {} }],
+						},
+					},
+				],
+			},
+		];
+		expect(blocksToHtml(blocks)).toBe("<aside><span>💡</span> Tip<p>Details</p></aside>");
+	});
+
+	it("4-level nested list", () => {
+		const blocks = [
+			{
+				type: "bulleted_list_item",
+				bulleted_list_item: {
+					rich_text: [{ type: "text", text: { content: "L1" }, annotations: {} }],
+				},
+				children: [
+					{
+						type: "bulleted_list_item",
+						bulleted_list_item: {
+							rich_text: [{ type: "text", text: { content: "L2" }, annotations: {} }],
+						},
+						children: [
+							{
+								type: "bulleted_list_item",
+								bulleted_list_item: {
+									rich_text: [{ type: "text", text: { content: "L3" }, annotations: {} }],
+								},
+								children: [
+									{
+										type: "bulleted_list_item",
+										bulleted_list_item: {
+											rich_text: [{ type: "text", text: { content: "L4" }, annotations: {} }],
+										},
+									},
+								],
+							},
+						],
+					},
+				],
+			},
+		];
+		expect(blocksToHtml(blocks)).toBe(
+			"<ul><li>L1<ul><li>L2<ul><li>L3<ul><li>L4</li></ul></li></ul></li></ul></li></ul>",
+		);
+	});
+
+	it("heading with indented children", () => {
+		const blocks = [
+			{
+				type: "heading_2",
+				heading_2: {
+					rich_text: [{ type: "text", text: { content: "Title" }, annotations: {} }],
+				},
+				children: [
+					{
+						type: "paragraph",
+						paragraph: {
+							rich_text: [{ type: "text", text: { content: "Under heading" }, annotations: {} }],
+						},
+					},
+				],
+			},
+		];
+		expect(blocksToHtml(blocks)).toBe(
+			'<h3>Title</h3><div class="indent"><p>Under heading</p></div>',
+		);
+	});
+
+	it("code block with indented children", () => {
+		const blocks = [
+			{
+				type: "code",
+				code: {
+					rich_text: [{ type: "text", text: { content: "fn()" }, annotations: {} }],
+					language: "js",
+				},
+				children: [
+					{
+						type: "paragraph",
+						paragraph: {
+							rich_text: [{ type: "text", text: { content: "Explanation" }, annotations: {} }],
+						},
+					},
+				],
+			},
+		];
+		expect(blocksToHtml(blocks)).toBe(
+			'<pre><code>fn()</code></pre><div class="indent"><p>Explanation</p></div>',
+		);
+	});
+
+	it("4-level deep indented paragraphs", () => {
+		const blocks = [
+			{
+				type: "paragraph",
+				paragraph: {
+					rich_text: [{ type: "text", text: { content: "L1" }, annotations: {} }],
+				},
+				children: [
+					{
+						type: "paragraph",
+						paragraph: {
+							rich_text: [{ type: "text", text: { content: "L2" }, annotations: {} }],
+						},
+						children: [
+							{
+								type: "paragraph",
+								paragraph: {
+									rich_text: [{ type: "text", text: { content: "L3" }, annotations: {} }],
+								},
+								children: [
+									{
+										type: "paragraph",
+										paragraph: {
+											rich_text: [{ type: "text", text: { content: "L4" }, annotations: {} }],
+										},
+									},
+								],
+							},
+						],
+					},
+				],
+			},
+		];
+		expect(blocksToHtml(blocks)).toBe(
+			'<p>L1</p><div class="indent"><p>L2</p><div class="indent"><p>L3</p><div class="indent"><p>L4</p></div></div></div>',
+		);
 	});
 });
