@@ -4,6 +4,7 @@ import Layout from "@/layouts/Layout.astro";
 import { blocksToHtml } from "@/lib/block-to-html";
 import { formatDate } from "@/lib/format";
 import { getPostsByType, getPublishedDate, loadPublishedDates } from "@/lib/posts";
+import { getArticleModifiedDate } from "@/lib/seo";
 import type { Post } from "@/types";
 
 export function getStaticPaths() {
@@ -25,6 +26,7 @@ export function getStaticPaths() {
 const { post } = Astro.props as { post: Post };
 const publishedDates = loadPublishedDates();
 const publishedDate = getPublishedDate(post, publishedDates);
+const modifiedDate = getArticleModifiedDate(post);
 const content = blocksToHtml(post.blocks);
 ---
 
@@ -34,6 +36,7 @@ const content = blocksToHtml(post.blocks);
 	ogType="article"
 	ogImage={`${post.type}-${post.slug}.png`}
 	publishedDate={publishedDate}
+	modifiedDate={modifiedDate}
 >
 	<article>
 		<header>
