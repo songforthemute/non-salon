@@ -24,8 +24,8 @@ Notion 기반 미니멀 정적 블로그.
 
 ```bash
 # 저장소 클론
-git clone https://github.com/songforthemute/whitespace.git
-cd whitespace
+git clone https://github.com/songforthemute/non-salon.git
+cd non-salon
 
 # 의존성 설치
 pnpm install
