@@ -86,6 +86,18 @@ async function downloadImage(url: string, destPath: string): Promise<string> {
 	return finalPath;
 }
 
+// 블록 내 이미지 URL이 원격(http)인지 확인 — 로컬 경로면 이미 처리된 캐시
+export function hasRemoteImages(blocks: Block[]): boolean {
+	function check(block: Block): boolean {
+		if (block.type === "image" && block.image) {
+			const url = block.image.type === "file" ? block.image.file?.url : block.image.external?.url;
+			if (url?.startsWith("http")) return true;
+		}
+		return block.children?.some(check) ?? false;
+	}
+	return blocks.some(check);
+}
+
 export async function processPostImages(
 	type: string,
 	slug: string,

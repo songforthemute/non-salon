@@ -3,7 +3,11 @@ import { execSync } from "node:child_process";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
 import { PATHS } from "../src/config.js";
-import { cleanupOrphanedImages, processPostImages } from "../src/lib/image-handler.js";
+import {
+	cleanupOrphanedImages,
+	hasRemoteImages,
+	processPostImages,
+} from "../src/lib/image-handler.js";
 import type { ContentType } from "../src/types.js";
 import { generateOgImages } from "./generate-og-images.js";
 
@@ -30,9 +34,10 @@ async function loadJsonFile<T>(filePath: string, defaultValue: T): Promise<T> {
 async function main() {
 	console.log("🚀 Build started\n");
 
-	// 1. Notion에서 데이터 가져오기
+	// 1. Notion에서 데이터 가져오기 (--force 전달)
+	const forceFlag = process.argv.includes("--force") ? " --force" : "";
 	console.log("📥 Fetching from Notion...");
-	execSync("pnpm tsx scripts/fetch-notion.ts", { stdio: "inherit" });
+	execSync(`pnpm tsx scripts/fetch-notion.ts${forceFlag}`, { stdio: "inherit" });
 	console.log("");
 
 	// 2. posts.json 로드
@@ -79,11 +84,16 @@ async function main() {
 		console.log(`\n✅ ${newPostCount} new posts assigned publish dates`);
 	}
 
-	// 7. 이미지 처리
+	// 7. 이미지 처리 (캐시된 게시물은 이미지가 이미 로컬 경로이므로 건너뛰기)
 	console.log("\n📷 Processing images...");
 	let totalImages = 0;
+	let cachedImageCount = 0;
 
 	for (const post of posts) {
+		if (!hasRemoteImages(post.blocks as Parameters<typeof hasRemoteImages>[0])) {
+			cachedImageCount++;
+			continue;
+		}
 		console.log(`Processing: ${post.title}`);
 		const { blocks, downloadedCount } = await processPostImages(
 			post.type,
@@ -92,6 +102,10 @@ async function main() {
 		);
 		post.blocks = blocks;
 		totalImages += downloadedCount;
+	}
+
+	if (cachedImageCount > 0) {
+		console.log(`⏭️  ${cachedImageCount} posts skipped (images cached)`);
 	}
 
 	// 8. 삭제된 글의 이미지 폴더 정리

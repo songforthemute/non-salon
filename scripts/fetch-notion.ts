@@ -120,11 +120,15 @@ async function getDataSourceId(notion: Client, databaseId: string): Promise<stri
 	return dataSources[0].id;
 }
 
-async function fetchPublishedPosts(notion: Client, dataSourceId: string): Promise<FetchedPost[]> {
-	const posts: FetchedPost[] = [];
+// 메타데이터만 조회 (블록 fetch 없이 페이지 프로퍼티만)
+async function fetchPublishedPostsMeta(
+	notion: Client,
+	dataSourceId: string,
+): Promise<Omit<FetchedPost, "blocks">[]> {
+	const metas: Omit<FetchedPost, "blocks">[] = [];
 	let cursor: string | undefined;
 
-	console.log("Fetching published posts from Notion...");
+	console.log("Fetching published posts metadata from Notion...");
 
 	do {
 		await delay(350);
@@ -141,28 +145,35 @@ async function fetchPublishedPosts(notion: Client, dataSourceId: string): Promis
 		for (const page of response.results) {
 			if (!("properties" in page)) continue;
 			const p = page as PageObjectResponse;
-			const postMeta = extractPostProperties(p);
+			const meta = extractPostProperties(p);
 
-			if (!postMeta.slug) {
-				console.warn(`Skipping post "${postMeta.title}": no slug`);
+			if (!meta.slug) {
+				console.warn(`Skipping post "${meta.title}": no slug`);
 				continue;
 			}
 
-			console.log(`Fetching blocks for: ${postMeta.title}`);
-			const blocks = await getBlocksRecursive(notion, p.id);
-
-			posts.push({ ...postMeta, blocks });
+			metas.push(meta);
 		}
 
 		cursor = response.has_more ? (response.next_cursor ?? undefined) : undefined;
 	} while (cursor);
 
-	return posts;
+	return metas;
+}
+
+async function loadCachedPosts(filePath: string): Promise<FetchedPost[]> {
+	try {
+		const content = await fs.readFile(filePath, "utf-8");
+		return JSON.parse(content);
+	} catch {
+		return [];
+	}
 }
 
 async function main() {
 	const apiKey = process.env.NOTION_API_KEY;
 	const databaseId = process.env.NOTION_DATABASE_ID;
+	const forceFullFetch = process.argv.includes("--force");
 
 	if (!apiKey) {
 		console.error("NOTION_API_KEY is not set");
@@ -181,12 +192,47 @@ async function main() {
 
 	await fs.mkdir(DATA_DIR, { recursive: true });
 
-	const posts = await fetchPublishedPosts(notion, dataSourceId);
-
 	const outputPath = path.join(DATA_DIR, "posts.json");
+
+	// 캐시 로드 (증분 빌드용)
+	const cachedPosts = forceFullFetch ? [] : await loadCachedPosts(outputPath);
+	const cacheMap = new Map(cachedPosts.map((p) => [p.id, p]));
+
+	if (forceFullFetch) {
+		console.log("Force mode: fetching all posts from scratch");
+	} else if (cacheMap.size > 0) {
+		console.log(`Loaded ${cacheMap.size} cached posts for incremental update`);
+	}
+
+	// 1단계: 메타데이터만 조회
+	const metas = await fetchPublishedPostsMeta(notion, dataSourceId);
+
+	// 2단계: 변경된 게시물만 블록 조회
+	const posts: FetchedPost[] = [];
+	let fetchedCount = 0;
+	let cachedCount = 0;
+
+	for (const meta of metas) {
+		const cached = cacheMap.get(meta.id);
+
+		if (cached && cached.lastEditedTime === meta.lastEditedTime) {
+			// 변경 없음: 메타는 갱신하되 블록은 캐시 재사용
+			posts.push({ ...meta, blocks: cached.blocks });
+			cachedCount++;
+		} else {
+			// 신규 또는 변경: 블록 조회
+			console.log(`Fetching blocks for: ${meta.title}`);
+			const blocks = await getBlocksRecursive(notion, meta.id);
+			posts.push({ ...meta, blocks });
+			fetchedCount++;
+		}
+	}
+
 	await fs.writeFile(outputPath, JSON.stringify(posts, null, 2));
 
-	console.log(`\nDone! ${posts.length} posts saved to ${outputPath}`);
+	console.log(
+		`\nDone! ${posts.length} posts saved (${fetchedCount} fetched, ${cachedCount} cached)`,
+	);
 }
 
 main().catch((err) => {
