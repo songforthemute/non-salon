@@ -1,6 +1,7 @@
 ---
 import Nav from "@/components/Nav.astro";
 import { SITE } from "@/config";
+import { toCanonicalUrl } from "@/lib/seo";
 
 interface Props {
 	title: string;
@@ -9,6 +10,7 @@ interface Props {
 	ogType?: "website" | "article";
 	ogImage?: string;
 	publishedDate?: string;
+	modifiedDate?: string;
 	noindex?: boolean;
 }
 
@@ -19,12 +21,13 @@ const {
 	ogType = "website",
 	ogImage,
 	publishedDate,
+	modifiedDate,
 	noindex = false,
 } = Astro.props;
 const siteTitle = title === "Root" ? SITE.name : `${title} | ${SITE.name}`;
 const ogTitle = title === "Root" ? SITE.name : title;
 const ogImageUrl = `${SITE.url}/og/${ogImage || "default.png"}`;
-const canonicalUrl = Astro.url.href.replace(Astro.url.origin, SITE.url);
+const canonicalUrl = toCanonicalUrl(Astro.url);
 
 // JSON-LD 구조화 데이터: 상세 페이지는 Article, 그 외는 WebSite
 const robotsMeta = noindex ? "noindex, nofollow" : "index, follow";
@@ -37,6 +40,7 @@ const jsonLd =
 				headline: ogTitle,
 				description,
 				datePublished: publishedDate,
+				dateModified: modifiedDate,
 				author: { "@type": "Person", name: SITE.author },
 				publisher: { "@type": "Person", name: SITE.author },
 				image: ogImageUrl,
