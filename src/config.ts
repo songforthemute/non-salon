@@ -2,6 +2,8 @@ export const SITE = {
 	name: "non.salon",
 	url: "https://non.salon",
 	author: "songforthemute",
+	authorUrl: "https://github.com/songforthemute",
+	sameAs: ["https://github.com/songforthemute", "https://medium.com/@songforthemute"],
 	description: "Archived Web Logs",
 	language: "ko-KR",
 } as const;
