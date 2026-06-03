@@ -37,6 +37,8 @@ const content = blocksToHtml(post.blocks);
 	ogImage={`${post.type}-${post.slug}.png`}
 	publishedDate={publishedDate}
 	modifiedDate={modifiedDate}
+	section={post.type}
+	tags={post.tags}
 >
 	<article>
 		<header>

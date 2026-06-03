@@ -1,7 +1,7 @@
 ---
 import Nav from "@/components/Nav.astro";
 import { SITE } from "@/config";
-import { toCanonicalUrl } from "@/lib/seo";
+import { buildArticleJsonLd, buildWebSiteJsonLd, toCanonicalUrl } from "@/lib/seo";
 
 interface Props {
 	title: string;
@@ -11,6 +11,8 @@ interface Props {
 	ogImage?: string;
 	publishedDate?: string;
 	modifiedDate?: string;
+	section?: string;
+	tags?: string[];
 	noindex?: boolean;
 }
 
@@ -22,6 +24,8 @@ const {
 	ogImage,
 	publishedDate,
 	modifiedDate,
+	section = "article",
+	tags = [],
 	noindex = false,
 } = Astro.props;
 const siteTitle = title === "Root" ? SITE.name : `${title} | ${SITE.name}`;
@@ -34,25 +38,17 @@ const robotsMeta = noindex ? "noindex, nofollow" : "index, follow";
 
 const jsonLd =
 	ogType === "article"
-		? {
-				"@context": "https://schema.org",
-				"@type": "Article",
-				headline: ogTitle,
+		? buildArticleJsonLd({
+				title: ogTitle,
 				description,
-				datePublished: publishedDate,
-				dateModified: modifiedDate,
-				author: { "@type": "Person", name: SITE.author },
-				publisher: { "@type": "Person", name: SITE.author },
-				image: ogImageUrl,
-				url: canonicalUrl,
-			}
-		: {
-				"@context": "https://schema.org",
-				"@type": "WebSite",
-				name: SITE.name,
-				url: SITE.url,
-				description,
-			};
+				canonicalUrl,
+				imageUrl: ogImageUrl,
+				publishedDate,
+				modifiedDate,
+				section,
+				tags,
+			})
+		: buildWebSiteJsonLd(description);
 ---
 
 <!doctype html>
