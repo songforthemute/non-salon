@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 import type { Post } from "@/types";
-import { getArticleModifiedDate, toCanonicalUrl } from "./seo";
+import {
+	buildArticleJsonLd,
+	buildWebSiteJsonLd,
+	getArticleModifiedDate,
+	toCanonicalUrl,
+} from "./seo";
 
 const post: Post = {
 	id: "post-id",
@@ -42,5 +47,52 @@ describe("getArticleModifiedDate", () => {
 
 	it("falls back to the Notion last edited date", () => {
 		expect(getArticleModifiedDate(post)).toBe("2026-03-21");
+	});
+});
+
+describe("buildWebSiteJsonLd", () => {
+	it("includes site entity metadata", () => {
+		const jsonLd = buildWebSiteJsonLd("Archived Web Logs");
+
+		expect(jsonLd).toMatchObject({
+			"@context": "https://schema.org",
+			"@type": "WebSite",
+			name: "non.salon",
+			url: "https://non.salon",
+			description: "Archived Web Logs",
+			inLanguage: "ko-KR",
+		});
+		expect(jsonLd.sameAs).toContain("https://github.com/songforthemute");
+	});
+});
+
+describe("buildArticleJsonLd", () => {
+	it("includes article entity metadata", () => {
+		const jsonLd = buildArticleJsonLd({
+			title: "Post title",
+			description: "Post description",
+			canonicalUrl: "https://non.salon/publication/post-title",
+			imageUrl: "https://non.salon/og/publication-post-title.png",
+			publishedDate: "2026-03-20",
+			modifiedDate: "2026-03-22",
+			section: "publication",
+			tags: ["React", "AI"],
+		});
+
+		expect(jsonLd).toMatchObject({
+			"@context": "https://schema.org",
+			"@type": "Article",
+			headline: "Post title",
+			description: "Post description",
+			mainEntityOfPage: "https://non.salon/publication/post-title",
+			inLanguage: "ko-KR",
+			articleSection: "publication",
+			keywords: ["React", "AI"],
+		});
+		expect(jsonLd.author).toMatchObject({
+			"@type": "Person",
+			name: "songforthemute",
+			url: "https://github.com/songforthemute",
+		});
 	});
 });
