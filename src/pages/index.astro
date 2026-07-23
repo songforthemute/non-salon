@@ -1,9 +1,108 @@
 ---
 import { SITE } from "@/config";
 import Layout from "@/layouts/Layout.astro";
+import { formatDate } from "@/lib/format";
+import { getLatestPosts, getPublishedDate, loadPosts, loadPublishedDates } from "@/lib/posts";
+
+const publishedDates = loadPublishedDates();
+const posts = getLatestPosts(loadPosts(), publishedDates, 5);
+const typeLabels = {
+	publication: "Publication",
+	thought: "Thought",
+	notebook: "Notebook",
+};
 ---
 
 <Layout title="Root">
 	<h1>{SITE.name}</h1>
 	<p>Archived Web Logs.</p>
+
+	<section class="latest">
+		<div class="section-heading">
+			<h2>Latest Posts</h2>
+			<a href="/archive">View all posts</a>
+		</div>
+
+		{posts.length === 0 ? (
+			<p>No posts yet.</p>
+		) : (
+			<div class="posts">
+				{posts.map((post) => {
+					const date = getPublishedDate(post, publishedDates);
+					return (
+						<article>
+							<div class="meta">
+								<span>{typeLabels[post.type]}</span>
+								<time datetime={date}>{formatDate(date)}</time>
+							</div>
+							<h3><a href={`/${post.type}/${post.slug}`}>{post.title}</a></h3>
+						</article>
+					);
+				})}
+			</div>
+		)}
+	</section>
 </Layout>
+
+<style>
+	h1 {
+		margin-bottom: 0.5rem;
+	}
+
+	.latest {
+		margin-top: 4rem;
+	}
+
+	.section-heading {
+		display: flex;
+		align-items: baseline;
+		justify-content: space-between;
+		gap: 1rem;
+		margin-bottom: 2rem;
+	}
+
+	.section-heading h2 {
+		margin: 0;
+	}
+
+	.section-heading a {
+		color: var(--color-muted);
+		font-size: var(--font-size-sm);
+	}
+
+	.posts {
+		display: flex;
+		flex-direction: column;
+		gap: 1.5rem;
+	}
+
+	article {
+		padding-bottom: 1.5rem;
+		border-bottom: 1px solid var(--color-border);
+	}
+
+	article:last-child {
+		border-bottom: none;
+	}
+
+	.meta {
+		display: flex;
+		gap: 0.75rem;
+		color: var(--color-muted);
+		font-size: var(--font-size-sm);
+	}
+
+	article h3 {
+		margin: 0.35rem 0 0;
+		font-size: 1.1rem;
+		font-weight: normal;
+	}
+
+	article h3 a {
+		text-decoration: none;
+	}
+
+	article h3 a:hover {
+		text-decoration: underline;
+	}
+</style>

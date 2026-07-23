@@ -42,6 +42,15 @@ export function sortByDate(
 	});
 }
 
+export function getLatestPosts(
+	posts: Post[],
+	publishedDates: Record<string, string>,
+	limit?: number,
+): Post[] {
+	const sortedPosts = sortByDate(posts, publishedDates);
+	return limit === undefined ? sortedPosts : sortedPosts.slice(0, limit);
+}
+
 export function getPublishedDate(post: Post, publishedDates: Record<string, string>): string {
 	return post.publishedDate || publishedDates[post.slug] || post.lastEditedTime.split("T")[0];
 }

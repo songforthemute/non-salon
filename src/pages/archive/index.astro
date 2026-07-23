@@ -1,0 +1,82 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import { formatDate } from "@/lib/format";
+import { getLatestPosts, getPublishedDate, loadPosts, loadPublishedDates } from "@/lib/posts";
+
+const publishedDates = loadPublishedDates();
+const posts = getLatestPosts(loadPosts(), publishedDates);
+const typeLabels = {
+	publication: "Publication",
+	thought: "Thought",
+	notebook: "Notebook",
+};
+---
+
+<Layout title="Archive" description="All posts" showSearch>
+	<h1>Archive</h1>
+
+	{posts.length === 0 ? (
+		<p>No posts yet.</p>
+	) : (
+		<div class="posts">
+			{posts.map((post) => {
+				const date = getPublishedDate(post, publishedDates);
+				return (
+					<article>
+						<div class="meta">
+							<span>{typeLabels[post.type]}</span>
+							<time datetime={date}>{formatDate(date)}</time>
+						</div>
+						<h2><a href={`/${post.type}/${post.slug}`}>{post.title}</a></h2>
+						{post.description && <p>{post.description}</p>}
+					</article>
+				);
+			})}
+		</div>
+	)}
+</Layout>
+
+<style>
+	h1 {
+		margin-bottom: 2rem;
+	}
+
+	.posts {
+		display: flex;
+		flex-direction: column;
+		gap: 2rem;
+	}
+
+	article {
+		padding-bottom: 2rem;
+		border-bottom: 1px solid var(--color-border);
+	}
+
+	article:last-child {
+		border-bottom: none;
+	}
+
+	.meta {
+		display: flex;
+		gap: 0.75rem;
+		color: var(--color-muted);
+		font-size: var(--font-size-sm);
+	}
+
+	article h2 {
+		margin: 0.5rem 0 0;
+	}
+
+	article h2 a {
+		text-decoration: none;
+	}
+
+	article h2 a:hover {
+		text-decoration: underline;
+	}
+
+	article p {
+		margin: 0.5rem 0 0;
+		color: var(--color-subtle);
+	}
+</style>
