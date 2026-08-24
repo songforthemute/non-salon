@@ -9,6 +9,7 @@
 	"scripts": {
 		"dev": "astro dev",
 		"build": "tsx scripts/build.ts",
+		"build:ci": "tsx scripts/build-ci.ts",
 		"build:astro": "astro build",
 		"preview": "astro preview",
 		"fetch:notion": "tsx scripts/fetch-notion.ts",
