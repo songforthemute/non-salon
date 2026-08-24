@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { Post } from "@/types";
 import {
 	buildArticleJsonLd,
+	buildBreadcrumbJsonLd,
 	buildWebSiteJsonLd,
 	ensureModifiedDateNotBeforePublished,
 	getArticleModifiedDate,
@@ -74,6 +75,7 @@ describe("buildWebSiteJsonLd", () => {
 		expect(jsonLd).toMatchObject({
 			"@context": "https://schema.org",
 			"@type": "WebSite",
+			"@id": "https://non.salon#website",
 			name: "non.salon",
 			url: "https://non.salon",
 			description: "Archived Web Logs",
@@ -98,16 +100,21 @@ describe("buildArticleJsonLd", () => {
 
 		expect(jsonLd).toMatchObject({
 			"@context": "https://schema.org",
-			"@type": "Article",
+			"@type": "BlogPosting",
+			"@id": "https://non.salon/publication/post-title#blogposting",
 			headline: "Post title",
 			description: "Post description",
-			mainEntityOfPage: "https://non.salon/publication/post-title",
+			mainEntityOfPage: {
+				"@type": "WebPage",
+				"@id": "https://non.salon/publication/post-title",
+			},
 			inLanguage: "ko-KR",
 			articleSection: "publication",
 			keywords: ["React", "AI"],
 		});
 		expect(jsonLd.author).toMatchObject({
 			"@type": "Person",
+			"@id": "https://github.com/songforthemute#person",
 			name: "songforthemute",
 			url: "https://github.com/songforthemute",
 		});
@@ -126,5 +133,30 @@ describe("buildArticleJsonLd", () => {
 		});
 
 		expect(jsonLd.dateModified).toBe("2026-03-20");
+	});
+});
+
+describe("buildBreadcrumbJsonLd", () => {
+	it("connects a post to its section and the site root", () => {
+		const jsonLd = buildBreadcrumbJsonLd({
+			title: "Post title",
+			canonicalUrl: "https://non.salon/publication/post-title",
+			section: "publication",
+		});
+
+		expect(jsonLd).toMatchObject({
+			"@context": "https://schema.org",
+			"@type": "BreadcrumbList",
+			"@id": "https://non.salon/publication/post-title#breadcrumb",
+			itemListElement: [
+				{ position: 1, name: "Root", item: "https://non.salon" },
+				{ position: 2, name: "Publications", item: "https://non.salon/publications" },
+				{
+					position: 3,
+					name: "Post title",
+					item: "https://non.salon/publication/post-title",
+				},
+			],
+		});
 	});
 });
