@@ -3,6 +3,7 @@ import type { Post } from "@/types";
 import {
 	buildArticleJsonLd,
 	buildWebSiteJsonLd,
+	ensureModifiedDateNotBeforePublished,
 	getArticleModifiedDate,
 	toCanonicalUrl,
 } from "./seo";
@@ -35,8 +36,8 @@ describe("toCanonicalUrl", () => {
 		).toBe("https://non.salon/publication/post-title");
 	});
 
-	it("keeps the root canonical URL with a trailing slash", () => {
-		expect(toCanonicalUrl(new URL("https://example.com/index.html"))).toBe("https://non.salon/");
+	it("keeps the root canonical URL identical to the site URL", () => {
+		expect(toCanonicalUrl(new URL("https://example.com/index.html"))).toBe("https://non.salon");
 	});
 });
 
@@ -47,6 +48,22 @@ describe("getArticleModifiedDate", () => {
 
 	it("falls back to the Notion last edited date", () => {
 		expect(getArticleModifiedDate(post)).toBe("2026-03-21");
+	});
+
+	it("never returns a modification date earlier than the published date", () => {
+		expect(getArticleModifiedDate({ ...post, lastUpdated: "2026-03-19" }, "2026-03-20")).toBe(
+			"2026-03-20",
+		);
+	});
+});
+
+describe("ensureModifiedDateNotBeforePublished", () => {
+	it("preserves dates that are later than publication", () => {
+		expect(ensureModifiedDateNotBeforePublished("2026-03-20", "2026-03-22")).toBe("2026-03-22");
+	});
+
+	it("uses the published date when the source modification date predates it", () => {
+		expect(ensureModifiedDateNotBeforePublished("2026-03-20", "2026-03-19")).toBe("2026-03-20");
 	});
 });
 
@@ -94,5 +111,20 @@ describe("buildArticleJsonLd", () => {
 			name: "songforthemute",
 			url: "https://github.com/songforthemute",
 		});
+	});
+
+	it("keeps structured-data dates in chronological order", () => {
+		const jsonLd = buildArticleJsonLd({
+			title: "Post title",
+			description: "Post description",
+			canonicalUrl: "https://non.salon/publication/post-title",
+			imageUrl: "https://non.salon/og/publication-post-title.png",
+			publishedDate: "2026-03-20",
+			modifiedDate: "2026-03-19",
+			section: "publication",
+			tags: [],
+		});
+
+		expect(jsonLd.dateModified).toBe("2026-03-20");
 	});
 });
