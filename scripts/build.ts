@@ -6,6 +6,7 @@ import { PATHS } from "../src/config.js";
 import {
 	cleanupOrphanedImages,
 	hasRemoteImages,
+	populateImageDimensions,
 	processPostImages,
 } from "../src/lib/image-handler.js";
 import type { ContentType } from "../src/types.js";
@@ -102,6 +103,14 @@ async function main() {
 		);
 		post.blocks = blocks;
 		totalImages += downloadedCount;
+	}
+
+	// Cached images predate dimension metadata. Fill it from the local asset so
+	// rendered image elements reserve their layout space on every build.
+	for (const post of posts) {
+		post.blocks = await populateImageDimensions(
+			post.blocks as Parameters<typeof populateImageDimensions>[0],
+		);
 	}
 
 	if (cachedImageCount > 0) {

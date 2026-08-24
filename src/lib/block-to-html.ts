@@ -15,6 +15,10 @@ function getImageUrl(image: {
 	return "";
 }
 
+type ImageRenderOptions = {
+	loading?: "eager" | "lazy";
+};
+
 const CONTAINER_CLOSING_TAGS: Record<string, string> = {
 	quote: "</blockquote>",
 	callout: "</aside>",
@@ -69,7 +73,7 @@ export function richTextToHtml(richText: RichTextItem[]): string {
 		.join("");
 }
 
-export function blockToHtml(block: Block): string {
+export function blockToHtml(block: Block, options: ImageRenderOptions = {}): string {
 	const { type } = block;
 
 	switch (type) {
@@ -137,15 +141,22 @@ export function blockToHtml(block: Block): string {
 				file?: { url: string };
 				external?: { url: string };
 				caption: RichTextItem[];
+				width?: number;
+				height?: number;
 			};
 			const url = getImageUrl(data);
 			const caption = richTextToHtml(data.caption);
 			const alt = escapeHtml(data.caption.map((c) => c.text?.content || "").join(""));
 
+			const dimensions =
+				data.width && data.height ? ` width="${data.width}" height="${data.height}"` : "";
+			const loading = options.loading === "lazy" ? ' loading="lazy"' : "";
+			const image = `<img src="${url}" alt="${alt}"${dimensions}${loading} decoding="async">`;
+
 			if (caption) {
-				return `<figure><img src="${url}" alt="${alt}"><figcaption>${caption}</figcaption></figure>`;
+				return `<figure>${image}<figcaption>${caption}</figcaption></figure>`;
 			}
-			return `<figure><img src="${url}" alt=""></figure>`;
+			return `<figure>${image}</figure>`;
 		}
 
 		default:
@@ -153,7 +164,7 @@ export function blockToHtml(block: Block): string {
 	}
 }
 
-export function blocksToHtml(blocks: Block[]): string {
+export function blocksToHtml(blocks: Block[], imageState = { hasRenderedImage: false }): string {
 	const result: string[] = [];
 	let i = 0;
 
@@ -167,10 +178,12 @@ export function blocksToHtml(blocks: Block[]): string {
 
 			while (i < blocks.length && blocks[i].type === type) {
 				const currentBlock = blocks[i];
-				let itemHtml = blockToHtml(currentBlock);
+				const imageLoading = imageState.hasRenderedImage ? "lazy" : "eager";
+				let itemHtml = blockToHtml(currentBlock, { loading: imageLoading });
+				if (currentBlock.type === "image" && itemHtml) imageState.hasRenderedImage = true;
 
 				if (currentBlock.children && currentBlock.children.length > 0) {
-					const nestedHtml = blocksToHtml(currentBlock.children);
+					const nestedHtml = blocksToHtml(currentBlock.children, imageState);
 					itemHtml = itemHtml.replace("</li>", `${nestedHtml}</li>`);
 				}
 
@@ -180,9 +193,11 @@ export function blocksToHtml(blocks: Block[]): string {
 
 			result.push(`<${tag}>${items.join("")}</${tag}>`);
 		} else {
-			let html = blockToHtml(block);
+			const imageLoading = imageState.hasRenderedImage ? "lazy" : "eager";
+			let html = blockToHtml(block, { loading: imageLoading });
+			if (block.type === "image" && html) imageState.hasRenderedImage = true;
 			if (html && block.children && block.children.length > 0) {
-				const childrenHtml = blocksToHtml(block.children);
+				const childrenHtml = blocksToHtml(block.children, imageState);
 				html = insertChildren(type, html, childrenHtml);
 			}
 			if (html) {

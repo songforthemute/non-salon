@@ -11,6 +11,20 @@ interface ImageInfo {
 	localPath: string;
 }
 
+interface ImageDimensions {
+	width: number;
+	height: number;
+}
+
+interface DownloadedImage {
+	path: string;
+	dimensions?: ImageDimensions;
+}
+
+function startsWithBytes(buffer: Buffer, bytes: readonly number[]): boolean {
+	return bytes.every((byte, index) => buffer[index] === byte);
+}
+
 function getImageExtension(url: string, contentType?: string): string {
 	// Content-Type 기반
 	if (contentType) {
@@ -69,7 +83,92 @@ function extractImagesFromBlocks(blocks: Block[]): ImageInfo[] {
 	return images;
 }
 
-async function downloadImage(url: string, destPath: string): Promise<string> {
+export function getImageDimensions(buffer: Buffer): ImageDimensions | undefined {
+	if (
+		buffer.length >= 24 &&
+		startsWithBytes(buffer, [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])
+	) {
+		return { width: buffer.readUInt32BE(16), height: buffer.readUInt32BE(20) };
+	}
+
+	if (buffer.length >= 10 && buffer.subarray(0, 3).toString() === "GIF") {
+		return { width: buffer.readUInt16LE(6), height: buffer.readUInt16LE(8) };
+	}
+
+	if (
+		buffer.length >= 30 &&
+		buffer.subarray(0, 4).toString() === "RIFF" &&
+		buffer.subarray(8, 12).toString() === "WEBP"
+	) {
+		const format = buffer.subarray(12, 16).toString();
+		if (format === "VP8X") {
+			return { width: buffer.readUIntLE(24, 3) + 1, height: buffer.readUIntLE(27, 3) + 1 };
+		}
+		if (format === "VP8 ") {
+			return {
+				width: buffer.readUInt16LE(26) & 0x3fff,
+				height: buffer.readUInt16LE(28) & 0x3fff,
+			};
+		}
+		if (format === "VP8L" && buffer[20] === 0x2f) {
+			const dimensions = buffer.readUInt32LE(21);
+			return {
+				width: (dimensions & 0x3fff) + 1,
+				height: ((dimensions >> 14) & 0x3fff) + 1,
+			};
+		}
+	}
+
+	if (buffer.length >= 12 && startsWithBytes(buffer, [0xff, 0xd8])) {
+		let offset = 2;
+		while (offset + 9 < buffer.length) {
+			if (buffer[offset] !== 0xff) {
+				offset++;
+				continue;
+			}
+
+			const marker = buffer[offset + 1];
+			offset += 2;
+			if (marker === 0xd8 || marker === 0xd9) continue;
+
+			const segmentLength = buffer.readUInt16BE(offset);
+			if (segmentLength < 2 || offset + segmentLength > buffer.length) return undefined;
+
+			if (
+				[0xc0, 0xc1, 0xc2, 0xc3, 0xc5, 0xc6, 0xc7, 0xc9, 0xca, 0xcb, 0xcd, 0xce, 0xcf].includes(
+					marker,
+				)
+			) {
+				return { width: buffer.readUInt16BE(offset + 5), height: buffer.readUInt16BE(offset + 3) };
+			}
+
+			offset += segmentLength;
+		}
+	}
+
+	// AVIF stores its display dimensions in the ISO-BMFF ImageSpatialExtents box.
+	const imageSpatialExtents = buffer.indexOf("ispe");
+	if (imageSpatialExtents >= 4 && imageSpatialExtents + 16 <= buffer.length) {
+		return {
+			width: buffer.readUInt32BE(imageSpatialExtents + 8),
+			height: buffer.readUInt32BE(imageSpatialExtents + 12),
+		};
+	}
+
+	const svg = buffer.subarray(0, 1024).toString("utf8");
+	if (svg.includes("<svg")) {
+		const width = svg.match(/\bwidth=["'](\d+(?:\.\d+)?)/)?.[1];
+		const height = svg.match(/\bheight=["'](\d+(?:\.\d+)?)/)?.[1];
+		if (width && height) return { width: Number(width), height: Number(height) };
+
+		const viewBox = svg.match(/\bviewBox=["']\s*[\d.-]+\s+[\d.-]+\s+([\d.]+)\s+([\d.]+)/);
+		if (viewBox) return { width: Number(viewBox[1]), height: Number(viewBox[2]) };
+	}
+
+	return undefined;
+}
+
+async function downloadImage(url: string, destPath: string): Promise<DownloadedImage> {
 	const response = await fetch(url);
 
 	if (!response.ok) {
@@ -83,7 +182,7 @@ async function downloadImage(url: string, destPath: string): Promise<string> {
 	const buffer = Buffer.from(await response.arrayBuffer());
 	await fs.writeFile(finalPath, buffer);
 
-	return finalPath;
+	return { path: finalPath, dimensions: getImageDimensions(buffer) };
 }
 
 // 블록 내 이미지 URL이 원격(http)인지 확인 — 로컬 경로면 이미 처리된 캐시
@@ -119,17 +218,17 @@ export async function processPostImages(
 	}
 
 	// URL 매핑 생성
-	const urlMapping: Record<string, string> = {};
+	const urlMapping: Record<string, { url: string; dimensions?: ImageDimensions }> = {};
 
 	for (const img of images) {
 		const tempPath = path.join(postImageDir, `${img.blockId}.tmp`);
 
 		try {
-			const finalPath = await downloadImage(img.originalUrl, tempPath);
-			const relativePath = `/images/${type}/${slug}/${path.basename(finalPath)}`;
-			urlMapping[img.originalUrl] = relativePath;
-			console.log(`  📷 ${path.basename(finalPath)}`);
-		} catch (error) {
+			const downloadedImage = await downloadImage(img.originalUrl, tempPath);
+			const relativePath = `/images/${type}/${slug}/${path.basename(downloadedImage.path)}`;
+			urlMapping[img.originalUrl] = { url: relativePath, dimensions: downloadedImage.dimensions };
+			console.log(`  📷 ${path.basename(downloadedImage.path)}`);
+		} catch (_error) {
 			console.warn(`  ⚠️  Failed to download: ${img.blockId}`);
 		}
 	}
@@ -141,10 +240,18 @@ export async function processPostImages(
 		if (newBlock.type === "image" && newBlock.image) {
 			const img = { ...newBlock.image };
 
-			if (img.type === "file" && img.file && urlMapping[img.file.url]) {
-				img.file = { url: urlMapping[img.file.url] };
-			} else if (img.type === "external" && img.external && urlMapping[img.external.url]) {
-				img.external = { url: urlMapping[img.external.url] };
+			const originalUrl = img.type === "file" ? img.file?.url : img.external?.url;
+			const mappedImage = originalUrl ? urlMapping[originalUrl] : undefined;
+
+			if (img.type === "file" && img.file && mappedImage) {
+				img.file = { url: mappedImage.url };
+			} else if (img.type === "external" && img.external && mappedImage) {
+				img.external = { url: mappedImage.url };
+			}
+
+			if (mappedImage?.dimensions) {
+				img.width = mappedImage.dimensions.width;
+				img.height = mappedImage.dimensions.height;
 			}
 
 			newBlock.image = img;
@@ -163,6 +270,49 @@ export async function processPostImages(
 		blocks: processedBlocks,
 		downloadedCount: Object.keys(urlMapping).length,
 	};
+}
+
+function getLocalImagePath(url: string): string | undefined {
+	if (!url.startsWith("/images/")) return undefined;
+
+	const localPath = path.resolve(PUBLIC_IMAGES_DIR, "..", url.slice(1));
+	const imagesDir = path.resolve(PUBLIC_IMAGES_DIR);
+	return localPath.startsWith(`${imagesDir}${path.sep}`) ? localPath : undefined;
+}
+
+export async function populateImageDimensions(blocks: Block[]): Promise<Block[]> {
+	async function enrich(block: Block): Promise<Block> {
+		const newBlock = { ...block };
+
+		if (
+			newBlock.type === "image" &&
+			newBlock.image &&
+			(!newBlock.image.width || !newBlock.image.height)
+		) {
+			const url =
+				newBlock.image.type === "file" ? newBlock.image.file?.url : newBlock.image.external?.url;
+			const localPath = url ? getLocalImagePath(url) : undefined;
+
+			if (localPath) {
+				try {
+					const dimensions = getImageDimensions(await fs.readFile(localPath));
+					if (dimensions) {
+						newBlock.image = { ...newBlock.image, ...dimensions };
+					}
+				} catch {
+					// Keep rendering the image even when a cached local asset is unavailable.
+				}
+			}
+		}
+
+		if (newBlock.children) {
+			newBlock.children = await Promise.all(newBlock.children.map(enrich));
+		}
+
+		return newBlock;
+	}
+
+	return Promise.all(blocks.map(enrich));
 }
 
 export async function cleanupOrphanedImages(
