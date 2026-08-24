@@ -43,8 +43,10 @@ export function ensureModifiedDateNotBeforePublished(
 export function getArticleModifiedDate(post: Post, publishedDate?: string): string {
 	const modifiedDate = (post.lastUpdated || post.lastEditedTime).split("T")[0];
 	return (
-		ensureModifiedDateNotBeforePublished(publishedDate || post.publishedDate || undefined, modifiedDate) ||
-		modifiedDate
+		ensureModifiedDateNotBeforePublished(
+			publishedDate || post.publishedDate || undefined,
+			modifiedDate,
+		) || modifiedDate
 	);
 }
 
