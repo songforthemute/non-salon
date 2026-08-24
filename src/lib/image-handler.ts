@@ -25,6 +25,97 @@ function startsWithBytes(buffer: Buffer, bytes: readonly number[]): boolean {
 	return bytes.every((byte, index) => buffer[index] === byte);
 }
 
+interface BmffBox {
+	type: string;
+	contentStart: number;
+	end: number;
+}
+
+const AVIF_BRANDS = new Set(["avif", "avis"]);
+
+function readBmffBox(buffer: Buffer, start: number, end: number): BmffBox | undefined {
+	if (start + 8 > end) return undefined;
+
+	const size = buffer.readUInt32BE(start);
+	const type = buffer.subarray(start + 4, start + 8).toString("ascii");
+	let headerSize = 8;
+	let boxEnd: number;
+
+	if (size === 1) {
+		if (start + 16 > end) return undefined;
+		const largeSize = buffer.readBigUInt64BE(start + 8);
+		if (largeSize > BigInt(Number.MAX_SAFE_INTEGER)) return undefined;
+		boxEnd = start + Number(largeSize);
+		headerSize = 16;
+	} else if (size === 0) {
+		boxEnd = end;
+	} else {
+		boxEnd = start + size;
+	}
+
+	if (boxEnd > end || boxEnd < start + headerSize) return undefined;
+	return { type, contentStart: start + headerSize, end: boxEnd };
+}
+
+function hasAvifFileType(buffer: Buffer): boolean {
+	let offset = 0;
+	while (offset < buffer.length) {
+		const box = readBmffBox(buffer, offset, buffer.length);
+		if (!box) return false;
+
+		if (box.type === "ftyp") {
+			if (box.contentStart + 8 > box.end) return false;
+			const brands = [buffer.subarray(box.contentStart, box.contentStart + 4).toString("ascii")];
+			for (let brandOffset = box.contentStart + 8; brandOffset + 4 <= box.end; brandOffset += 4) {
+				brands.push(buffer.subarray(brandOffset, brandOffset + 4).toString("ascii"));
+			}
+			return brands.some((brand) => AVIF_BRANDS.has(brand));
+		}
+
+		offset = box.end;
+	}
+
+	return false;
+}
+
+function findAvifDimensions(
+	buffer: Buffer,
+	start: number,
+	end: number,
+): ImageDimensions | undefined {
+	let offset = start;
+	while (offset < end) {
+		const box = readBmffBox(buffer, offset, end);
+		if (!box) return undefined;
+
+		if (box.type === "ispe") {
+			// ispe is a FullBox: version/flags, then 32-bit width and height.
+			if (box.contentStart + 12 <= box.end) {
+				const width = buffer.readUInt32BE(box.contentStart + 4);
+				const height = buffer.readUInt32BE(box.contentStart + 8);
+				if (width > 0 && height > 0) return { width, height };
+			}
+		} else if (box.type === "meta") {
+			// meta is a FullBox, so its nested boxes begin after version and flags.
+			const dimensions = findAvifDimensions(buffer, box.contentStart + 4, box.end);
+			if (dimensions) return dimensions;
+		} else if (box.type === "iprp" || box.type === "ipco") {
+			const dimensions = findAvifDimensions(buffer, box.contentStart, box.end);
+			if (dimensions) return dimensions;
+		}
+
+		offset = box.end;
+	}
+
+	return undefined;
+}
+
+function getSvgAttribute(svgTag: string, name: string): string | undefined {
+	const attribute = new RegExp(`\\b${name}\\s*=\\s*(?:"([^"]*)"|'([^']*)')`, "i");
+	const match = svgTag.match(attribute);
+	return match?.[1] ?? match?.[2];
+}
+
 function getImageExtension(url: string, contentType?: string): string {
 	// Content-Type 기반
 	if (contentType) {
@@ -146,19 +237,18 @@ export function getImageDimensions(buffer: Buffer): ImageDimensions | undefined 
 		}
 	}
 
-	// AVIF stores its display dimensions in the ISO-BMFF ImageSpatialExtents box.
-	const imageSpatialExtents = buffer.indexOf("ispe");
-	if (imageSpatialExtents >= 4 && imageSpatialExtents + 16 <= buffer.length) {
-		return {
-			width: buffer.readUInt32BE(imageSpatialExtents + 8),
-			height: buffer.readUInt32BE(imageSpatialExtents + 12),
-		};
+	// AVIF stores its display dimensions in an ISO-BMFF ImageSpatialExtents box.
+	// Validate the file type and the containing box boundaries before reading it.
+	if (hasAvifFileType(buffer)) {
+		const dimensions = findAvifDimensions(buffer, 0, buffer.length);
+		if (dimensions) return dimensions;
 	}
 
 	const svg = buffer.subarray(0, 1024).toString("utf8");
-	if (svg.includes("<svg")) {
-		const width = svg.match(/\bwidth=["']([^"']+)["']/)?.[1];
-		const height = svg.match(/\bheight=["']([^"']+)["']/)?.[1];
+	const svgTag = svg.match(/<svg\b[^>]*>/i)?.[0];
+	if (svgTag) {
+		const width = getSvgAttribute(svgTag, "width");
+		const height = getSvgAttribute(svgTag, "height");
 		const absoluteLength = /^\s*(\d+(?:\.\d+)?)\s*(?:px)?\s*$/;
 		const absoluteWidth = width?.match(absoluteLength)?.[1];
 		const absoluteHeight = height?.match(absoluteLength)?.[1];
@@ -166,7 +256,9 @@ export function getImageDimensions(buffer: Buffer): ImageDimensions | undefined 
 			return { width: Number(absoluteWidth), height: Number(absoluteHeight) };
 		}
 
-		const viewBox = svg.match(/\bviewBox=["']\s*[\d.-]+\s+[\d.-]+\s+([\d.]+)\s+([\d.]+)/);
+		const viewBox = getSvgAttribute(svgTag, "viewBox")?.match(
+			/^\s*[\d.-]+\s+[\d.-]+\s+([\d.]+)\s+([\d.]+)\s*$/,
+		);
 		if (viewBox) return { width: Number(viewBox[1]), height: Number(viewBox[2]) };
 	}
 
