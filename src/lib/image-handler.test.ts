@@ -30,4 +30,10 @@ describe("getImageDimensions", () => {
 
 		expect(getImageDimensions(avif)).toEqual({ width: 1024, height: 768 });
 	});
+
+	it("uses an SVG viewBox when its declared dimensions are relative", () => {
+		const svg = Buffer.from('<svg width="100%" height="100%" viewBox="0 0 640 480"></svg>');
+
+		expect(getImageDimensions(svg)).toEqual({ width: 640, height: 480 });
+	});
 });

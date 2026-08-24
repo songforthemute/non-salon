@@ -157,9 +157,14 @@ export function getImageDimensions(buffer: Buffer): ImageDimensions | undefined 
 
 	const svg = buffer.subarray(0, 1024).toString("utf8");
 	if (svg.includes("<svg")) {
-		const width = svg.match(/\bwidth=["'](\d+(?:\.\d+)?)/)?.[1];
-		const height = svg.match(/\bheight=["'](\d+(?:\.\d+)?)/)?.[1];
-		if (width && height) return { width: Number(width), height: Number(height) };
+		const width = svg.match(/\bwidth=["']([^"']+)["']/)?.[1];
+		const height = svg.match(/\bheight=["']([^"']+)["']/)?.[1];
+		const absoluteLength = /^\s*(\d+(?:\.\d+)?)\s*(?:px)?\s*$/;
+		const absoluteWidth = width?.match(absoluteLength)?.[1];
+		const absoluteHeight = height?.match(absoluteLength)?.[1];
+		if (absoluteWidth && absoluteHeight) {
+			return { width: Number(absoluteWidth), height: Number(absoluteHeight) };
+		}
 
 		const viewBox = svg.match(/\bviewBox=["']\s*[\d.-]+\s+[\d.-]+\s+([\d.]+)\s+([\d.]+)/);
 		if (viewBox) return { width: Number(viewBox[1]), height: Number(viewBox[2]) };
