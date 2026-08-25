@@ -116,6 +116,107 @@ function getSvgAttribute(svgTag: string, name: string): string | undefined {
 	return match?.[1] ?? match?.[2];
 }
 
+function getJpegExifOrientation(segment: Buffer): number | undefined {
+	// APP1 Exif payloads begin with an Exif identifier, followed by a TIFF header.
+	if (segment.length < 14 || !startsWithBytes(segment, [0x45, 0x78, 0x69, 0x66, 0x00, 0x00])) {
+		return undefined;
+	}
+
+	const tiffStart = 6;
+	const byteOrder = segment.subarray(tiffStart, tiffStart + 2).toString("ascii");
+	const readUInt16 =
+		byteOrder === "II"
+			? (offset: number) => segment.readUInt16LE(offset)
+			: byteOrder === "MM"
+				? (offset: number) => segment.readUInt16BE(offset)
+				: undefined;
+	const readUInt32 =
+		byteOrder === "II"
+			? (offset: number) => segment.readUInt32LE(offset)
+			: byteOrder === "MM"
+				? (offset: number) => segment.readUInt32BE(offset)
+				: undefined;
+	if (!readUInt16 || !readUInt32 || tiffStart + 8 > segment.length) return undefined;
+
+	// TIFF's fixed marker is 42; reject arbitrary APP1 payloads before following offsets.
+	if (readUInt16(tiffStart + 2) !== 42) return undefined;
+
+	const ifdOffset = readUInt32(tiffStart + 4);
+	const ifdStart = tiffStart + ifdOffset;
+	if (ifdStart + 2 > segment.length) return undefined;
+
+	const entryCount = readUInt16(ifdStart);
+	const entriesStart = ifdStart + 2;
+	const entriesEnd = entriesStart + entryCount * 12;
+	if (entriesEnd > segment.length) return undefined;
+
+	for (let index = 0; index < entryCount; index++) {
+		const entryStart = entriesStart + index * 12;
+		if (readUInt16(entryStart) !== 0x0112) continue;
+
+		// Orientation is one TIFF SHORT stored inline in the entry's value field.
+		if (readUInt16(entryStart + 2) !== 3 || readUInt32(entryStart + 4) !== 1) return undefined;
+		const orientation = readUInt16(entryStart + 8);
+		return orientation >= 1 && orientation <= 8 ? orientation : undefined;
+	}
+
+	return undefined;
+}
+
+function getJpegDimensions(buffer: Buffer): ImageDimensions | undefined {
+	let offset = 2;
+	let dimensions: ImageDimensions | undefined;
+	let orientation: number | undefined;
+
+	while (offset < buffer.length) {
+		if (buffer[offset] !== 0xff) {
+			offset++;
+			continue;
+		}
+
+		while (buffer[offset] === 0xff) offset++;
+		if (offset >= buffer.length) break;
+
+		const marker = buffer[offset++];
+		if (
+			marker === 0x00 ||
+			marker === 0xd8 ||
+			marker === 0xd9 ||
+			marker === 0x01 ||
+			(marker >= 0xd0 && marker <= 0xd7)
+		) {
+			continue;
+		}
+		if (offset + 2 > buffer.length) break;
+
+		const segmentLength = buffer.readUInt16BE(offset);
+		if (segmentLength < 2 || offset + segmentLength > buffer.length) break;
+
+		const segmentDataStart = offset + 2;
+		const segmentEnd = offset + segmentLength;
+		if (marker === 0xe1) {
+			orientation ??= getJpegExifOrientation(buffer.subarray(segmentDataStart, segmentEnd));
+		} else if (
+			[0xc0, 0xc1, 0xc2, 0xc3, 0xc5, 0xc6, 0xc7, 0xc9, 0xca, 0xcb, 0xcd, 0xce, 0xcf].includes(
+				marker,
+			) &&
+			segmentLength >= 8
+		) {
+			const height = buffer.readUInt16BE(offset + 3);
+			const width = buffer.readUInt16BE(offset + 5);
+			if (width > 0 && height > 0) dimensions = { width, height };
+		}
+
+		if (marker === 0xda) break;
+		offset = segmentEnd;
+	}
+
+	if (!dimensions) return undefined;
+	return orientation && [5, 6, 7, 8].includes(orientation)
+		? { width: dimensions.height, height: dimensions.width }
+		: dimensions;
+}
+
 function getImageExtension(url: string, contentType?: string): string {
 	// Content-Type 기반
 	if (contentType) {
@@ -211,30 +312,7 @@ export function getImageDimensions(buffer: Buffer): ImageDimensions | undefined 
 	}
 
 	if (buffer.length >= 12 && startsWithBytes(buffer, [0xff, 0xd8])) {
-		let offset = 2;
-		while (offset + 9 < buffer.length) {
-			if (buffer[offset] !== 0xff) {
-				offset++;
-				continue;
-			}
-
-			const marker = buffer[offset + 1];
-			offset += 2;
-			if (marker === 0xd8 || marker === 0xd9) continue;
-
-			const segmentLength = buffer.readUInt16BE(offset);
-			if (segmentLength < 2 || offset + segmentLength > buffer.length) return undefined;
-
-			if (
-				[0xc0, 0xc1, 0xc2, 0xc3, 0xc5, 0xc6, 0xc7, 0xc9, 0xca, 0xcb, 0xcd, 0xce, 0xcf].includes(
-					marker,
-				)
-			) {
-				return { width: buffer.readUInt16BE(offset + 5), height: buffer.readUInt16BE(offset + 3) };
-			}
-
-			offset += segmentLength;
-		}
+		return getJpegDimensions(buffer);
 	}
 
 	// AVIF stores its display dimensions in an ISO-BMFF ImageSpatialExtents box.

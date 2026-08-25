@@ -1,6 +1,46 @@
 import { describe, expect, it } from "vitest";
 import { getImageDimensions } from "./image-handler";
 
+function jpegSegment(marker: number, payload: Buffer): Buffer {
+	const segment = Buffer.alloc(payload.length + 4);
+	segment[0] = 0xff;
+	segment[1] = marker;
+	segment.writeUInt16BE(payload.length + 2, 2);
+	payload.copy(segment, 4);
+	return segment;
+}
+
+function createExifOrientation(orientation: number, byteOrder: "II" | "MM"): Buffer {
+	const tiff = Buffer.alloc(26);
+	tiff.write(byteOrder);
+	const writeUInt16 =
+		byteOrder === "II" ? tiff.writeUInt16LE.bind(tiff) : tiff.writeUInt16BE.bind(tiff);
+	const writeUInt32 =
+		byteOrder === "II" ? tiff.writeUInt32LE.bind(tiff) : tiff.writeUInt32BE.bind(tiff);
+	writeUInt16(42, 2);
+	writeUInt32(8, 4);
+	writeUInt16(1, 8);
+	writeUInt16(0x0112, 10);
+	writeUInt16(3, 12);
+	writeUInt32(1, 14);
+	writeUInt16(orientation, 18);
+
+	return Buffer.concat([Buffer.from("Exif\0\0"), tiff]);
+}
+
+function createJpeg(width: number, height: number, app1Payload?: Buffer): Buffer {
+	const sof = Buffer.alloc(6);
+	sof[0] = 8;
+	sof.writeUInt16BE(height, 1);
+	sof.writeUInt16BE(width, 3);
+	sof[5] = 1;
+	return Buffer.concat([
+		Buffer.from([0xff, 0xd8]),
+		...(app1Payload ? [jpegSegment(0xe1, app1Payload)] : []),
+		jpegSegment(0xc0, sof),
+	]);
+}
+
 describe("getImageDimensions", () => {
 	it("reads PNG dimensions from its header", () => {
 		const png = Buffer.alloc(24);
@@ -20,6 +60,34 @@ describe("getImageDimensions", () => {
 		webp.writeUIntLE(239, 27, 3);
 
 		expect(getImageDimensions(webp)).toEqual({ width: 320, height: 240 });
+	});
+
+	it("reads JPEG dimensions without Exif orientation metadata", () => {
+		expect(getImageDimensions(createJpeg(640, 480))).toEqual({ width: 640, height: 480 });
+	});
+
+	it.each([
+		"II",
+		"MM",
+	] as const)("swaps JPEG dimensions for orientation 6 in %s Exif metadata", (byteOrder) => {
+		const jpeg = createJpeg(640, 480, createExifOrientation(6, byteOrder));
+
+		expect(getImageDimensions(jpeg)).toEqual({ width: 480, height: 640 });
+	});
+
+	it("keeps JPEG dimensions when Exif metadata is malformed", () => {
+		const malformedExif = Buffer.from("Exif\0\0II*\0");
+
+		expect(getImageDimensions(createJpeg(640, 480, malformedExif))).toEqual({
+			width: 640,
+			height: 480,
+		});
+	});
+
+	it("keeps JPEG dimensions for non-Exif APP1 metadata", () => {
+		expect(
+			getImageDimensions(createJpeg(640, 480, Buffer.from("http://ns.adobe.com/xap/1.0/"))),
+		).toEqual({ width: 640, height: 480 });
 	});
 
 	it("reads AVIF dimensions from its image spatial extents box", () => {
