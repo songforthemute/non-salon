@@ -78,36 +78,182 @@ function hasAvifFileType(buffer: Buffer): boolean {
 	return false;
 }
 
-function findAvifDimensions(
-	buffer: Buffer,
-	start: number,
-	end: number,
-): ImageDimensions | undefined {
+interface AvifProperty {
+	type: string;
+	dimensions?: ImageDimensions;
+	rotation?: number;
+}
+
+interface AvifItemProperties {
+	properties: AvifProperty[];
+	associations: Map<number, number[]>;
+}
+
+function getBmffBoxes(buffer: Buffer, start: number, end: number): BmffBox[] | undefined {
+	const boxes: BmffBox[] = [];
 	let offset = start;
 	while (offset < end) {
 		const box = readBmffBox(buffer, offset, end);
 		if (!box) return undefined;
-
-		if (box.type === "ispe") {
-			// ispe is a FullBox: version/flags, then 32-bit width and height.
-			if (box.contentStart + 12 <= box.end) {
-				const width = buffer.readUInt32BE(box.contentStart + 4);
-				const height = buffer.readUInt32BE(box.contentStart + 8);
-				if (width > 0 && height > 0) return { width, height };
-			}
-		} else if (box.type === "meta") {
-			// meta is a FullBox, so its nested boxes begin after version and flags.
-			const dimensions = findAvifDimensions(buffer, box.contentStart + 4, box.end);
-			if (dimensions) return dimensions;
-		} else if (box.type === "iprp" || box.type === "ipco") {
-			const dimensions = findAvifDimensions(buffer, box.contentStart, box.end);
-			if (dimensions) return dimensions;
-		}
-
+		boxes.push(box);
 		offset = box.end;
 	}
+	return offset === end ? boxes : undefined;
+}
 
+function getFullBoxVersion(buffer: Buffer, box: BmffBox): number | undefined {
+	return box.contentStart + 4 <= box.end ? buffer[box.contentStart] : undefined;
+}
+
+function parseAvifPrimaryItemId(buffer: Buffer, box: BmffBox): number | undefined {
+	const version = getFullBoxVersion(buffer, box);
+	if (version === 0 && box.contentStart + 6 === box.end) {
+		return buffer.readUInt16BE(box.contentStart + 4);
+	}
+	if (version === 1 && box.contentStart + 8 === box.end) {
+		return buffer.readUInt32BE(box.contentStart + 4);
+	}
 	return undefined;
+}
+
+function parseAvifProperties(buffer: Buffer, box: BmffBox): AvifProperty[] | undefined {
+	const boxes = getBmffBoxes(buffer, box.contentStart, box.end);
+	if (!boxes) return undefined;
+
+	const properties: AvifProperty[] = [];
+	for (const propertyBox of boxes) {
+		if (propertyBox.type === "ispe") {
+			// ispe is a version-zero FullBox followed by 32-bit width and height.
+			if (
+				getFullBoxVersion(buffer, propertyBox) !== 0 ||
+				propertyBox.contentStart + 12 !== propertyBox.end
+			) {
+				return undefined;
+			}
+			const width = buffer.readUInt32BE(propertyBox.contentStart + 4);
+			const height = buffer.readUInt32BE(propertyBox.contentStart + 8);
+			if (width === 0 || height === 0) return undefined;
+			properties.push({ type: "ispe", dimensions: { width, height } });
+			continue;
+		}
+
+		if (propertyBox.type === "irot") {
+			if (propertyBox.contentStart + 1 !== propertyBox.end) return undefined;
+			const rotation = buffer[propertyBox.contentStart];
+			if ((rotation & 0xfc) !== 0) return undefined;
+			properties.push({ type: "irot", rotation });
+			continue;
+		}
+
+		if (propertyBox.type === "imir") {
+			if (propertyBox.contentStart + 1 !== propertyBox.end) return undefined;
+			if ((buffer[propertyBox.contentStart] & 0xfe) !== 0) return undefined;
+			properties.push({ type: "imir" });
+			continue;
+		}
+
+		properties.push({ type: propertyBox.type });
+	}
+	return properties;
+}
+
+function parseAvifPropertyAssociations(
+	buffer: Buffer,
+	box: BmffBox,
+): Map<number, number[]> | undefined {
+	const version = getFullBoxVersion(buffer, box);
+	if (version !== 0 && version !== 1) return undefined;
+	if (box.contentStart + 8 > box.end) return undefined;
+
+	const flags = buffer.readUIntBE(box.contentStart + 1, 3);
+	if ((flags & ~1) !== 0) return undefined;
+	const largeIndexes = (flags & 1) !== 0;
+	const entryCount = buffer.readUInt32BE(box.contentStart + 4);
+	const associations = new Map<number, number[]>();
+	let offset = box.contentStart + 8;
+
+	for (let entry = 0; entry < entryCount; entry++) {
+		const itemIdSize = version === 0 ? 2 : 4;
+		if (offset + itemIdSize + 1 > box.end) return undefined;
+		const itemId = version === 0 ? buffer.readUInt16BE(offset) : buffer.readUInt32BE(offset);
+		offset += itemIdSize;
+		const associationCount = buffer[offset++];
+		const indexSize = largeIndexes ? 2 : 1;
+		if (offset + associationCount * indexSize > box.end || associations.has(itemId))
+			return undefined;
+
+		const propertyIndexes: number[] = [];
+		for (let association = 0; association < associationCount; association++) {
+			const value = largeIndexes ? buffer.readUInt16BE(offset) : buffer[offset];
+			offset += indexSize;
+			const propertyIndex = largeIndexes ? value & 0x7fff : value & 0x7f;
+			if (propertyIndex === 0) return undefined;
+			propertyIndexes.push(propertyIndex);
+		}
+		associations.set(itemId, propertyIndexes);
+	}
+
+	return offset === box.end ? associations : undefined;
+}
+
+function parseAvifItemProperties(buffer: Buffer, box: BmffBox): AvifItemProperties | undefined {
+	const boxes = getBmffBoxes(buffer, box.contentStart, box.end);
+	if (!boxes) return undefined;
+
+	const ipco = boxes.filter((child) => child.type === "ipco");
+	const ipma = boxes.filter((child) => child.type === "ipma");
+	if (ipco.length !== 1 || ipma.length !== 1) return undefined;
+
+	const properties = parseAvifProperties(buffer, ipco[0]);
+	const associations = parseAvifPropertyAssociations(buffer, ipma[0]);
+	return properties && associations ? { properties, associations } : undefined;
+}
+
+function getAvifDimensions(buffer: Buffer): ImageDimensions | undefined {
+	const topLevelBoxes = getBmffBoxes(buffer, 0, buffer.length);
+	if (!topLevelBoxes) return undefined;
+	const metaBoxes = topLevelBoxes.filter((box) => box.type === "meta");
+	if (metaBoxes.length !== 1) return undefined;
+
+	const meta = metaBoxes[0];
+	// meta is a FullBox, so its nested boxes begin after version and flags.
+	if (getFullBoxVersion(buffer, meta) !== 0 || meta.contentStart + 4 > meta.end) return undefined;
+	const metaChildren = getBmffBoxes(buffer, meta.contentStart + 4, meta.end);
+	if (!metaChildren) return undefined;
+	const pitm = metaChildren.filter((child) => child.type === "pitm");
+	const iprp = metaChildren.filter((child) => child.type === "iprp");
+	if (pitm.length !== 1 || iprp.length !== 1) return undefined;
+
+	const primaryItemId = parseAvifPrimaryItemId(buffer, pitm[0]);
+	const itemProperties = parseAvifItemProperties(buffer, iprp[0]);
+	if (primaryItemId === undefined || !itemProperties) return undefined;
+
+	const propertyIndexes = itemProperties.associations.get(primaryItemId);
+	if (!propertyIndexes) return undefined;
+	const primaryProperties: AvifProperty[] = [];
+	for (const propertyIndex of propertyIndexes) {
+		const property = itemProperties.properties[propertyIndex - 1];
+		if (!property) return undefined;
+		primaryProperties.push(property);
+	}
+
+	// clean aperture and pixel aspect ratio alter the displayed aspect ratio; without
+	// implementing them, reserve no space rather than reserve the wrong space.
+	if (primaryProperties.some((property) => property.type === "clap" || property.type === "pasp"))
+		return undefined;
+	const spatialExtents = primaryProperties.filter(
+		(property): property is AvifProperty & { dimensions: ImageDimensions } =>
+			property.type === "ispe" && property.dimensions !== undefined,
+	);
+	if (spatialExtents.length !== 1) return undefined;
+
+	const rotations = primaryProperties.filter((property) => property.type === "irot");
+	if (rotations.length > 1 || rotations.some((property) => property.rotation === undefined))
+		return undefined;
+	const { width, height } = spatialExtents[0].dimensions;
+	return rotations[0]?.rotation === 1 || rotations[0]?.rotation === 3
+		? { width: height, height: width }
+		: { width, height };
 }
 
 function getSvgAttribute(svgTag: string, name: string): string | undefined {
@@ -316,9 +462,9 @@ export function getImageDimensions(buffer: Buffer): ImageDimensions | undefined 
 	}
 
 	// AVIF stores its display dimensions in an ISO-BMFF ImageSpatialExtents box.
-	// Validate the file type and the containing box boundaries before reading it.
+	// Resolve the primary item through its property associations before reading it.
 	if (hasAvifFileType(buffer)) {
-		const dimensions = findAvifDimensions(buffer, 0, buffer.length);
+		const dimensions = getAvifDimensions(buffer);
 		if (dimensions) return dimensions;
 	}
 

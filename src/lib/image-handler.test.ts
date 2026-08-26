@@ -41,6 +41,79 @@ function createJpeg(width: number, height: number, app1Payload?: Buffer): Buffer
 	]);
 }
 
+function bmffBox(type: string, payload: Buffer): Buffer {
+	const box = Buffer.alloc(payload.length + 8);
+	box.writeUInt32BE(box.length, 0);
+	box.write(type, 4);
+	payload.copy(box, 8);
+	return box;
+}
+
+function fullBox(version: number, flags: number, payload: Buffer): Buffer {
+	const header = Buffer.alloc(4);
+	header[0] = version;
+	header.writeUIntBE(flags, 1, 3);
+	return Buffer.concat([header, payload]);
+}
+
+function avifIspe(width: number, height: number): Buffer {
+	const dimensions = Buffer.alloc(8);
+	dimensions.writeUInt32BE(width, 0);
+	dimensions.writeUInt32BE(height, 4);
+	return bmffBox("ispe", fullBox(0, 0, dimensions));
+}
+
+function createAvif({
+	primaryItemId,
+	pitmVersion = 0,
+	ipmaVersion = 0,
+	largePropertyIndexes = false,
+	properties,
+	associations,
+}: {
+	primaryItemId: number;
+	pitmVersion?: 0 | 1;
+	ipmaVersion?: 0 | 1;
+	largePropertyIndexes?: boolean;
+	properties: Buffer[];
+	associations: Array<{ itemId: number; propertyIndexes: number[] }>;
+}): Buffer {
+	const ftyp = bmffBox(
+		"ftyp",
+		Buffer.concat([Buffer.from("avif"), Buffer.alloc(4), Buffer.from("mif1")]),
+	);
+	const pitmId = Buffer.alloc(pitmVersion === 0 ? 2 : 4);
+	if (pitmVersion === 0) pitmId.writeUInt16BE(primaryItemId);
+	else pitmId.writeUInt32BE(primaryItemId);
+	const pitm = bmffBox("pitm", fullBox(pitmVersion, 0, pitmId));
+
+	const entryBuffers = associations.map(({ itemId, propertyIndexes }) => {
+		const itemIdBuffer = Buffer.alloc(ipmaVersion === 0 ? 2 : 4);
+		if (ipmaVersion === 0) itemIdBuffer.writeUInt16BE(itemId);
+		else itemIdBuffer.writeUInt32BE(itemId);
+		const indexes = Buffer.alloc(propertyIndexes.length * (largePropertyIndexes ? 2 : 1));
+		for (const [index, propertyIndex] of propertyIndexes.entries()) {
+			if (largePropertyIndexes) indexes.writeUInt16BE(propertyIndex, index * 2);
+			else indexes[index] = propertyIndex;
+		}
+		return Buffer.concat([itemIdBuffer, Buffer.from([propertyIndexes.length]), indexes]);
+	});
+	const entryCount = Buffer.alloc(4);
+	entryCount.writeUInt32BE(associations.length);
+	const ipma = bmffBox(
+		"ipma",
+		fullBox(
+			ipmaVersion,
+			largePropertyIndexes ? 1 : 0,
+			Buffer.concat([entryCount, ...entryBuffers]),
+		),
+	);
+	const ipco = bmffBox("ipco", Buffer.concat(properties));
+	const iprp = bmffBox("iprp", Buffer.concat([ipco, ipma]));
+	const meta = bmffBox("meta", fullBox(0, 0, Buffer.concat([pitm, iprp])));
+	return Buffer.concat([ftyp, meta]);
+}
+
 describe("getImageDimensions", () => {
 	it("reads PNG dimensions from its header", () => {
 		const png = Buffer.alloc(24);
@@ -90,29 +163,100 @@ describe("getImageDimensions", () => {
 		).toEqual({ width: 640, height: 480 });
 	});
 
-	it("reads AVIF dimensions from its image spatial extents box", () => {
-		const ftyp = Buffer.alloc(20);
-		ftyp.writeUInt32BE(20, 0);
-		ftyp.write("ftyp", 4);
-		ftyp.write("avif", 8);
-		ftyp.writeUInt32BE(0, 12);
-		ftyp.write("mif1", 16);
-		const ispe = Buffer.alloc(20);
-		ispe.writeUInt32BE(20, 0);
-		ispe.write("ispe", 4);
-		ispe.writeUInt32BE(1024, 12);
-		ispe.writeUInt32BE(768, 16);
-		const ipco = Buffer.concat([Buffer.from([0, 0, 0, 28]), Buffer.from("ipco"), ispe]);
-		const iprp = Buffer.concat([Buffer.from([0, 0, 0, 36]), Buffer.from("iprp"), ipco]);
-		const meta = Buffer.concat([
-			Buffer.from([0, 0, 0, 48]),
-			Buffer.from("meta"),
-			Buffer.alloc(4),
-			iprp,
-		]);
-		const avif = Buffer.concat([ftyp, meta]);
+	it("uses the primary AVIF item's spatial extents rather than the first ispe property", () => {
+		const avif = createAvif({
+			primaryItemId: 42,
+			properties: [avifIspe(320, 180), avifIspe(2400, 1600)],
+			associations: [
+				{ itemId: 7, propertyIndexes: [1] },
+				{ itemId: 42, propertyIndexes: [2] },
+			],
+		});
+
+		expect(getImageDimensions(avif)).toEqual({ width: 2400, height: 1600 });
+	});
+
+	it("does not emit AVIF dimensions when the primary item has no property mapping", () => {
+		const avif = createAvif({
+			primaryItemId: 42,
+			properties: [avifIspe(1024, 768)],
+			associations: [{ itemId: 7, propertyIndexes: [1] }],
+		});
+
+		expect(getImageDimensions(avif)).toBeUndefined();
+	});
+
+	it("does not emit AVIF dimensions for an out-of-range primary property index", () => {
+		const avif = createAvif({
+			primaryItemId: 42,
+			properties: [avifIspe(1024, 768)],
+			associations: [{ itemId: 42, propertyIndexes: [2] }],
+		});
+
+		expect(getImageDimensions(avif)).toBeUndefined();
+	});
+
+	it("does not emit AVIF dimensions when the primary item has multiple spatial extents", () => {
+		const avif = createAvif({
+			primaryItemId: 42,
+			properties: [avifIspe(1024, 768), avifIspe(2048, 1024)],
+			associations: [{ itemId: 42, propertyIndexes: [1, 2] }],
+		});
+
+		expect(getImageDimensions(avif)).toBeUndefined();
+	});
+
+	it("reads version-one AVIF item and 15-bit property associations", () => {
+		const avif = createAvif({
+			primaryItemId: 0x1_0001,
+			pitmVersion: 1,
+			ipmaVersion: 1,
+			largePropertyIndexes: true,
+			properties: [avifIspe(1024, 768)],
+			associations: [{ itemId: 0x1_0001, propertyIndexes: [1] }],
+		});
 
 		expect(getImageDimensions(avif)).toEqual({ width: 1024, height: 768 });
+	});
+
+	it("swaps AVIF dimensions for a 90-degree primary item rotation", () => {
+		const avif = createAvif({
+			primaryItemId: 42,
+			properties: [avifIspe(1024, 768), bmffBox("irot", Buffer.from([1]))],
+			associations: [{ itemId: 42, propertyIndexes: [1, 2] }],
+		});
+
+		expect(getImageDimensions(avif)).toEqual({ width: 768, height: 1024 });
+	});
+
+	it("does not swap AVIF dimensions for a primary item mirror", () => {
+		const avif = createAvif({
+			primaryItemId: 42,
+			properties: [avifIspe(1024, 768), bmffBox("imir", Buffer.from([1]))],
+			associations: [{ itemId: 42, propertyIndexes: [1, 2] }],
+		});
+
+		expect(getImageDimensions(avif)).toEqual({ width: 1024, height: 768 });
+	});
+
+	it("does not emit AVIF dimensions when the primary item has a clean aperture", () => {
+		const avif = createAvif({
+			primaryItemId: 42,
+			properties: [avifIspe(1024, 768), bmffBox("clap", Buffer.alloc(32))],
+			associations: [{ itemId: 42, propertyIndexes: [1, 2] }],
+		});
+
+		expect(getImageDimensions(avif)).toBeUndefined();
+	});
+
+	it("does not emit AVIF dimensions when the primary item has pixel aspect ratio metadata", () => {
+		const avif = createAvif({
+			primaryItemId: 42,
+			properties: [avifIspe(1024, 768), bmffBox("pasp", Buffer.alloc(8))],
+			associations: [{ itemId: 42, propertyIndexes: [1, 2] }],
+		});
+
+		expect(getImageDimensions(avif)).toBeUndefined();
 	});
 
 	it("does not treat an arbitrary ispe string as AVIF metadata", () => {
