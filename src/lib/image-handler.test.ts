@@ -1,5 +1,19 @@
-import { describe, expect, it } from "vitest";
-import { getImageDimensions } from "./image-handler";
+import { randomUUID } from "node:crypto";
+import * as fs from "node:fs/promises";
+import * as path from "node:path";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import type { Block } from "@/types";
+import { blockToHtml } from "./block-to-html";
+import { getImageDimensions, populateImageDimensions } from "./image-handler";
+
+const IMAGE_FIXTURE_DIRECTORY = path.join(
+	process.cwd(),
+	"public",
+	"images",
+	`vitest-image-dimensions-${randomUUID()}`,
+);
+const IMAGE_FIXTURE_PATH = path.join(IMAGE_FIXTURE_DIRECTORY, "fixture.png");
+const IMAGE_FIXTURE_URL = `/images/${path.basename(IMAGE_FIXTURE_DIRECTORY)}/fixture.png`;
 
 function jpegSegment(marker: number, payload: Buffer): Buffer {
 	const segment = Buffer.alloc(payload.length + 4);
@@ -336,5 +350,40 @@ describe("getImageDimensions", () => {
 		);
 
 		expect(getImageDimensions(svg)).toEqual({ width: 320, height: 240 });
+	});
+});
+
+describe("populateImageDimensions", () => {
+	beforeEach(async () => {
+		const png = Buffer.alloc(24);
+		png.set([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+		png.writeUInt32BE(640, 16);
+		png.writeUInt32BE(480, 20);
+
+		await fs.mkdir(IMAGE_FIXTURE_DIRECTORY, { recursive: true });
+		await fs.writeFile(IMAGE_FIXTURE_PATH, png);
+	});
+
+	afterEach(async () => {
+		await fs.rm(IMAGE_FIXTURE_DIRECTORY, { recursive: true, force: true });
+	});
+
+	it("enriches cached local images before rendering their layout dimensions", async () => {
+		const blocks: Block[] = [
+			{
+				type: "image",
+				image: {
+					type: "file",
+					file: { url: IMAGE_FIXTURE_URL },
+					caption: [],
+				},
+			},
+		];
+
+		const [enrichedBlock] = await populateImageDimensions(blocks);
+
+		expect(blockToHtml(enrichedBlock)).toBe(
+			`<figure><img src="${IMAGE_FIXTURE_URL}" alt="" width="640" height="480" decoding="async"></figure>`,
+		);
 	});
 });
