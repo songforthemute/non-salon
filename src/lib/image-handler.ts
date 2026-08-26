@@ -72,7 +72,6 @@ const SVG_PREFIX_BYTE_LIMIT = 1_024;
 interface ImageInfo {
 	blockId: string;
 	originalUrl: string;
-	localPath: string;
 }
 
 interface ImageDimensions {
@@ -83,6 +82,17 @@ interface ImageDimensions {
 interface DownloadedImage {
 	path: string;
 	dimensions?: ImageDimensions;
+}
+
+type ImageDownloadFailureReason = "http-status" | "too-large" | "timeout" | "unavailable";
+
+class ImageDownloadError extends Error {
+	constructor(
+		readonly reason: ImageDownloadFailureReason,
+		readonly status?: number,
+	) {
+		super(reason);
+	}
 }
 
 function startsWithBytes(buffer: Buffer, bytes: readonly number[]): boolean {
@@ -528,7 +538,6 @@ function extractImagesFromBlocks(blocks: Block[]): ImageInfo[] {
 				images.push({
 					blockId: block.id.replace(/-/g, ""),
 					originalUrl,
-					localPath: "", // 다운로드 후 채움
 				});
 			}
 		}
@@ -645,9 +654,7 @@ async function readImageResponse(response: Response, controller: AbortController
 			byteLength += value.byteLength;
 			if (byteLength > MAX_IMAGE_DOWNLOAD_BYTES) {
 				controller.abort();
-				throw new Error(
-					`Image download exceeds ${MAX_IMAGE_DOWNLOAD_BYTES} bytes: ${response.url}`,
-				);
+				throw new ImageDownloadError("too-large");
 			}
 			chunks.push(value);
 		}
@@ -666,11 +673,11 @@ async function downloadImage(url: string, destPath: string): Promise<DownloadedI
 		const response = await fetch(url, { signal: controller.signal });
 
 		if (!response.ok) {
-			throw new Error(`Failed to download image: ${response.status} ${url}`);
+			throw new ImageDownloadError("http-status", response.status);
 		}
 		if (hasContentLengthOverLimit(response.headers.get("content-length"))) {
 			controller.abort();
-			throw new Error(`Image download exceeds ${MAX_IMAGE_DOWNLOAD_BYTES} bytes: ${url}`);
+			throw new ImageDownloadError("too-large");
 		}
 
 		const contentType = response.headers.get("content-type") || undefined;
@@ -680,9 +687,19 @@ async function downloadImage(url: string, destPath: string): Promise<DownloadedI
 		await fs.writeFile(finalPath, buffer);
 
 		return { path: finalPath, dimensions: getImageDimensions(buffer) };
+	} catch (error) {
+		if (error instanceof ImageDownloadError) throw error;
+		if (controller.signal.aborted) throw new ImageDownloadError("timeout");
+		throw new ImageDownloadError("unavailable");
 	} finally {
 		clearTimeout(timeout);
 	}
+}
+
+function getDownloadFailureDescription(error: unknown): string {
+	if (!(error instanceof ImageDownloadError)) return "unavailable";
+	if (error.reason === "http-status") return `HTTP ${error.status ?? "error"}`;
+	return error.reason;
 }
 
 // 블록 내 이미지 URL이 원격(http)인지 확인 — 로컬 경로면 이미 처리된 캐시
@@ -728,8 +745,10 @@ export async function processPostImages(
 			const relativePath = `/images/${type}/${slug}/${path.basename(downloadedImage.path)}`;
 			urlMapping[img.originalUrl] = { url: relativePath, dimensions: downloadedImage.dimensions };
 			console.log(`  📷 ${path.basename(downloadedImage.path)}`);
-		} catch (_error) {
-			console.warn(`  ⚠️  Failed to download: ${img.blockId}`);
+		} catch (error) {
+			console.warn(
+				`  ⚠️  Failed to download image block ${img.blockId}: ${getDownloadFailureDescription(error)}`,
+			);
 		}
 	}
 
