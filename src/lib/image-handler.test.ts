@@ -284,6 +284,14 @@ describe("getImageDimensions", () => {
 		expect(getImageDimensions(svg)).toEqual({ width: 640, height: 480 });
 	});
 
+	it("reads SVG attributes after a quoted value containing a greater-than sign", () => {
+		const svg = Buffer.from(
+			'<svg aria-label="a > b" width="100%" height="100%" viewBox="0 0 640 480"></svg>',
+		);
+
+		expect(getImageDimensions(svg)).toEqual({ width: 640, height: 480 });
+	});
+
 	it("uses an SVG viewBox with comma-separated values", () => {
 		const svg = Buffer.from('<svg viewBox="0,0,640,480"></svg>');
 

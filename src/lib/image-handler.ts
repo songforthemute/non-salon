@@ -275,6 +275,28 @@ function getSvgAttribute(svgTag: string, name: string): string | undefined {
 	return match?.[1] ?? match?.[2];
 }
 
+function getSvgOpeningTag(svg: string): string | undefined {
+	const match = /<svg\b/i.exec(svg);
+	if (!match || match.index === undefined) return undefined;
+
+	let quote: '"' | "'" | undefined;
+	for (let index = match.index + match[0].length; index < svg.length; index++) {
+		const character = svg[index];
+		if (quote) {
+			if (character === quote) quote = undefined;
+			continue;
+		}
+
+		if (character === '"' || character === "'") {
+			quote = character;
+			continue;
+		}
+		if (character === ">") return svg.slice(match.index, index + 1);
+	}
+
+	return undefined;
+}
+
 function getJpegExifOrientation(segment: Buffer): number | undefined {
 	// APP1 Exif payloads begin with an Exif identifier, followed by a TIFF header.
 	if (segment.length < 14 || !startsWithBytes(segment, [0x45, 0x78, 0x69, 0x66, 0x00, 0x00])) {
@@ -482,7 +504,7 @@ export function getImageDimensions(buffer: Buffer): ImageDimensions | undefined 
 	}
 
 	const svg = buffer.subarray(0, 1024).toString("utf8");
-	const svgTag = svg.match(/<svg\b[^>]*>/i)?.[0];
+	const svgTag = getSvgOpeningTag(svg);
 	if (svgTag) {
 		const width = getSvgAttribute(svgTag, "width");
 		const height = getSvgAttribute(svgTag, "height");
