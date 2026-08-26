@@ -301,6 +301,14 @@ describe("getImageDimensions", () => {
 		expect(getImageDimensions(svg)).toEqual({ width: 640, height: 480 });
 	});
 
+	it("ignores SVG attributes whose names only end with dimension attribute names", () => {
+		const svg = Buffer.from(
+			'<svg data-width="100" aria-height="50" custom:viewBox="0 0 100 50" viewBox="0 0 640 480"></svg>',
+		);
+
+		expect(getImageDimensions(svg)).toEqual({ width: 640, height: 480 });
+	});
+
 	it("uses absolute dimensions declared on the root SVG tag", () => {
 		const svg = Buffer.from(
 			'<svg width="320px" height="240"><rect width="10" height="20" /></svg>',
