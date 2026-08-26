@@ -480,10 +480,20 @@ export function getImageDimensions(buffer: Buffer): ImageDimensions | undefined 
 			return { width: Number(absoluteWidth), height: Number(absoluteHeight) };
 		}
 
+		const svgNumber = "[+-]?(?:(?:\\d+\\.?\\d*)|(?:\\.\\d+))(?:[eE][+-]?\\d+)?";
+		const viewBoxSeparator = "(?:\\s*,\\s*|\\s+)";
 		const viewBox = getSvgAttribute(svgTag, "viewBox")?.match(
-			/^\s*[\d.-]+\s+[\d.-]+\s+([\d.]+)\s+([\d.]+)\s*$/,
+			new RegExp(
+				`^\\s*(${svgNumber})${viewBoxSeparator}(${svgNumber})${viewBoxSeparator}(${svgNumber})${viewBoxSeparator}(${svgNumber})\\s*$`,
+			),
 		);
-		if (viewBox) return { width: Number(viewBox[1]), height: Number(viewBox[2]) };
+		if (viewBox) {
+			const width = Number(viewBox[3]);
+			const height = Number(viewBox[4]);
+			if (Number.isFinite(width) && Number.isFinite(height) && width > 0 && height > 0) {
+				return { width, height };
+			}
+		}
 	}
 
 	return undefined;

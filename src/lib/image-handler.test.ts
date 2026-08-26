@@ -271,6 +271,28 @@ describe("getImageDimensions", () => {
 		expect(getImageDimensions(svg)).toEqual({ width: 640, height: 480 });
 	});
 
+	it("uses an SVG viewBox with comma-separated values", () => {
+		const svg = Buffer.from('<svg viewBox="0,0,640,480"></svg>');
+
+		expect(getImageDimensions(svg)).toEqual({ width: 640, height: 480 });
+	});
+
+	it("uses an SVG viewBox with mixed separators and a negative origin", () => {
+		const svg = Buffer.from('<svg viewBox="-12.5, 4.25 640, 480.5"></svg>');
+
+		expect(getImageDimensions(svg)).toEqual({ width: 640, height: 480.5 });
+	});
+
+	it("does not use an SVG viewBox with malformed or non-positive dimensions", () => {
+		const malformed = Buffer.from('<svg viewBox="0,0,640"></svg>');
+		const zeroWidth = Buffer.from('<svg viewBox="0 0 0 480"></svg>');
+		const negativeHeight = Buffer.from('<svg viewBox="0 0 640 -480"></svg>');
+
+		expect(getImageDimensions(malformed)).toBeUndefined();
+		expect(getImageDimensions(zeroWidth)).toBeUndefined();
+		expect(getImageDimensions(negativeHeight)).toBeUndefined();
+	});
+
 	it("uses the root SVG viewBox instead of descendant dimensions", () => {
 		const svg = Buffer.from(
 			'<svg width="100%" height="100%" viewBox="0 0 640 480"><rect width="10" height="20" /></svg>',
