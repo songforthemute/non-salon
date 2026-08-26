@@ -12,6 +12,63 @@ const MAX_BMFF_BOXES = 1_024;
 const MAX_AVIF_ASSOCIATION_ENTRIES = 1_024;
 const MAX_AVIF_PROPERTY_ASSOCIATIONS = 4_096;
 
+const BMFF_UINT16_BYTES = 2;
+const BMFF_UINT32_BYTES = 4;
+const BMFF_BOX_HEADER_BYTES = BMFF_UINT32_BYTES * 2;
+const BMFF_LARGE_SIZE_HEADER_BYTES = BMFF_BOX_HEADER_BYTES * 2;
+const BMFF_BOX_TYPE_OFFSET = BMFF_UINT32_BYTES;
+const BMFF_BRAND_BYTES = BMFF_UINT32_BYTES;
+const BMFF_FULL_BOX_HEADER_BYTES = BMFF_UINT32_BYTES;
+const BMFF_FULL_BOX_FLAGS_BYTES = 3;
+const IPMA_LARGE_PROPERTY_INDEX_FLAG = 0x1;
+const IPMA_LARGE_PROPERTY_INDEX_MASK = 0x7fff;
+const IPMA_SMALL_PROPERTY_INDEX_MASK = 0x7f;
+const IROT_RESERVED_BITS_MASK = 0xfc;
+const IMIR_RESERVED_BITS_MASK = 0xfe;
+const IROT_QUARTER_TURN = 1;
+const IROT_THREE_QUARTER_TURNS = 3;
+
+const EXIF_IDENTIFIER = [0x45, 0x78, 0x69, 0x66, 0x00, 0x00] as const;
+const EXIF_TIFF_OFFSET = 6;
+const TIFF_LITTLE_ENDIAN_BYTE_ORDER = "II";
+const TIFF_BIG_ENDIAN_BYTE_ORDER = "MM";
+const TIFF_BYTE_ORDER_BYTES = 2;
+const TIFF_HEADER_BYTES = 8;
+const TIFF_MAGIC_OFFSET = 2;
+const TIFF_MAGIC = 42;
+const TIFF_FIRST_IFD_OFFSET = 4;
+const TIFF_IFD_ENTRY_COUNT_BYTES = 2;
+const TIFF_IFD_ENTRY_BYTES = 12;
+const TIFF_ORIENTATION_TAG = 0x0112;
+const TIFF_SHORT_TYPE = 3;
+const TIFF_ORIENTATION_COMPONENT_COUNT = 1;
+const TIFF_ENTRY_TYPE_OFFSET = 2;
+const TIFF_ENTRY_COMPONENT_COUNT_OFFSET = 4;
+const TIFF_ENTRY_VALUE_OFFSET = 8;
+
+const JPEG_MARKER_PREFIX = 0xff;
+const JPEG_STUFFED_BYTE_MARKER = 0x00;
+const JPEG_START_OF_IMAGE_MARKER = 0xd8;
+const JPEG_END_OF_IMAGE_MARKER = 0xd9;
+const JPEG_TEM_MARKER = 0x01;
+const JPEG_RESTART_MARKER_FIRST = 0xd0;
+const JPEG_RESTART_MARKER_LAST = 0xd7;
+const JPEG_EXIF_APP1_MARKER = 0xe1;
+const JPEG_START_OF_SCAN_MARKER = 0xda;
+const JPEG_SEGMENT_LENGTH_BYTES = 2;
+const JPEG_MINIMUM_SEGMENT_LENGTH = 2;
+const JPEG_SOF_MINIMUM_SEGMENT_LENGTH = 8;
+const JPEG_SOF_HEIGHT_OFFSET = 3;
+const JPEG_SOF_WIDTH_OFFSET = 5;
+const JPEG_SOF_MARKERS = new Set([
+	0xc0, 0xc1, 0xc2, 0xc3, 0xc5, 0xc6, 0xc7, 0xc9, 0xca, 0xcb, 0xcd, 0xce, 0xcf,
+]);
+const EXIF_ORIENTATION_MIN = 1;
+const EXIF_ORIENTATION_MAX = 8;
+const EXIF_SWAP_DIMENSION_ORIENTATIONS = new Set([5, 6, 7, 8]);
+
+const SVG_PREFIX_BYTE_LIMIT = 1_024;
+
 interface ImageInfo {
 	blockId: string;
 	originalUrl: string;
@@ -41,19 +98,21 @@ interface BmffBox {
 const AVIF_BRANDS = new Set(["avif", "avis"]);
 
 function readBmffBox(buffer: Buffer, start: number, end: number): BmffBox | undefined {
-	if (start + 8 > end) return undefined;
+	if (start + BMFF_BOX_HEADER_BYTES > end) return undefined;
 
 	const size = buffer.readUInt32BE(start);
-	const type = buffer.subarray(start + 4, start + 8).toString("ascii");
-	let headerSize = 8;
+	const type = buffer
+		.subarray(start + BMFF_BOX_TYPE_OFFSET, start + BMFF_BOX_HEADER_BYTES)
+		.toString("ascii");
+	let headerSize = BMFF_BOX_HEADER_BYTES;
 	let boxEnd: number;
 
 	if (size === 1) {
-		if (start + 16 > end) return undefined;
-		const largeSize = buffer.readBigUInt64BE(start + 8);
+		if (start + BMFF_LARGE_SIZE_HEADER_BYTES > end) return undefined;
+		const largeSize = buffer.readBigUInt64BE(start + BMFF_BOX_HEADER_BYTES);
 		if (largeSize > BigInt(Number.MAX_SAFE_INTEGER)) return undefined;
 		boxEnd = start + Number(largeSize);
-		headerSize = 16;
+		headerSize = BMFF_LARGE_SIZE_HEADER_BYTES;
 	} else if (size === 0) {
 		boxEnd = end;
 	} else {
@@ -72,10 +131,16 @@ function hasAvifFileType(buffer: Buffer): boolean {
 		if (!box) return false;
 
 		if (box.type === "ftyp") {
-			if (box.contentStart + 8 > box.end) return false;
-			const brands = [buffer.subarray(box.contentStart, box.contentStart + 4).toString("ascii")];
-			for (let brandOffset = box.contentStart + 8; brandOffset + 4 <= box.end; brandOffset += 4) {
-				brands.push(buffer.subarray(brandOffset, brandOffset + 4).toString("ascii"));
+			if (box.contentStart + BMFF_BOX_HEADER_BYTES > box.end) return false;
+			const brands = [
+				buffer.subarray(box.contentStart, box.contentStart + BMFF_BRAND_BYTES).toString("ascii"),
+			];
+			for (
+				let brandOffset = box.contentStart + BMFF_BOX_HEADER_BYTES;
+				brandOffset + BMFF_BRAND_BYTES <= box.end;
+				brandOffset += BMFF_BRAND_BYTES
+			) {
+				brands.push(buffer.subarray(brandOffset, brandOffset + BMFF_BRAND_BYTES).toString("ascii"));
 			}
 			return brands.some((brand) => AVIF_BRANDS.has(brand));
 		}
@@ -111,16 +176,21 @@ function getBmffBoxes(buffer: Buffer, start: number, end: number): BmffBox[] | u
 }
 
 function getFullBoxVersion(buffer: Buffer, box: BmffBox): number | undefined {
-	return box.contentStart + 4 <= box.end ? buffer[box.contentStart] : undefined;
+	return box.contentStart + BMFF_FULL_BOX_HEADER_BYTES <= box.end
+		? buffer[box.contentStart]
+		: undefined;
 }
 
 function parseAvifPrimaryItemId(buffer: Buffer, box: BmffBox): number | undefined {
 	const version = getFullBoxVersion(buffer, box);
-	if (version === 0 && box.contentStart + 6 === box.end) {
-		return buffer.readUInt16BE(box.contentStart + 4);
+	if (
+		version === 0 &&
+		box.contentStart + BMFF_FULL_BOX_HEADER_BYTES + BMFF_UINT16_BYTES === box.end
+	) {
+		return buffer.readUInt16BE(box.contentStart + BMFF_FULL_BOX_HEADER_BYTES);
 	}
-	if (version === 1 && box.contentStart + 8 === box.end) {
-		return buffer.readUInt32BE(box.contentStart + 4);
+	if (version === 1 && box.contentStart + BMFF_BOX_HEADER_BYTES === box.end) {
+		return buffer.readUInt32BE(box.contentStart + BMFF_FULL_BOX_HEADER_BYTES);
 	}
 	return undefined;
 }
@@ -135,12 +205,13 @@ function parseAvifProperties(buffer: Buffer, box: BmffBox): AvifProperty[] | und
 			// ispe is a version-zero FullBox followed by 32-bit width and height.
 			if (
 				getFullBoxVersion(buffer, propertyBox) !== 0 ||
-				propertyBox.contentStart + 12 !== propertyBox.end
+				propertyBox.contentStart + BMFF_FULL_BOX_HEADER_BYTES + BMFF_BOX_HEADER_BYTES !==
+					propertyBox.end
 			) {
 				return undefined;
 			}
-			const width = buffer.readUInt32BE(propertyBox.contentStart + 4);
-			const height = buffer.readUInt32BE(propertyBox.contentStart + 8);
+			const width = buffer.readUInt32BE(propertyBox.contentStart + BMFF_FULL_BOX_HEADER_BYTES);
+			const height = buffer.readUInt32BE(propertyBox.contentStart + BMFF_BOX_HEADER_BYTES);
 			if (width === 0 || height === 0) return undefined;
 			properties.push({ type: "ispe", dimensions: { width, height } });
 			continue;
@@ -149,14 +220,14 @@ function parseAvifProperties(buffer: Buffer, box: BmffBox): AvifProperty[] | und
 		if (propertyBox.type === "irot") {
 			if (propertyBox.contentStart + 1 !== propertyBox.end) return undefined;
 			const rotation = buffer[propertyBox.contentStart];
-			if ((rotation & 0xfc) !== 0) return undefined;
+			if ((rotation & IROT_RESERVED_BITS_MASK) !== 0) return undefined;
 			properties.push({ type: "irot", rotation });
 			continue;
 		}
 
 		if (propertyBox.type === "imir") {
 			if (propertyBox.contentStart + 1 !== propertyBox.end) return undefined;
-			if ((buffer[propertyBox.contentStart] & 0xfe) !== 0) return undefined;
+			if ((buffer[propertyBox.contentStart] & IMIR_RESERVED_BITS_MASK) !== 0) return undefined;
 			properties.push({ type: "imir" });
 			continue;
 		}
@@ -172,24 +243,24 @@ function parseAvifPropertyAssociations(
 ): Map<number, number[]> | undefined {
 	const version = getFullBoxVersion(buffer, box);
 	if (version !== 0 && version !== 1) return undefined;
-	if (box.contentStart + 8 > box.end) return undefined;
+	if (box.contentStart + BMFF_BOX_HEADER_BYTES > box.end) return undefined;
 
-	const flags = buffer.readUIntBE(box.contentStart + 1, 3);
-	if ((flags & ~1) !== 0) return undefined;
-	const largeIndexes = (flags & 1) !== 0;
-	const entryCount = buffer.readUInt32BE(box.contentStart + 4);
+	const flags = buffer.readUIntBE(box.contentStart + 1, BMFF_FULL_BOX_FLAGS_BYTES);
+	if ((flags & ~IPMA_LARGE_PROPERTY_INDEX_FLAG) !== 0) return undefined;
+	const largeIndexes = (flags & IPMA_LARGE_PROPERTY_INDEX_FLAG) !== 0;
+	const entryCount = buffer.readUInt32BE(box.contentStart + BMFF_FULL_BOX_HEADER_BYTES);
 	if (entryCount > MAX_AVIF_ASSOCIATION_ENTRIES) return undefined;
 	const associations = new Map<number, number[]>();
-	let offset = box.contentStart + 8;
+	let offset = box.contentStart + BMFF_BOX_HEADER_BYTES;
 	let associationTotal = 0;
 
 	for (let entry = 0; entry < entryCount; entry++) {
-		const itemIdSize = version === 0 ? 2 : 4;
+		const itemIdSize = version === 0 ? BMFF_UINT16_BYTES : BMFF_UINT32_BYTES;
 		if (offset + itemIdSize + 1 > box.end) return undefined;
 		const itemId = version === 0 ? buffer.readUInt16BE(offset) : buffer.readUInt32BE(offset);
 		offset += itemIdSize;
 		const associationCount = buffer[offset++];
-		const indexSize = largeIndexes ? 2 : 1;
+		const indexSize = largeIndexes ? BMFF_UINT16_BYTES : 1;
 		associationTotal += associationCount;
 		if (associationTotal > MAX_AVIF_PROPERTY_ASSOCIATIONS) return undefined;
 		if (offset + associationCount * indexSize > box.end || associations.has(itemId))
@@ -199,7 +270,9 @@ function parseAvifPropertyAssociations(
 		for (let association = 0; association < associationCount; association++) {
 			const value = largeIndexes ? buffer.readUInt16BE(offset) : buffer[offset];
 			offset += indexSize;
-			const propertyIndex = largeIndexes ? value & 0x7fff : value & 0x7f;
+			const propertyIndex = largeIndexes
+				? value & IPMA_LARGE_PROPERTY_INDEX_MASK
+				: value & IPMA_SMALL_PROPERTY_INDEX_MASK;
 			if (propertyIndex === 0) return undefined;
 			propertyIndexes.push(propertyIndex);
 		}
@@ -230,8 +303,16 @@ function getAvifDimensions(buffer: Buffer): ImageDimensions | undefined {
 
 	const meta = metaBoxes[0];
 	// meta is a FullBox, so its nested boxes begin after version and flags.
-	if (getFullBoxVersion(buffer, meta) !== 0 || meta.contentStart + 4 > meta.end) return undefined;
-	const metaChildren = getBmffBoxes(buffer, meta.contentStart + 4, meta.end);
+	if (
+		getFullBoxVersion(buffer, meta) !== 0 ||
+		meta.contentStart + BMFF_FULL_BOX_HEADER_BYTES > meta.end
+	)
+		return undefined;
+	const metaChildren = getBmffBoxes(
+		buffer,
+		meta.contentStart + BMFF_FULL_BOX_HEADER_BYTES,
+		meta.end,
+	);
 	if (!metaChildren) return undefined;
 	const pitm = metaChildren.filter((child) => child.type === "pitm");
 	const iprp = metaChildren.filter((child) => child.type === "iprp");
@@ -264,7 +345,8 @@ function getAvifDimensions(buffer: Buffer): ImageDimensions | undefined {
 	if (rotations.length > 1 || rotations.some((property) => property.rotation === undefined))
 		return undefined;
 	const { width, height } = spatialExtents[0].dimensions;
-	return rotations[0]?.rotation === 1 || rotations[0]?.rotation === 3
+	return rotations[0]?.rotation === IROT_QUARTER_TURN ||
+		rotations[0]?.rotation === IROT_THREE_QUARTER_TURNS
 		? { width: height, height: width }
 		: { width, height };
 }
@@ -299,46 +381,59 @@ function getSvgOpeningTag(svg: string): string | undefined {
 
 function getJpegExifOrientation(segment: Buffer): number | undefined {
 	// APP1 Exif payloads begin with an Exif identifier, followed by a TIFF header.
-	if (segment.length < 14 || !startsWithBytes(segment, [0x45, 0x78, 0x69, 0x66, 0x00, 0x00])) {
+	if (
+		segment.length < EXIF_IDENTIFIER.length + TIFF_HEADER_BYTES ||
+		!startsWithBytes(segment, EXIF_IDENTIFIER)
+	) {
 		return undefined;
 	}
 
-	const tiffStart = 6;
-	const byteOrder = segment.subarray(tiffStart, tiffStart + 2).toString("ascii");
+	const tiffStart = EXIF_TIFF_OFFSET;
+	const byteOrder = segment
+		.subarray(tiffStart, tiffStart + TIFF_BYTE_ORDER_BYTES)
+		.toString("ascii");
 	const readUInt16 =
-		byteOrder === "II"
+		byteOrder === TIFF_LITTLE_ENDIAN_BYTE_ORDER
 			? (offset: number) => segment.readUInt16LE(offset)
-			: byteOrder === "MM"
+			: byteOrder === TIFF_BIG_ENDIAN_BYTE_ORDER
 				? (offset: number) => segment.readUInt16BE(offset)
 				: undefined;
 	const readUInt32 =
-		byteOrder === "II"
+		byteOrder === TIFF_LITTLE_ENDIAN_BYTE_ORDER
 			? (offset: number) => segment.readUInt32LE(offset)
-			: byteOrder === "MM"
+			: byteOrder === TIFF_BIG_ENDIAN_BYTE_ORDER
 				? (offset: number) => segment.readUInt32BE(offset)
 				: undefined;
-	if (!readUInt16 || !readUInt32 || tiffStart + 8 > segment.length) return undefined;
+	if (!readUInt16 || !readUInt32 || tiffStart + TIFF_HEADER_BYTES > segment.length)
+		return undefined;
 
 	// TIFF's fixed marker is 42; reject arbitrary APP1 payloads before following offsets.
-	if (readUInt16(tiffStart + 2) !== 42) return undefined;
+	if (readUInt16(tiffStart + TIFF_MAGIC_OFFSET) !== TIFF_MAGIC) return undefined;
 
-	const ifdOffset = readUInt32(tiffStart + 4);
+	const ifdOffset = readUInt32(tiffStart + TIFF_FIRST_IFD_OFFSET);
 	const ifdStart = tiffStart + ifdOffset;
-	if (ifdStart + 2 > segment.length) return undefined;
+	if (ifdStart + TIFF_IFD_ENTRY_COUNT_BYTES > segment.length) return undefined;
 
 	const entryCount = readUInt16(ifdStart);
-	const entriesStart = ifdStart + 2;
-	const entriesEnd = entriesStart + entryCount * 12;
+	const entriesStart = ifdStart + TIFF_IFD_ENTRY_COUNT_BYTES;
+	const entriesEnd = entriesStart + entryCount * TIFF_IFD_ENTRY_BYTES;
 	if (entriesEnd > segment.length) return undefined;
 
 	for (let index = 0; index < entryCount; index++) {
-		const entryStart = entriesStart + index * 12;
-		if (readUInt16(entryStart) !== 0x0112) continue;
+		const entryStart = entriesStart + index * TIFF_IFD_ENTRY_BYTES;
+		if (readUInt16(entryStart) !== TIFF_ORIENTATION_TAG) continue;
 
 		// Orientation is one TIFF SHORT stored inline in the entry's value field.
-		if (readUInt16(entryStart + 2) !== 3 || readUInt32(entryStart + 4) !== 1) return undefined;
-		const orientation = readUInt16(entryStart + 8);
-		return orientation >= 1 && orientation <= 8 ? orientation : undefined;
+		if (
+			readUInt16(entryStart + TIFF_ENTRY_TYPE_OFFSET) !== TIFF_SHORT_TYPE ||
+			readUInt32(entryStart + TIFF_ENTRY_COMPONENT_COUNT_OFFSET) !==
+				TIFF_ORIENTATION_COMPONENT_COUNT
+		)
+			return undefined;
+		const orientation = readUInt16(entryStart + TIFF_ENTRY_VALUE_OFFSET);
+		return orientation >= EXIF_ORIENTATION_MIN && orientation <= EXIF_ORIENTATION_MAX
+			? orientation
+			: undefined;
 	}
 
 	return undefined;
@@ -350,50 +445,46 @@ function getJpegDimensions(buffer: Buffer): ImageDimensions | undefined {
 	let orientation: number | undefined;
 
 	while (offset < buffer.length) {
-		if (buffer[offset] !== 0xff) {
+		if (buffer[offset] !== JPEG_MARKER_PREFIX) {
 			offset++;
 			continue;
 		}
 
-		while (buffer[offset] === 0xff) offset++;
+		while (buffer[offset] === JPEG_MARKER_PREFIX) offset++;
 		if (offset >= buffer.length) break;
 
 		const marker = buffer[offset++];
 		if (
-			marker === 0x00 ||
-			marker === 0xd8 ||
-			marker === 0xd9 ||
-			marker === 0x01 ||
-			(marker >= 0xd0 && marker <= 0xd7)
+			marker === JPEG_STUFFED_BYTE_MARKER ||
+			marker === JPEG_START_OF_IMAGE_MARKER ||
+			marker === JPEG_END_OF_IMAGE_MARKER ||
+			marker === JPEG_TEM_MARKER ||
+			(marker >= JPEG_RESTART_MARKER_FIRST && marker <= JPEG_RESTART_MARKER_LAST)
 		) {
 			continue;
 		}
-		if (offset + 2 > buffer.length) break;
+		if (offset + JPEG_SEGMENT_LENGTH_BYTES > buffer.length) break;
 
 		const segmentLength = buffer.readUInt16BE(offset);
-		if (segmentLength < 2 || offset + segmentLength > buffer.length) break;
+		if (segmentLength < JPEG_MINIMUM_SEGMENT_LENGTH || offset + segmentLength > buffer.length)
+			break;
 
-		const segmentDataStart = offset + 2;
+		const segmentDataStart = offset + JPEG_SEGMENT_LENGTH_BYTES;
 		const segmentEnd = offset + segmentLength;
-		if (marker === 0xe1) {
+		if (marker === JPEG_EXIF_APP1_MARKER) {
 			orientation ??= getJpegExifOrientation(buffer.subarray(segmentDataStart, segmentEnd));
-		} else if (
-			[0xc0, 0xc1, 0xc2, 0xc3, 0xc5, 0xc6, 0xc7, 0xc9, 0xca, 0xcb, 0xcd, 0xce, 0xcf].includes(
-				marker,
-			) &&
-			segmentLength >= 8
-		) {
-			const height = buffer.readUInt16BE(offset + 3);
-			const width = buffer.readUInt16BE(offset + 5);
+		} else if (JPEG_SOF_MARKERS.has(marker) && segmentLength >= JPEG_SOF_MINIMUM_SEGMENT_LENGTH) {
+			const height = buffer.readUInt16BE(offset + JPEG_SOF_HEIGHT_OFFSET);
+			const width = buffer.readUInt16BE(offset + JPEG_SOF_WIDTH_OFFSET);
 			if (width > 0 && height > 0) dimensions = { width, height };
 		}
 
-		if (marker === 0xda) break;
+		if (marker === JPEG_START_OF_SCAN_MARKER) break;
 		offset = segmentEnd;
 	}
 
 	if (!dimensions) return undefined;
-	return orientation && [5, 6, 7, 8].includes(orientation)
+	return orientation && EXIF_SWAP_DIMENSION_ORIENTATIONS.has(orientation)
 		? { width: dimensions.height, height: dimensions.width }
 		: dimensions;
 }
@@ -503,7 +594,7 @@ export function getImageDimensions(buffer: Buffer): ImageDimensions | undefined 
 		if (dimensions) return dimensions;
 	}
 
-	const svg = buffer.subarray(0, 1024).toString("utf8");
+	const svg = buffer.subarray(0, SVG_PREFIX_BYTE_LIMIT).toString("utf8");
 	const svgTag = getSvgOpeningTag(svg);
 	if (svgTag) {
 		const width = getSvgAttribute(svgTag, "width");
