@@ -4,6 +4,13 @@ import { PATHS } from "@/config";
 import type { Block } from "@/types";
 
 const PUBLIC_IMAGES_DIR = path.join(process.cwd(), PATHS.images);
+// Remote Notion assets are untrusted input. Keep the build bounded when an asset is
+// unexpectedly large or a malformed AVIF advertises excessive metadata entries.
+const MAX_IMAGE_DOWNLOAD_BYTES = 20 * 1024 * 1024;
+const IMAGE_DOWNLOAD_TIMEOUT_MS = 15_000;
+const MAX_BMFF_BOXES = 1_024;
+const MAX_AVIF_ASSOCIATION_ENTRIES = 1_024;
+const MAX_AVIF_PROPERTY_ASSOCIATIONS = 4_096;
 
 interface ImageInfo {
 	blockId: string;
@@ -59,7 +66,8 @@ function readBmffBox(buffer: Buffer, start: number, end: number): BmffBox | unde
 
 function hasAvifFileType(buffer: Buffer): boolean {
 	let offset = 0;
-	while (offset < buffer.length) {
+	for (let boxCount = 0; offset < buffer.length; boxCount++) {
+		if (boxCount >= MAX_BMFF_BOXES) return false;
 		const box = readBmffBox(buffer, offset, buffer.length);
 		if (!box) return false;
 
@@ -93,6 +101,7 @@ function getBmffBoxes(buffer: Buffer, start: number, end: number): BmffBox[] | u
 	const boxes: BmffBox[] = [];
 	let offset = start;
 	while (offset < end) {
+		if (boxes.length >= MAX_BMFF_BOXES) return undefined;
 		const box = readBmffBox(buffer, offset, end);
 		if (!box) return undefined;
 		boxes.push(box);
@@ -169,8 +178,10 @@ function parseAvifPropertyAssociations(
 	if ((flags & ~1) !== 0) return undefined;
 	const largeIndexes = (flags & 1) !== 0;
 	const entryCount = buffer.readUInt32BE(box.contentStart + 4);
+	if (entryCount > MAX_AVIF_ASSOCIATION_ENTRIES) return undefined;
 	const associations = new Map<number, number[]>();
 	let offset = box.contentStart + 8;
+	let associationTotal = 0;
 
 	for (let entry = 0; entry < entryCount; entry++) {
 		const itemIdSize = version === 0 ? 2 : 4;
@@ -179,6 +190,8 @@ function parseAvifPropertyAssociations(
 		offset += itemIdSize;
 		const associationCount = buffer[offset++];
 		const indexSize = largeIndexes ? 2 : 1;
+		associationTotal += associationCount;
+		if (associationTotal > MAX_AVIF_PROPERTY_ASSOCIATIONS) return undefined;
 		if (offset + associationCount * indexSize > box.end || associations.has(itemId))
 			return undefined;
 
@@ -499,21 +512,64 @@ export function getImageDimensions(buffer: Buffer): ImageDimensions | undefined 
 	return undefined;
 }
 
-async function downloadImage(url: string, destPath: string): Promise<DownloadedImage> {
-	const response = await fetch(url);
+function hasContentLengthOverLimit(contentLength: string | null): boolean {
+	if (!contentLength?.match(/^\d+$/)) return false;
+	return Number(contentLength) > MAX_IMAGE_DOWNLOAD_BYTES;
+}
 
-	if (!response.ok) {
-		throw new Error(`Failed to download image: ${response.status} ${url}`);
+async function readImageResponse(response: Response, controller: AbortController): Promise<Buffer> {
+	if (!response.body) return Buffer.alloc(0);
+
+	const reader = response.body.getReader();
+	const chunks: Uint8Array[] = [];
+	let byteLength = 0;
+
+	try {
+		while (true) {
+			const { done, value } = await reader.read();
+			if (done) break;
+
+			byteLength += value.byteLength;
+			if (byteLength > MAX_IMAGE_DOWNLOAD_BYTES) {
+				controller.abort();
+				throw new Error(
+					`Image download exceeds ${MAX_IMAGE_DOWNLOAD_BYTES} bytes: ${response.url}`,
+				);
+			}
+			chunks.push(value);
+		}
+	} finally {
+		reader.releaseLock();
 	}
 
-	const contentType = response.headers.get("content-type") || undefined;
-	const ext = getImageExtension(url, contentType);
-	const finalPath = destPath.replace(/\.[^.]+$/, `.${ext}`);
+	return Buffer.concat(chunks, byteLength);
+}
 
-	const buffer = Buffer.from(await response.arrayBuffer());
-	await fs.writeFile(finalPath, buffer);
+async function downloadImage(url: string, destPath: string): Promise<DownloadedImage> {
+	const controller = new AbortController();
+	const timeout = setTimeout(() => controller.abort(), IMAGE_DOWNLOAD_TIMEOUT_MS);
 
-	return { path: finalPath, dimensions: getImageDimensions(buffer) };
+	try {
+		const response = await fetch(url, { signal: controller.signal });
+
+		if (!response.ok) {
+			throw new Error(`Failed to download image: ${response.status} ${url}`);
+		}
+		if (hasContentLengthOverLimit(response.headers.get("content-length"))) {
+			controller.abort();
+			throw new Error(`Image download exceeds ${MAX_IMAGE_DOWNLOAD_BYTES} bytes: ${url}`);
+		}
+
+		const contentType = response.headers.get("content-type") || undefined;
+		const ext = getImageExtension(url, contentType);
+		const finalPath = destPath.replace(/\.[^.]+$/, `.${ext}`);
+		const buffer = await readImageResponse(response, controller);
+		await fs.writeFile(finalPath, buffer);
+
+		return { path: finalPath, dimensions: getImageDimensions(buffer) };
+	} finally {
+		clearTimeout(timeout);
+	}
 }
 
 // 블록 내 이미지 URL이 원격(http)인지 확인 — 로컬 경로면 이미 처리된 캐시

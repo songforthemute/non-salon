@@ -219,6 +219,19 @@ describe("getImageDimensions", () => {
 		expect(getImageDimensions(avif)).toEqual({ width: 1024, height: 768 });
 	});
 
+	it("stops AVIF parsing after the configured BMFF box limit", () => {
+		const avif = Buffer.concat([
+			createAvif({
+				primaryItemId: 42,
+				properties: [avifIspe(1024, 768)],
+				associations: [{ itemId: 42, propertyIndexes: [1] }],
+			}),
+			...Array.from({ length: 1_023 }, () => bmffBox("free", Buffer.alloc(0))),
+		]);
+
+		expect(getImageDimensions(avif)).toBeUndefined();
+	});
+
 	it("swaps AVIF dimensions for a 90-degree primary item rotation", () => {
 		const avif = createAvif({
 			primaryItemId: 42,
