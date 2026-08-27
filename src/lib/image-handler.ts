@@ -68,6 +68,26 @@ const EXIF_ORIENTATION_MAX = 8;
 const EXIF_SWAP_DIMENSION_ORIENTATIONS = new Set([5, 6, 7, 8]);
 
 const SVG_PREFIX_BYTE_LIMIT = 1_024;
+const SVG_CSS_PIXELS_PER_INCH = 96;
+const SVG_CSS_PIXELS_PER_CENTIMETER = SVG_CSS_PIXELS_PER_INCH / 2.54;
+const SVG_CSS_PIXELS_PER_MILLIMETER = SVG_CSS_PIXELS_PER_CENTIMETER / 10;
+const SVG_CSS_PIXELS_PER_POINT = SVG_CSS_PIXELS_PER_INCH / 72;
+const SVG_CSS_PIXELS_PER_PICA = SVG_CSS_PIXELS_PER_POINT * 12;
+const SVG_NUMBER_PATTERN = "[+-]?(?:(?:\\d+\\.?\\d*)|(?:\\.\\d+))(?:[eE][+-]?\\d+)?";
+const SVG_ABSOLUTE_LENGTH_PATTERN = new RegExp(
+	`^\\s*(${SVG_NUMBER_PATTERN})\\s*(px|in|cm|mm|pt|pc)?\\s*$`,
+	"i",
+);
+const SVG_PERCENTAGE_LENGTH_PATTERN = new RegExp(`^\\s*(${SVG_NUMBER_PATTERN})\\s*%\\s*$`);
+const SVG_ABSOLUTE_LENGTH_UNIT_TO_CSS_PIXELS = {
+	"": 1,
+	px: 1,
+	in: SVG_CSS_PIXELS_PER_INCH,
+	cm: SVG_CSS_PIXELS_PER_CENTIMETER,
+	mm: SVG_CSS_PIXELS_PER_MILLIMETER,
+	pt: SVG_CSS_PIXELS_PER_POINT,
+	pc: SVG_CSS_PIXELS_PER_PICA,
+} as const;
 
 interface ImageInfo {
 	blockId: string;
@@ -78,6 +98,12 @@ interface ImageDimensions {
 	width: number;
 	height: number;
 }
+
+type SvgLength =
+	| { type: "missing" }
+	| { type: "absolute"; value: number }
+	| { type: "relative" }
+	| { type: "unsupported" };
 
 interface DownloadedImage {
 	path: string;
@@ -367,6 +393,47 @@ function getSvgAttribute(svgTag: string, name: string): string | undefined {
 	return match?.[1] ?? match?.[2];
 }
 
+function parseSvgLength(value: string | undefined): SvgLength {
+	if (value === undefined) return { type: "missing" };
+
+	const absoluteLength = value.match(SVG_ABSOLUTE_LENGTH_PATTERN);
+	if (absoluteLength) {
+		const numericValue = Number(absoluteLength[1]);
+		const unit = absoluteLength[2]?.toLowerCase() ?? "";
+		const pixels = Math.round(
+			numericValue *
+				SVG_ABSOLUTE_LENGTH_UNIT_TO_CSS_PIXELS[
+					unit as keyof typeof SVG_ABSOLUTE_LENGTH_UNIT_TO_CSS_PIXELS
+				],
+		);
+		return Number.isSafeInteger(pixels) && pixels > 0
+			? { type: "absolute", value: pixels }
+			: { type: "unsupported" };
+	}
+
+	const percentageLength = value.match(SVG_PERCENTAGE_LENGTH_PATTERN);
+	const percentage = Number(percentageLength?.[1]);
+	if (Number.isFinite(percentage) && percentage > 0) return { type: "relative" };
+
+	return { type: "unsupported" };
+}
+
+function getSvgViewBoxDimensions(svgTag: string): ImageDimensions | undefined {
+	const viewBoxSeparator = "(?:\\s*,\\s*|\\s+)";
+	const viewBox = getSvgAttribute(svgTag, "viewBox")?.match(
+		new RegExp(
+			`^\\s*(${SVG_NUMBER_PATTERN})${viewBoxSeparator}(${SVG_NUMBER_PATTERN})${viewBoxSeparator}(${SVG_NUMBER_PATTERN})${viewBoxSeparator}(${SVG_NUMBER_PATTERN})\\s*$`,
+		),
+	);
+	if (!viewBox) return undefined;
+
+	const width = Number(viewBox[3]);
+	const height = Number(viewBox[4]);
+	return Number.isFinite(width) && Number.isFinite(height) && width > 0 && height > 0
+		? { width, height }
+		: undefined;
+}
+
 function getSvgRootOpeningTag(svg: string): string | undefined {
 	let start = 0;
 	while (start < svg.length) {
@@ -630,28 +697,16 @@ export function getImageDimensions(buffer: Buffer): ImageDimensions | undefined 
 	const svg = buffer.subarray(0, SVG_PREFIX_BYTE_LIMIT).toString("utf8");
 	const svgTag = getSvgRootOpeningTag(svg);
 	if (svgTag) {
-		const width = getSvgAttribute(svgTag, "width");
-		const height = getSvgAttribute(svgTag, "height");
-		const absoluteLength = /^\s*(\d+(?:\.\d+)?)\s*(?:px)?\s*$/;
-		const absoluteWidth = width?.match(absoluteLength)?.[1];
-		const absoluteHeight = height?.match(absoluteLength)?.[1];
-		if (absoluteWidth && absoluteHeight) {
-			return { width: Number(absoluteWidth), height: Number(absoluteHeight) };
+		const width = parseSvgLength(getSvgAttribute(svgTag, "width"));
+		const height = parseSvgLength(getSvgAttribute(svgTag, "height"));
+		if (width.type === "absolute" && height.type === "absolute") {
+			return { width: width.value, height: height.value };
 		}
-
-		const svgNumber = "[+-]?(?:(?:\\d+\\.?\\d*)|(?:\\.\\d+))(?:[eE][+-]?\\d+)?";
-		const viewBoxSeparator = "(?:\\s*,\\s*|\\s+)";
-		const viewBox = getSvgAttribute(svgTag, "viewBox")?.match(
-			new RegExp(
-				`^\\s*(${svgNumber})${viewBoxSeparator}(${svgNumber})${viewBoxSeparator}(${svgNumber})${viewBoxSeparator}(${svgNumber})\\s*$`,
-			),
-		);
-		if (viewBox) {
-			const width = Number(viewBox[3]);
-			const height = Number(viewBox[4]);
-			if (Number.isFinite(width) && Number.isFinite(height) && width > 0 && height > 0) {
-				return { width, height };
-			}
+		if (
+			(width.type === "missing" && height.type === "missing") ||
+			(width.type === "relative" && height.type === "relative")
+		) {
+			return getSvgViewBoxDimensions(svgTag);
 		}
 	}
 

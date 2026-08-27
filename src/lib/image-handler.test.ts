@@ -298,6 +298,35 @@ describe("getImageDimensions", () => {
 		expect(getImageDimensions(svg)).toEqual({ width: 640, height: 480 });
 	});
 
+	it("converts SVG physical dimensions to rounded CSS pixels", () => {
+		const svg = Buffer.from('<svg width="10cm" height="5cm" viewBox="0 0 100 100"></svg>');
+
+		expect(getImageDimensions(svg)).toEqual({ width: 378, height: 189 });
+	});
+
+	it.each([
+		["inches and centimeters", "1in", "2.54cm", { width: 96, height: 96 }],
+		["millimeters and points", "25.4mm", "72pt", { width: 96, height: 96 }],
+		["picas and pixels", "6pc", "96px", { width: 96, height: 96 }],
+		["case-insensitive units", "1IN", "2.54CM", { width: 96, height: 96 }],
+	] as const)("converts SVG %s to CSS pixels", (_description, width, height, dimensions) => {
+		const svg = Buffer.from(`<svg width="${width}" height="${height}"></svg>`);
+
+		expect(getImageDimensions(svg)).toEqual(dimensions);
+	});
+
+	it.each([
+		["an unsupported font-relative length", "10em", "5em"],
+		["a calculated length", "calc(100% - 1px)", "50px"],
+		["mixed absolute and percentage lengths", "640px", "100%"],
+		["one missing explicit length", "640px", undefined],
+	])("does not substitute the SVG viewBox for %s", (_description, width, height) => {
+		const heightAttribute = height ? ` height="${height}"` : "";
+		const svg = Buffer.from(`<svg width="${width}"${heightAttribute} viewBox="0 0 640 480"></svg>`);
+
+		expect(getImageDimensions(svg)).toBeUndefined();
+	});
+
 	it("reads SVG attributes after a quoted value containing a greater-than sign", () => {
 		const svg = Buffer.from(
 			'<svg aria-label="a > b" width="100%" height="100%" viewBox="0 0 640 480"></svg>',
