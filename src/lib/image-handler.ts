@@ -367,12 +367,36 @@ function getSvgAttribute(svgTag: string, name: string): string | undefined {
 	return match?.[1] ?? match?.[2];
 }
 
-function getSvgOpeningTag(svg: string): string | undefined {
-	const match = /<svg\b/i.exec(svg);
-	if (!match || match.index === undefined) return undefined;
+function getSvgRootOpeningTag(svg: string): string | undefined {
+	let start = 0;
+	while (start < svg.length) {
+		if (/\s/.test(svg[start])) {
+			start++;
+			continue;
+		}
+
+		if (svg.startsWith("<!--", start)) {
+			const commentEnd = svg.indexOf("-->", start + 4);
+			if (commentEnd === -1) return undefined;
+			start = commentEnd + 3;
+			continue;
+		}
+
+		if (svg.startsWith("<?", start)) {
+			const instructionEnd = svg.indexOf("?>", start + 2);
+			if (instructionEnd === -1) return undefined;
+			start = instructionEnd + 2;
+			continue;
+		}
+
+		break;
+	}
+
+	const match = /<svg\b/i.exec(svg.slice(start));
+	if (!match || match.index !== 0) return undefined;
 
 	let quote: '"' | "'" | undefined;
-	for (let index = match.index + match[0].length; index < svg.length; index++) {
+	for (let index = start + match[0].length; index < svg.length; index++) {
 		const character = svg[index];
 		if (quote) {
 			if (character === quote) quote = undefined;
@@ -383,7 +407,7 @@ function getSvgOpeningTag(svg: string): string | undefined {
 			quote = character;
 			continue;
 		}
-		if (character === ">") return svg.slice(match.index, index + 1);
+		if (character === ">") return svg.slice(start, index + 1);
 	}
 
 	return undefined;
@@ -604,7 +628,7 @@ export function getImageDimensions(buffer: Buffer): ImageDimensions | undefined 
 	}
 
 	const svg = buffer.subarray(0, SVG_PREFIX_BYTE_LIMIT).toString("utf8");
-	const svgTag = getSvgOpeningTag(svg);
+	const svgTag = getSvgRootOpeningTag(svg);
 	if (svgTag) {
 		const width = getSvgAttribute(svgTag, "width");
 		const height = getSvgAttribute(svgTag, "height");

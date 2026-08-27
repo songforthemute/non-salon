@@ -306,6 +306,14 @@ describe("getImageDimensions", () => {
 		expect(getImageDimensions(svg)).toEqual({ width: 640, height: 480 });
 	});
 
+	it("uses the SVG root after comments and processing instructions", () => {
+		const svg = Buffer.from(
+			'<?xml version="1.0"?><!----><!-- <svg width="100" height="50"> --><svg viewBox="0 0 640 480"></svg>',
+		);
+
+		expect(getImageDimensions(svg)).toEqual({ width: 640, height: 480 });
+	});
+
 	it("uses an SVG viewBox with comma-separated values", () => {
 		const svg = Buffer.from('<svg viewBox="0,0,640,480"></svg>');
 
