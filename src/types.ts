@@ -35,6 +35,8 @@ export type Block = {
 		file?: { url: string };
 		external?: { url: string };
 		caption: RichTextItem[];
+		width?: number;
+		height?: number;
 	};
 	[key: string]: unknown;
 };

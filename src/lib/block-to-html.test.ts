@@ -202,7 +202,24 @@ describe("blockToHtml", () => {
 			},
 		};
 		expect(blockToHtml(block)).toBe(
-			'<figure><img src="https://example.com/image.png" alt="Caption"><figcaption>Caption</figcaption></figure>',
+			'<figure><img src="https://example.com/image.png" alt="Caption" decoding="async"><figcaption>Caption</figcaption></figure>',
+		);
+	});
+
+	it("image reserves its known layout dimensions", () => {
+		const block = {
+			type: "image",
+			image: {
+				type: "file" as const,
+				file: { url: "/images/publication/post/image.png" },
+				caption: [],
+				width: 640,
+				height: 480,
+			},
+		};
+
+		expect(blockToHtml(block)).toBe(
+			'<figure><img src="/images/publication/post/image.png" alt="" width="640" height="480" decoding="async"></figure>',
 		);
 	});
 
@@ -216,7 +233,7 @@ describe("blockToHtml", () => {
 			},
 		};
 		expect(blockToHtml(block)).toBe(
-			'<figure><img src="https://example.com/image.png" alt=""></figure>',
+			'<figure><img src="https://example.com/image.png" alt="" decoding="async"></figure>',
 		);
 	});
 
@@ -248,6 +265,31 @@ describe("blockToHtml", () => {
 });
 
 describe("blocksToHtml", () => {
+	it("eager-loads the first image and lazy-loads subsequent images", () => {
+		const blocks = [
+			{
+				type: "image",
+				image: {
+					type: "file" as const,
+					file: { url: "/images/first.png" },
+					caption: [],
+				},
+			},
+			{
+				type: "image",
+				image: {
+					type: "file" as const,
+					file: { url: "/images/second.png" },
+					caption: [],
+				},
+			},
+		];
+
+		expect(blocksToHtml(blocks)).toBe(
+			'<figure><img src="/images/first.png" alt="" decoding="async"></figure><figure><img src="/images/second.png" alt="" loading="lazy" decoding="async"></figure>',
+		);
+	});
+
 	it("wraps consecutive bulleted items in ul", () => {
 		const blocks = [
 			{

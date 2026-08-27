@@ -1,0 +1,103 @@
+[
+	{
+		"id": "fixture-publication-1",
+		"title": "CI Fixture: A Deterministic Publication",
+		"slug": "ci-fixture-publication",
+		"type": "publication",
+		"status": "Published",
+		"description": "A representative publication used to build and audit the static site in CI.",
+		"tags": ["ci", "performance"],
+		"lastUpdated": "2026-08-18T09:00:00.000Z",
+		"lastEditedTime": "2026-08-18T09:00:00.000Z",
+		"createdTime": "2026-08-17T09:00:00.000Z",
+		"publishedDate": "2026-08-17",
+		"blocks": [
+			{
+				"id": "fixture-publication-heading",
+				"type": "heading_1",
+				"heading_1": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": { "content": "A representative detail page" },
+							"plain_text": "A representative detail page",
+							"annotations": {}
+						}
+					]
+				}
+			},
+			{
+				"id": "fixture-publication-paragraph",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": { "content": "This fixture keeps CI builds independent from Notion and external content." },
+							"plain_text": "This fixture keeps CI builds independent from Notion and external content.",
+							"annotations": {}
+						}
+					]
+				}
+			}
+		]
+	},
+	{
+		"id": "fixture-thought-1",
+		"title": "CI Fixture: A Thought",
+		"slug": "ci-fixture-thought",
+		"type": "thought",
+		"status": "Published",
+		"description": "A second content type for archive and type-index coverage.",
+		"tags": ["ci"],
+		"lastUpdated": "2026-08-16T09:00:00.000Z",
+		"lastEditedTime": "2026-08-16T09:00:00.000Z",
+		"createdTime": "2026-08-15T09:00:00.000Z",
+		"publishedDate": "2026-08-15",
+		"blocks": [
+			{
+				"id": "fixture-thought-paragraph",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": { "content": "A concise thought for the CI fixture." },
+							"plain_text": "A concise thought for the CI fixture.",
+							"annotations": {}
+						}
+					]
+				}
+			}
+		]
+	},
+	{
+		"id": "fixture-notebook-1",
+		"title": "CI Fixture: A Notebook",
+		"slug": "ci-fixture-notebook",
+		"type": "notebook",
+		"status": "Published",
+		"description": "A third content type for complete static route coverage.",
+		"tags": ["ci"],
+		"lastUpdated": "2026-08-14T09:00:00.000Z",
+		"lastEditedTime": "2026-08-14T09:00:00.000Z",
+		"createdTime": "2026-08-13T09:00:00.000Z",
+		"publishedDate": "2026-08-13",
+		"blocks": [
+			{
+				"id": "fixture-notebook-list",
+				"type": "bulleted_list_item",
+				"bulleted_list_item": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": { "content": "A fixture list item." },
+							"plain_text": "A fixture list item.",
+							"annotations": {}
+						}
+					]
+				}
+			}
+		]
+	}
+]

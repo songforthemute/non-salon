@@ -2,7 +2,9 @@ import { describe, expect, it } from "vitest";
 import type { Post } from "@/types";
 import {
 	buildArticleJsonLd,
+	buildBreadcrumbJsonLd,
 	buildWebSiteJsonLd,
+	ensureModifiedDateNotBeforePublished,
 	getArticleModifiedDate,
 	toCanonicalUrl,
 } from "./seo";
@@ -35,8 +37,8 @@ describe("toCanonicalUrl", () => {
 		).toBe("https://non.salon/publication/post-title");
 	});
 
-	it("keeps the root canonical URL with a trailing slash", () => {
-		expect(toCanonicalUrl(new URL("https://example.com/index.html"))).toBe("https://non.salon/");
+	it("keeps the root canonical URL identical to the site URL", () => {
+		expect(toCanonicalUrl(new URL("https://example.com/index.html"))).toBe("https://non.salon");
 	});
 });
 
@@ -48,6 +50,22 @@ describe("getArticleModifiedDate", () => {
 	it("falls back to the Notion last edited date", () => {
 		expect(getArticleModifiedDate(post)).toBe("2026-03-21");
 	});
+
+	it("never returns a modification date earlier than the published date", () => {
+		expect(getArticleModifiedDate({ ...post, lastUpdated: "2026-03-19" }, "2026-03-20")).toBe(
+			"2026-03-20",
+		);
+	});
+});
+
+describe("ensureModifiedDateNotBeforePublished", () => {
+	it("preserves dates that are later than publication", () => {
+		expect(ensureModifiedDateNotBeforePublished("2026-03-20", "2026-03-22")).toBe("2026-03-22");
+	});
+
+	it("uses the published date when the source modification date predates it", () => {
+		expect(ensureModifiedDateNotBeforePublished("2026-03-20", "2026-03-19")).toBe("2026-03-20");
+	});
 });
 
 describe("buildWebSiteJsonLd", () => {
@@ -57,6 +75,7 @@ describe("buildWebSiteJsonLd", () => {
 		expect(jsonLd).toMatchObject({
 			"@context": "https://schema.org",
 			"@type": "WebSite",
+			"@id": "https://non.salon#website",
 			name: "non.salon",
 			url: "https://non.salon",
 			description: "Archived Web Logs",
@@ -81,18 +100,63 @@ describe("buildArticleJsonLd", () => {
 
 		expect(jsonLd).toMatchObject({
 			"@context": "https://schema.org",
-			"@type": "Article",
+			"@type": "BlogPosting",
+			"@id": "https://non.salon/publication/post-title#blogposting",
 			headline: "Post title",
 			description: "Post description",
-			mainEntityOfPage: "https://non.salon/publication/post-title",
+			mainEntityOfPage: {
+				"@type": "WebPage",
+				"@id": "https://non.salon/publication/post-title",
+			},
 			inLanguage: "ko-KR",
 			articleSection: "publication",
 			keywords: ["React", "AI"],
 		});
 		expect(jsonLd.author).toMatchObject({
 			"@type": "Person",
+			"@id": "https://github.com/songforthemute#person",
 			name: "songforthemute",
 			url: "https://github.com/songforthemute",
+		});
+	});
+
+	it("keeps structured-data dates in chronological order", () => {
+		const jsonLd = buildArticleJsonLd({
+			title: "Post title",
+			description: "Post description",
+			canonicalUrl: "https://non.salon/publication/post-title",
+			imageUrl: "https://non.salon/og/publication-post-title.png",
+			publishedDate: "2026-03-20",
+			modifiedDate: "2026-03-19",
+			section: "publication",
+			tags: [],
+		});
+
+		expect(jsonLd.dateModified).toBe("2026-03-20");
+	});
+});
+
+describe("buildBreadcrumbJsonLd", () => {
+	it("connects a post to its section and the site root", () => {
+		const jsonLd = buildBreadcrumbJsonLd({
+			title: "Post title",
+			canonicalUrl: "https://non.salon/publication/post-title",
+			section: "publication",
+		});
+
+		expect(jsonLd).toMatchObject({
+			"@context": "https://schema.org",
+			"@type": "BreadcrumbList",
+			"@id": "https://non.salon/publication/post-title#breadcrumb",
+			itemListElement: [
+				{ position: 1, name: "Root", item: "https://non.salon" },
+				{ position: 2, name: "Publications", item: "https://non.salon/publications" },
+				{
+					position: 3,
+					name: "Post title",
+					item: "https://non.salon/publication/post-title",
+				},
+			],
 		});
 	});
 });
