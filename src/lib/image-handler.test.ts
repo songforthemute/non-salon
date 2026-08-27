@@ -462,6 +462,18 @@ describe("getImageDimensions", () => {
 		expect(getImageDimensions(svg)).toEqual({ width: 640, height: 480 });
 	});
 
+	it("matches SVG attribute names case-sensitively", () => {
+		const svg = Buffer.from('<svg WIDTH="640" HEIGHT="480" viewBox="0 0 100 100"></svg>');
+
+		expect(getImageDimensions(svg)).toEqual({ width: 100, height: 100 });
+	});
+
+	it("does not treat uppercase VIEWBOX as the camel-cased viewBox attribute", () => {
+		const svg = Buffer.from('<svg width="100%" height="100%" VIEWBOX="0 0 640 480"></svg>');
+
+		expect(getImageDimensions(svg)).toBeUndefined();
+	});
+
 	it("ignores SVG attributes whose names only end with dimension attribute names", () => {
 		const svg = Buffer.from(
 			'<svg data-width="100" aria-height="50" custom:viewBox="0 0 100 50" viewBox="0 0 640 480"></svg>',

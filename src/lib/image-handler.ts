@@ -392,7 +392,7 @@ function getAvifDimensions(buffer: Buffer): ImageDimensions | undefined {
 }
 
 function getSvgAttribute(svgTag: string, name: string): string | undefined {
-	const attribute = new RegExp(`(?:^|\\s)${name}\\s*=\\s*(?:"([^"]*)"|'([^']*)')`, "i");
+	const attribute = new RegExp(`(?:^|\\s)${name}\\s*=\\s*(?:"([^"]*)"|'([^']*)')`);
 	const match = svgTag.match(attribute);
 	return match?.[1] ?? match?.[2];
 }
