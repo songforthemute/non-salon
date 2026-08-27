@@ -343,6 +343,14 @@ describe("getImageDimensions", () => {
 		expect(getImageDimensions(svg)).toEqual({ width: 640, height: 480 });
 	});
 
+	it("uses the SVG root after a doctype with an internal subset", () => {
+		const svg = Buffer.from(
+			'<!DOCTYPE svg [<!ENTITY label "a > b [not a bracket]">]><svg viewBox="0 0 640 480"></svg>',
+		);
+
+		expect(getImageDimensions(svg)).toEqual({ width: 640, height: 480 });
+	});
+
 	it("uses an SVG viewBox with comma-separated values", () => {
 		const svg = Buffer.from('<svg viewBox="0,0,640,480"></svg>');
 

@@ -434,6 +434,35 @@ function getSvgViewBoxDimensions(svgTag: string): ImageDimensions | undefined {
 		: undefined;
 }
 
+function getDoctypeEnd(svg: string, start: number): number | undefined {
+	let quote: '"' | "'" | undefined;
+	let internalSubsetDepth = 0;
+
+	for (let index = start + "<!DOCTYPE".length; index < svg.length; index++) {
+		const character = svg[index];
+		if (quote) {
+			if (character === quote) quote = undefined;
+			continue;
+		}
+
+		if (character === '"' || character === "'") {
+			quote = character;
+			continue;
+		}
+		if (character === "[") {
+			internalSubsetDepth++;
+			continue;
+		}
+		if (character === "]" && internalSubsetDepth > 0) {
+			internalSubsetDepth--;
+			continue;
+		}
+		if (character === ">" && internalSubsetDepth === 0) return index;
+	}
+
+	return undefined;
+}
+
 function getSvgRootOpeningTag(svg: string): string | undefined {
 	let start = 0;
 	while (start < svg.length) {
@@ -453,6 +482,13 @@ function getSvgRootOpeningTag(svg: string): string | undefined {
 			const instructionEnd = svg.indexOf("?>", start + 2);
 			if (instructionEnd === -1) return undefined;
 			start = instructionEnd + 2;
+			continue;
+		}
+
+		if (/^<!DOCTYPE\b/i.test(svg.slice(start))) {
+			const doctypeEnd = getDoctypeEnd(svg, start);
+			if (doctypeEnd === undefined) return undefined;
+			start = doctypeEnd + 1;
 			continue;
 		}
 
