@@ -343,6 +343,43 @@ describe("getImageDimensions", () => {
 		expect(getImageDimensions(svg)).toEqual({ width: 640, height: 480 });
 	});
 
+	it("finds an SVG root at the end of the bounded prolog scan", () => {
+		const rootStart = 64 * 1024 - "<svg".length;
+		const svg = Buffer.from(
+			`<!--${"x".repeat(rootStart - "<!--".length - "-->".length)}--><svg viewBox="0 0 640 480"></svg>`,
+		);
+
+		expect(getImageDimensions(svg)).toEqual({ width: 640, height: 480 });
+	});
+
+	it("does not search for an SVG root beyond the bounded prolog scan", () => {
+		const svg = Buffer.from(`<!--${"x".repeat(64 * 1024)}--><svg viewBox="0 0 640 480"></svg>`);
+
+		expect(getImageDimensions(svg)).toBeUndefined();
+	});
+
+	it("finds dimensions at the end of the bounded root opening-tag scan", () => {
+		const openingTagPrefix = '<svg data-metadata="';
+		const openingTagSuffix = '" viewBox="0 0 640 480">';
+		const metadataLength = 64 * 1024 - openingTagPrefix.length - openingTagSuffix.length;
+		const svg = Buffer.from(
+			`${openingTagPrefix}${"x".repeat(metadataLength)}${openingTagSuffix}</svg>`,
+		);
+
+		expect(getImageDimensions(svg)).toEqual({ width: 640, height: 480 });
+	});
+
+	it("does not parse an SVG root tag beyond the bounded opening-tag scan", () => {
+		const openingTagPrefix = '<svg data-metadata="';
+		const openingTagSuffix = '" viewBox="0 0 640 480">';
+		const metadataLength = 64 * 1024 - openingTagPrefix.length - openingTagSuffix.length + 1;
+		const svg = Buffer.from(
+			`${openingTagPrefix}${"x".repeat(metadataLength)}${openingTagSuffix}</svg>`,
+		);
+
+		expect(getImageDimensions(svg)).toBeUndefined();
+	});
+
 	it("uses the SVG root after a doctype with an internal subset", () => {
 		const svg = Buffer.from(
 			'<!DOCTYPE svg [<!ENTITY label "a > b [not a bracket]">]><svg viewBox="0 0 640 480"></svg>',

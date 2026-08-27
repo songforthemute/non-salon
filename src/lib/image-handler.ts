@@ -67,7 +67,10 @@ const EXIF_ORIENTATION_MIN = 1;
 const EXIF_ORIENTATION_MAX = 8;
 const EXIF_SWAP_DIMENSION_ORIENTATIONS = new Set([5, 6, 7, 8]);
 
-const SVG_PREFIX_BYTE_LIMIT = 1_024;
+// Only inspect enough of an SVG to find and parse its root tag. This supports
+// verbose design-tool prologs without decoding an arbitrary image into memory.
+const SVG_ROOT_SEARCH_BYTE_LIMIT = 64 * 1024;
+const SVG_OPENING_TAG_BYTE_LIMIT = 64 * 1024;
 const SVG_CSS_PIXELS_PER_INCH = 96;
 const SVG_CSS_PIXELS_PER_CENTIMETER = SVG_CSS_PIXELS_PER_INCH / 2.54;
 const SVG_CSS_PIXELS_PER_MILLIMETER = SVG_CSS_PIXELS_PER_CENTIMETER / 10;
@@ -434,73 +437,121 @@ function getSvgViewBoxDimensions(svgTag: string): ImageDimensions | undefined {
 		: undefined;
 }
 
-function getDoctypeEnd(svg: string, start: number): number | undefined {
-	let quote: '"' | "'" | undefined;
-	let internalSubsetDepth = 0;
+function isSvgWhitespace(byte: number): boolean {
+	return byte === 0x09 || (byte >= 0x0a && byte <= 0x0d) || byte === 0x20;
+}
 
-	for (let index = start + "<!DOCTYPE".length; index < svg.length; index++) {
-		const character = svg[index];
-		if (quote) {
-			if (character === quote) quote = undefined;
-			continue;
-		}
+function isAsciiWordCharacter(byte: number | undefined): boolean {
+	return (
+		byte !== undefined &&
+		((byte >= 0x30 && byte <= 0x39) ||
+			(byte >= 0x41 && byte <= 0x5a) ||
+			(byte >= 0x61 && byte <= 0x7a) ||
+			byte === 0x5f)
+	);
+}
 
-		if (svg.startsWith("<!--", index)) {
-			const commentEnd = svg.indexOf("-->", index + 4);
-			if (commentEnd === -1) return undefined;
-			index = commentEnd + 2;
-			continue;
-		}
+function matchesAscii(
+	buffer: Buffer,
+	start: number,
+	text: string,
+	end: number,
+	ignoreCase = false,
+): boolean {
+	if (start + text.length > end) return false;
 
-		if (svg.startsWith("<?", index)) {
-			const instructionEnd = svg.indexOf("?>", index + 2);
-			if (instructionEnd === -1) return undefined;
-			index = instructionEnd + 1;
-			continue;
-		}
+	for (let offset = 0; offset < text.length; offset++) {
+		const actual = buffer[start + offset];
+		const expected = text.charCodeAt(offset);
+		if (actual === expected) continue;
+		if (!ignoreCase || (actual | 0x20) !== (expected | 0x20)) return false;
+	}
 
-		if (character === '"' || character === "'") {
-			quote = character;
-			continue;
-		}
-		if (character === "[") {
-			internalSubsetDepth++;
-			continue;
-		}
-		if (character === "]" && internalSubsetDepth > 0) {
-			internalSubsetDepth--;
-			continue;
-		}
-		if (character === ">" && internalSubsetDepth === 0) return index;
+	return true;
+}
+
+function findAscii(buffer: Buffer, text: string, start: number, end: number): number | undefined {
+	for (let index = start; index + text.length <= end; index++) {
+		if (matchesAscii(buffer, index, text, end)) return index;
 	}
 
 	return undefined;
 }
 
-function getSvgRootOpeningTag(svg: string): string | undefined {
+function hasAsciiWordBoundary(buffer: Buffer, end: number): boolean {
+	return end === buffer.length || !isAsciiWordCharacter(buffer[end]);
+}
+
+function getDoctypeEnd(buffer: Buffer, start: number, limit: number): number | undefined {
+	let quote: number | undefined;
+	let internalSubsetDepth = 0;
+
+	for (let index = start + "<!DOCTYPE".length; index < limit; index++) {
+		const character = buffer[index];
+		if (quote) {
+			if (character === quote) quote = undefined;
+			continue;
+		}
+
+		if (matchesAscii(buffer, index, "<!--", limit)) {
+			const commentEnd = findAscii(buffer, "-->", index + 4, limit);
+			if (commentEnd === undefined) return undefined;
+			index = commentEnd + 2;
+			continue;
+		}
+
+		if (matchesAscii(buffer, index, "<?", limit)) {
+			const instructionEnd = findAscii(buffer, "?>", index + 2, limit);
+			if (instructionEnd === undefined) return undefined;
+			index = instructionEnd + 1;
+			continue;
+		}
+
+		if (character === 0x22 || character === 0x27) {
+			quote = character;
+			continue;
+		}
+		if (character === 0x5b) {
+			internalSubsetDepth++;
+			continue;
+		}
+		if (character === 0x5d && internalSubsetDepth > 0) {
+			internalSubsetDepth--;
+			continue;
+		}
+		if (character === 0x3e && internalSubsetDepth === 0) return index;
+	}
+
+	return undefined;
+}
+
+function getSvgRootStart(buffer: Buffer, limit: number): number | undefined {
 	let start = 0;
-	while (start < svg.length) {
-		if (/\s/.test(svg[start])) {
+	while (start < limit) {
+		if (isSvgWhitespace(buffer[start])) {
 			start++;
 			continue;
 		}
 
-		if (svg.startsWith("<!--", start)) {
-			const commentEnd = svg.indexOf("-->", start + 4);
-			if (commentEnd === -1) return undefined;
+		if (matchesAscii(buffer, start, "<!--", limit)) {
+			const commentEnd = findAscii(buffer, "-->", start + 4, limit);
+			if (commentEnd === undefined) return undefined;
 			start = commentEnd + 3;
 			continue;
 		}
 
-		if (svg.startsWith("<?", start)) {
-			const instructionEnd = svg.indexOf("?>", start + 2);
-			if (instructionEnd === -1) return undefined;
+		if (matchesAscii(buffer, start, "<?", limit)) {
+			const instructionEnd = findAscii(buffer, "?>", start + 2, limit);
+			if (instructionEnd === undefined) return undefined;
 			start = instructionEnd + 2;
 			continue;
 		}
 
-		if (/^<!DOCTYPE\b/i.test(svg.slice(start))) {
-			const doctypeEnd = getDoctypeEnd(svg, start);
+		if (
+			matchesAscii(buffer, start, "<!DOCTYPE", limit, true) &&
+			hasAsciiWordBoundary(buffer, start + "<!DOCTYPE".length)
+		) {
+			const doctypeEnd = getDoctypeEnd(buffer, start, limit);
 			if (doctypeEnd === undefined) return undefined;
 			start = doctypeEnd + 1;
 			continue;
@@ -509,22 +560,31 @@ function getSvgRootOpeningTag(svg: string): string | undefined {
 		break;
 	}
 
-	const match = /<svg\b/i.exec(svg.slice(start));
-	if (!match || match.index !== 0) return undefined;
+	return matchesAscii(buffer, start, "<svg", limit, true) &&
+		hasAsciiWordBoundary(buffer, start + "<svg".length)
+		? start
+		: undefined;
+}
 
-	let quote: '"' | "'" | undefined;
-	for (let index = start + match[0].length; index < svg.length; index++) {
-		const character = svg[index];
+function getSvgRootOpeningTag(buffer: Buffer): string | undefined {
+	const rootSearchLimit = Math.min(buffer.length, SVG_ROOT_SEARCH_BYTE_LIMIT);
+	const rootStart = getSvgRootStart(buffer, rootSearchLimit);
+	if (rootStart === undefined) return undefined;
+
+	const openingTagLimit = Math.min(buffer.length, rootStart + SVG_OPENING_TAG_BYTE_LIMIT);
+	let quote: number | undefined;
+	for (let index = rootStart + "<svg".length; index < openingTagLimit; index++) {
+		const character = buffer[index];
 		if (quote) {
 			if (character === quote) quote = undefined;
 			continue;
 		}
 
-		if (character === '"' || character === "'") {
+		if (character === 0x22 || character === 0x27) {
 			quote = character;
 			continue;
 		}
-		if (character === ">") return svg.slice(start, index + 1);
+		if (character === 0x3e) return buffer.subarray(rootStart, index + 1).toString("utf8");
 	}
 
 	return undefined;
@@ -744,8 +804,7 @@ export function getImageDimensions(buffer: Buffer): ImageDimensions | undefined 
 		if (dimensions) return dimensions;
 	}
 
-	const svg = buffer.subarray(0, SVG_PREFIX_BYTE_LIMIT).toString("utf8");
-	const svgTag = getSvgRootOpeningTag(svg);
+	const svgTag = getSvgRootOpeningTag(buffer);
 	if (svgTag) {
 		const width = parseSvgLength(getSvgAttribute(svgTag, "width"));
 		const height = parseSvgLength(getSvgAttribute(svgTag, "height"));
