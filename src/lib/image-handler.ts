@@ -479,15 +479,19 @@ function findAscii(buffer: Buffer, text: string, start: number, end: number): nu
 	return undefined;
 }
 
-function hasAsciiWordBoundary(buffer: Buffer, end: number): boolean {
-	return end === buffer.length || !isAsciiWordCharacter(buffer[end]);
+function hasAsciiWordBoundary(buffer: Buffer, end: number, limit: number): boolean {
+	return end < limit && !isAsciiWordCharacter(buffer[end]);
 }
 
 function isSvgRootTagTerminator(buffer: Buffer, index: number, limit: number): boolean {
 	if (index >= limit) return false;
 
 	const character = buffer[index];
-	return isSvgWhitespace(character) || character === 0x2f || character === 0x3e;
+	return (
+		isSvgWhitespace(character) ||
+		character === 0x3e ||
+		(character === 0x2f && index + 1 < limit && buffer[index + 1] === 0x3e)
+	);
 }
 
 function getDoctypeEnd(buffer: Buffer, start: number, limit: number): number | undefined {
@@ -557,7 +561,7 @@ function getSvgRootStart(buffer: Buffer, limit: number): number | undefined {
 
 		if (
 			matchesAscii(buffer, start, "<!DOCTYPE", limit, true) &&
-			hasAsciiWordBoundary(buffer, start + "<!DOCTYPE".length)
+			hasAsciiWordBoundary(buffer, start + "<!DOCTYPE".length, limit)
 		) {
 			const doctypeEnd = getDoctypeEnd(buffer, start, limit);
 			if (doctypeEnd === undefined) return undefined;

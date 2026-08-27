@@ -358,6 +358,12 @@ describe("getImageDimensions", () => {
 		expect(getImageDimensions(svg)).toBeUndefined();
 	});
 
+	it("does not treat a malformed slash SVG tag as an SVG root", () => {
+		const svg = Buffer.from('<svg/not-a-root width="640" height="480"></svg>');
+
+		expect(getImageDimensions(svg)).toBeUndefined();
+	});
+
 	it("finds an SVG root at the end of the bounded prolog scan", () => {
 		const rootStart = 64 * 1024 - "<svg ".length;
 		const svg = Buffer.from(
@@ -369,6 +375,15 @@ describe("getImageDimensions", () => {
 
 	it("does not search for an SVG root beyond the bounded prolog scan", () => {
 		const svg = Buffer.from(`<!--${"x".repeat(64 * 1024)}--><svg viewBox="0 0 640 480"></svg>`);
+
+		expect(getImageDimensions(svg)).toBeUndefined();
+	});
+
+	it("does not read beyond the bounded prolog scan for an incomplete doctype", () => {
+		const doctypeStart = 64 * 1024 - "<!DOCTYPE".length;
+		const svg = Buffer.from(
+			`${" ".repeat(doctypeStart)}<!DOCTYPE svg><svg viewBox="0 0 640 480"></svg>`,
+		);
 
 		expect(getImageDimensions(svg)).toBeUndefined();
 	});
