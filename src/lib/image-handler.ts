@@ -445,6 +445,20 @@ function getDoctypeEnd(svg: string, start: number): number | undefined {
 			continue;
 		}
 
+		if (svg.startsWith("<!--", index)) {
+			const commentEnd = svg.indexOf("-->", index + 4);
+			if (commentEnd === -1) return undefined;
+			index = commentEnd + 2;
+			continue;
+		}
+
+		if (svg.startsWith("<?", index)) {
+			const instructionEnd = svg.indexOf("?>", index + 2);
+			if (instructionEnd === -1) return undefined;
+			index = instructionEnd + 1;
+			continue;
+		}
+
 		if (character === '"' || character === "'") {
 			quote = character;
 			continue;

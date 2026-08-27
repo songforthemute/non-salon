@@ -351,6 +351,20 @@ describe("getImageDimensions", () => {
 		expect(getImageDimensions(svg)).toEqual({ width: 640, height: 480 });
 	});
 
+	it("ignores brackets and greater-than signs in doctype comments and processing instructions", () => {
+		const svg = Buffer.from(
+			'<!DOCTYPE svg [<!-- ] > --><?formatter ] > ?><!ENTITY label "value">]><svg viewBox="0 0 640 480"></svg>',
+		);
+
+		expect(getImageDimensions(svg)).toEqual({ width: 640, height: 480 });
+	});
+
+	it("does not parse an SVG after an unterminated doctype comment", () => {
+		const svg = Buffer.from('<!DOCTYPE svg [<!-- ] ><svg viewBox="0 0 640 480"></svg>');
+
+		expect(getImageDimensions(svg)).toBeUndefined();
+	});
+
 	it("uses an SVG viewBox with comma-separated values", () => {
 		const svg = Buffer.from('<svg viewBox="0,0,640,480"></svg>');
 
