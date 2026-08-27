@@ -71,6 +71,7 @@ const EXIF_SWAP_DIMENSION_ORIENTATIONS = new Set([5, 6, 7, 8]);
 // verbose design-tool prologs without decoding an arbitrary image into memory.
 const SVG_ROOT_SEARCH_BYTE_LIMIT = 64 * 1024;
 const SVG_OPENING_TAG_BYTE_LIMIT = 64 * 1024;
+const SVG_UTF8_BOM = [0xef, 0xbb, 0xbf];
 const SVG_CSS_PIXELS_PER_INCH = 96;
 const SVG_CSS_PIXELS_PER_CENTIMETER = SVG_CSS_PIXELS_PER_INCH / 2.54;
 const SVG_CSS_PIXELS_PER_MILLIMETER = SVG_CSS_PIXELS_PER_CENTIMETER / 10;
@@ -482,6 +483,13 @@ function hasAsciiWordBoundary(buffer: Buffer, end: number): boolean {
 	return end === buffer.length || !isAsciiWordCharacter(buffer[end]);
 }
 
+function isSvgRootTagTerminator(buffer: Buffer, index: number, limit: number): boolean {
+	if (index >= limit) return false;
+
+	const character = buffer[index];
+	return isSvgWhitespace(character) || character === 0x2f || character === 0x3e;
+}
+
 function getDoctypeEnd(buffer: Buffer, start: number, limit: number): number | undefined {
 	let quote: number | undefined;
 	let internalSubsetDepth = 0;
@@ -526,7 +534,7 @@ function getDoctypeEnd(buffer: Buffer, start: number, limit: number): number | u
 }
 
 function getSvgRootStart(buffer: Buffer, limit: number): number | undefined {
-	let start = 0;
+	let start = startsWithBytes(buffer, SVG_UTF8_BOM) ? SVG_UTF8_BOM.length : 0;
 	while (start < limit) {
 		if (isSvgWhitespace(buffer[start])) {
 			start++;
@@ -561,7 +569,7 @@ function getSvgRootStart(buffer: Buffer, limit: number): number | undefined {
 	}
 
 	return matchesAscii(buffer, start, "<svg", limit, true) &&
-		hasAsciiWordBoundary(buffer, start + "<svg".length)
+		isSvgRootTagTerminator(buffer, start + "<svg".length, limit)
 		? start
 		: undefined;
 }

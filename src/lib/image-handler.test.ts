@@ -343,8 +343,23 @@ describe("getImageDimensions", () => {
 		expect(getImageDimensions(svg)).toEqual({ width: 640, height: 480 });
 	});
 
+	it("uses an SVG root after a UTF-8 byte-order mark", () => {
+		const svg = Buffer.concat([
+			Buffer.from([0xef, 0xbb, 0xbf]),
+			Buffer.from('<svg viewBox="0 0 640 480"></svg>'),
+		]);
+
+		expect(getImageDimensions(svg)).toEqual({ width: 640, height: 480 });
+	});
+
+	it.each(["svg:fake", "svg-fake"])("does not treat <%s> as an SVG root", (tagName) => {
+		const svg = Buffer.from(`<${tagName} viewBox="0 0 640 480"></${tagName}>`);
+
+		expect(getImageDimensions(svg)).toBeUndefined();
+	});
+
 	it("finds an SVG root at the end of the bounded prolog scan", () => {
-		const rootStart = 64 * 1024 - "<svg".length;
+		const rootStart = 64 * 1024 - "<svg ".length;
 		const svg = Buffer.from(
 			`<!--${"x".repeat(rootStart - "<!--".length - "-->".length)}--><svg viewBox="0 0 640 480"></svg>`,
 		);
