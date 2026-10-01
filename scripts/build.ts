@@ -9,19 +9,11 @@ import {
 	populateImageDimensions,
 	processPostImages,
 } from "../src/lib/image-handler.js";
-import type { ContentType } from "../src/types.js";
+import type { Post } from "../src/types.js";
 import { generateOgImages } from "./generate-og-images.js";
 
 const POSTS_PATH = path.join(process.cwd(), PATHS.posts);
 const PUBLISHED_DATES_PATH = path.join(process.cwd(), PATHS.publishedDates);
-
-interface Post {
-	id: string;
-	title: string;
-	slug: string;
-	type: ContentType;
-	blocks: unknown[];
-}
 
 async function loadJsonFile<T>(filePath: string, defaultValue: T): Promise<T> {
 	try {
