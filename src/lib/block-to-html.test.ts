@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import type { Block } from "@/types";
 import { blocksToHtml, blockToHtml, richTextToHtml } from "./block-to-html";
 
 describe("richTextToHtml", () => {
@@ -550,5 +551,59 @@ describe("blocksToHtml", () => {
 		expect(blocksToHtml(blocks)).toBe(
 			'<p>L1</p><div class="indent"><p>L2</p><div class="indent"><p>L3</p><div class="indent"><p>L4</p></div></div></div>',
 		);
+	});
+
+	it("renders nested paragraphs beyond four levels", () => {
+		const richText = (content: string) => [{ type: "text", text: { content }, annotations: {} }];
+		let block: Block = { type: "paragraph", paragraph: { rich_text: richText("L6") } };
+		for (let level = 5; level >= 1; level--) {
+			block = {
+				type: "paragraph",
+				paragraph: { rich_text: richText(`L${level}`) },
+				children: [block],
+			};
+		}
+
+		const html = blocksToHtml([block]);
+		expect(html).toContain("<p>L6</p>");
+		expect(html.match(/class="indent"/g)).toHaveLength(5);
+	});
+
+	it("preserves children of an unsupported parent block", () => {
+		const blocks = [
+			{
+				type: "toggle",
+				toggle: { rich_text: [] },
+				children: [
+					{
+						type: "paragraph",
+						paragraph: {
+							rich_text: [{ type: "text", text: { content: "Nested" }, annotations: {} }],
+						},
+					},
+				],
+			},
+		];
+
+		expect(blocksToHtml(blocks)).toBe('<div class="indent"><p>Nested</p></div>');
+	});
+
+	it("preserves children of an empty paragraph", () => {
+		const blocks = [
+			{
+				type: "paragraph",
+				paragraph: { rich_text: [] },
+				children: [
+					{
+						type: "paragraph",
+						paragraph: {
+							rich_text: [{ type: "text", text: { content: "Nested" }, annotations: {} }],
+						},
+					},
+				],
+			},
+		];
+
+		expect(blocksToHtml(blocks)).toBe('<div class="indent"><p>Nested</p></div>');
 	});
 });

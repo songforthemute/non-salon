@@ -196,12 +196,13 @@ export function blocksToHtml(blocks: Block[], imageState = { hasRenderedImage: f
 			const imageLoading = imageState.hasRenderedImage ? "lazy" : "eager";
 			let html = blockToHtml(block, { loading: imageLoading });
 			if (block.type === "image" && html) imageState.hasRenderedImage = true;
-			if (html && block.children && block.children.length > 0) {
-				const childrenHtml = blocksToHtml(block.children, imageState);
-				html = insertChildren(type, html, childrenHtml);
-			}
+			const childrenHtml = block.children?.length ? blocksToHtml(block.children, imageState) : "";
 			if (html) {
+				if (childrenHtml) html = insertChildren(type, html, childrenHtml);
 				result.push(html);
+			} else if (childrenHtml) {
+				// Preserve nested content even when the parent block has no HTML renderer.
+				result.push(`<div class="indent">${childrenHtml}</div>`);
 			}
 			i++;
 		}
