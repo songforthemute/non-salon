@@ -39,7 +39,7 @@ Astro Content Collections를 사용하지 않음. `data/posts.json`은 gitignore
 
 **게시일 영속화:** `data/published-dates.json`에 slug별 최초 발견 날짜 기록. 삭제된 slug는 정리됨.
 
-**Block → HTML 변환:** `src/lib/block-to-html.ts`에서 Notion 블록을 직접 HTML로 변환 (서드파티 없음). Heading 레벨 시프트: `heading_1` → `<h2>`, `heading_2` → `<h3>`, `heading_3` → `<h4>`, `heading_4` → `<h5>`. Callout → `<aside>`. children은 깊이 제한 없이 재귀한다. 리스트는 중첩 리스트로, quote/callout은 컨테이너 안에, 나머지는 `<div class="indent">`로 렌더링한다. 지원하지 않는 부모 블록도 렌더링 가능한 children은 유지한다.
+**Block → HTML 변환:** `src/lib/block-to-html.ts`에서 Notion 블록을 직접 HTML로 변환 (서드파티 없음). Heading 레벨 시프트: `heading_1` → `<h2>`, `heading_2` → `<h3>`, `heading_3` → `<h4>`, `heading_4` → `<h5>`. Callout → `<aside>`. 테이블은 헤더 설정을 반영한 시맨틱 표와 모바일 가로 스크롤로, 토글과 접히는 제목은 `<details>`로, to-do는 읽기 전용 체크박스로, bookmark/link_preview는 링크로 렌더링한다. children은 깊이 제한 없이 재귀한다. 리스트는 중첩 리스트로, quote/callout과 toggle은 컨테이너 안에, 나머지는 `<div class="indent">`로 렌더링한다. 지원하지 않는 부모 블록도 렌더링 가능한 children은 유지한다.
 
 **OG 이미지:** `functions/api/og-image.ts` — Cloudflare Pages Function으로 SVG 동적 생성.
 
