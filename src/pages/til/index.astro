@@ -1,0 +1,96 @@
+---
+import FeedItem from "@/components/FeedItem.astro";
+import Layout from "@/layouts/Layout.astro";
+import {
+	getPublishedDate,
+	getTilPosts,
+	getTilTopics,
+	loadPosts,
+	loadPublishedDates,
+	sortByDate,
+} from "@/lib/posts";
+
+const publishedDates = loadPublishedDates();
+const posts = sortByDate(getTilPosts(loadPosts()), publishedDates);
+const topics = getTilTopics(posts);
+---
+
+<Layout title="Today I Learned" description="Short notes on things I have learned." noindex>
+	<h1>Today I Learned</h1>
+	<p class="intro">Short notes on things I have learned.</p>
+
+	<section class="filters" aria-label="Filter TIL notes">
+		<div class="filter-heading">
+			<span id="topics-label">TOPICS</span>
+			<div class="date-control">
+				<button type="button" id="date-trigger" class="date-trigger" aria-label="Filter by date" aria-expanded="false" aria-controls="til-calendar" title="Filter by date">
+					<svg viewBox="0 0 20 20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true">
+						<rect x="2.5" y="4.5" width="15" height="13" />
+						<path d="M2.5 8.5h15M6.5 2.5v4M13.5 2.5v4" />
+					</svg>
+				</button>
+				<div id="til-calendar" class="calendar" role="group" aria-label="Date filter calendar" hidden>
+					<div class="month-navigation">
+						<button type="button" id="month-prev" aria-label="Previous month">‹</button>
+						<span id="month-label" aria-live="polite"></span>
+						<button type="button" id="month-next" aria-label="Next month">›</button>
+					</div>
+					<div class="weekdays" aria-hidden="true"><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span></div>
+					<div id="calendar-days" class="calendar-days" role="group" aria-label="Choose a date or date range"></div>
+					<div class="calendar-footer">
+						<span id="date-summary">Select a date</span>
+						<button type="button" id="date-clear">Clear</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="topics" role="group" aria-labelledby="topics-label">
+			<button type="button" class="topic" data-topic="" aria-pressed="true">All</button>
+			{topics.map((topic) => <button type="button" class="topic" data-topic={topic} aria-pressed="false">{topic}</button>)}
+		</div>
+	</section>
+
+	<p id="result-summary" class="result-summary" aria-live="polite">{posts.length} {posts.length === 1 ? "note" : "notes"}</p>
+	<div id="til-results" class="posts">
+		{posts.map((post) => (
+			<div class="til-result" data-tags={JSON.stringify(post.tags)} data-date={getPublishedDate(post, publishedDates).slice(0, 10)}>
+				<FeedItem post={post} date={getPublishedDate(post, publishedDates)} til />
+			</div>
+		))}
+	</div>
+	<p id="no-results" hidden>No notes match these filters.</p>
+</Layout>
+
+<script src="@/scripts/til-filter.ts"></script>
+
+<style>
+	h1 { margin-bottom: 0.5rem; }
+	.intro { margin: 0; color: var(--color-subtle); }
+	.filters { margin-top: 2.125rem; }
+	.filter-heading { display: flex; justify-content: space-between; align-items: center; min-height: 2rem; color: var(--color-muted); font-size: var(--font-size-sm); }
+	.date-control { position: relative; }
+	.date-trigger { display: grid; place-items: center; width: 2rem; height: 2rem; padding: 0; border: 0; background: transparent; color: var(--color-muted); cursor: pointer; }
+	.date-trigger:hover, .date-trigger[aria-expanded="true"] { color: var(--color-subtle); }
+	.date-trigger:focus-visible, .topic:focus-visible, .calendar :global(button:focus-visible) { outline: 1px solid #121212; outline-offset: 2px; }
+	.topics { display: flex; flex-wrap: wrap; gap: 0.5rem 1.375rem; margin-top: 0.375rem; }
+	.topic { padding: 0; border: 0; background: transparent; color: var(--color-muted); font: inherit; font-size: var(--font-size-sm); text-decoration: none; text-underline-offset: 3px; cursor: pointer; }
+	.topic:hover, .topic[aria-pressed="true"] { color: var(--color-subtle); text-decoration: underline; }
+	.result-summary { margin: 1.875rem 0 0.75rem; color: var(--color-muted); font-size: var(--font-size-sm); }
+	.posts { display: flex; flex-direction: column; }
+	#no-results { color: var(--color-muted); }
+	.calendar { position: absolute; z-index: 10; top: calc(100% + 1rem); right: 0; width: 17.5rem; box-sizing: border-box; padding: 0.875rem; border: 1px solid var(--color-border); background: white; color: var(--color-subtle); font-size: 0.8125rem; box-shadow: none; }
+	.calendar[hidden], [hidden] { display: none !important; }
+	.month-navigation { display: grid; grid-template-columns: 1.125rem 1fr 1.125rem; align-items: center; padding-bottom: 0.375rem; border-bottom: 1px solid var(--color-border); text-align: center; }
+	.month-navigation button { padding: 0; border: 0; background: transparent; color: var(--color-muted); font: inherit; font-size: 1.125rem; cursor: pointer; }
+	.weekdays, .calendar-days { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; }
+	.weekdays { margin-top: 0.375rem; color: var(--color-muted); font-size: 0.75rem; }
+	.weekdays span { height: 1.25rem; }
+	.calendar-days :global(button) { width: 100%; height: 1.75rem; padding: 0; border: 0; background: transparent; color: var(--color-subtle); font: inherit; cursor: pointer; }
+	.calendar-days :global(button[data-outside="true"]) { color: #aaa; }
+	.calendar-days :global(button:hover), .calendar-days :global(button[data-preview="true"]) { background: #f4f4f4; }
+	.calendar-days :global(button[data-in-range="true"]) { background: #f4f4f4; }
+	.calendar-days :global(button[data-selected="true"]) { background: #111; color: white; }
+	.calendar-footer { display: flex; justify-content: space-between; gap: 0.5rem; margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--color-border); color: var(--color-muted); }
+	.calendar-footer button { padding: 0; border: 0; background: transparent; color: inherit; font: inherit; text-decoration: underline; cursor: pointer; }
+	.calendar-footer button:disabled { color: #aaa; text-decoration: none; cursor: default; }
+</style>

@@ -1,5 +1,5 @@
 import { SITE } from "@/config";
-import { sortByDate } from "@/lib/posts";
+import { isTilPost, sortByDate } from "@/lib/posts";
 import type { ContentType, Post } from "@/types";
 
 const TYPE_LABELS: Record<ContentType, string> = {
@@ -34,7 +34,7 @@ function buildPostLine(post: Post): string {
 
 function buildTypeSection(type: ContentType, posts: Post[]): string {
 	const typePosts = sortByDate(
-		posts.filter((post) => post.type === type && post.status === "Published"),
+		posts.filter((post) => post.type === type && post.status === "Published" && !isTilPost(post)),
 		{},
 	);
 

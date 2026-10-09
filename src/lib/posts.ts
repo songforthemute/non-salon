@@ -22,7 +22,32 @@ export function loadPublishedDates(): Record<string, string> {
 
 export function getPostsByType(type: ContentType): Post[] {
 	const posts = loadPosts();
-	return posts.filter((p) => p.type === type);
+	return posts.filter((p) => p.type === type && !isTilPost(p));
+}
+
+export function isTilPost(post: Post): boolean {
+	return post.tags.some((tag) => tag.trim().toLowerCase() === "til");
+}
+
+export function getRegularPosts(posts: Post[]): Post[] {
+	return posts.filter((post) => !isTilPost(post));
+}
+
+export function getTilPosts(posts: Post[]): Post[] {
+	return posts.filter(isTilPost);
+}
+
+export function getTilTopics(posts: Post[]): string[] {
+	const topics = new Map<string, string>();
+	for (const post of getTilPosts(posts)) {
+		for (const tag of post.tags) {
+			const topic = tag.trim();
+			if (topic && topic.toLowerCase() !== "til" && !topics.has(topic.toLowerCase())) {
+				topics.set(topic.toLowerCase(), topic);
+			}
+		}
+	}
+	return [...topics.values()].sort((a, b) => a.localeCompare(b));
 }
 
 export function sortByDate(

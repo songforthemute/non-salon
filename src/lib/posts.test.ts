@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Post } from "@/types";
-import { getLatestPosts } from "./posts";
+import { getLatestPosts, getRegularPosts, getTilPosts, getTilTopics, isTilPost } from "./posts";
 
 function makePost(overrides: Partial<Post>): Post {
 	return {
@@ -39,5 +39,23 @@ describe("getLatestPosts", () => {
 			"thought:newest",
 			"publication:middle",
 		]);
+	});
+});
+
+describe("TIL tag classification", () => {
+	it("uses only an exact, case-insensitive TIL tag and keeps the original content type", () => {
+		const regular = makePost({ slug: "regular", tags: ["utility"] });
+		const tilNotebook = makePost({ slug: "til-notebook", type: "notebook", tags: ["TIL", "CSS"] });
+		const tilPublication = makePost({
+			slug: "til-publication",
+			type: "publication",
+			tags: ["til", "TypeScript"],
+		});
+		const posts = [regular, tilNotebook, tilPublication];
+
+		expect(isTilPost(regular)).toBe(false);
+		expect(getRegularPosts(posts)).toEqual([regular]);
+		expect(getTilPosts(posts)).toEqual([tilNotebook, tilPublication]);
+		expect(getTilTopics(posts)).toEqual(["CSS", "TypeScript"]);
 	});
 });

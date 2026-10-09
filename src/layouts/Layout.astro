@@ -41,8 +41,9 @@ const canonicalUrl = toCanonicalUrl(Astro.url);
 // JSON-LD 구조화 데이터: 상세 페이지는 Article, 그 외는 WebSite
 const robotsMeta = noindex ? "noindex, nofollow" : "index, follow";
 
-const jsonLd =
-	ogType === "article"
+const jsonLd = noindex
+	? undefined
+	: ogType === "article"
 		? buildArticleJsonLd({
 				title: ogTitle,
 				description,
@@ -55,7 +56,7 @@ const jsonLd =
 			})
 		: buildWebSiteJsonLd(description);
 const breadcrumbJsonLd =
-	ogType === "article"
+	!noindex && ogType === "article"
 		? buildBreadcrumbJsonLd({ title: ogTitle, canonicalUrl, section })
 		: undefined;
 ---
@@ -71,7 +72,7 @@ const breadcrumbJsonLd =
 		<meta name="author" content={SITE.author} />
 		<title>{siteTitle}</title>
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="canonical" href={canonicalUrl} />
+		{!noindex && <link rel="canonical" href={canonicalUrl} />}
 		<meta property="og:title" content={ogTitle} />
 		<meta property="og:description" content={description} />
 		<meta property="og:image" content={ogImageUrl} />
@@ -86,7 +87,7 @@ const breadcrumbJsonLd =
 		<meta name="twitter:title" content={ogTitle} />
 		<meta name="twitter:description" content={description} />
 		<meta name="twitter:image" content={ogImageUrl} />
-		<script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+		{jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
 		{breadcrumbJsonLd && (
 			<script type="application/ld+json" set:html={JSON.stringify(breadcrumbJsonLd)} />
 		)}

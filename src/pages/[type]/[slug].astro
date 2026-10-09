@@ -1,10 +1,7 @@
 ---
+import PostArticle from "@/components/PostArticle.astro";
 import { ROUTE_TYPE_MAP, type RouteSegment } from "@/config";
-import Layout from "@/layouts/Layout.astro";
-import { blocksToHtml } from "@/lib/block-to-html";
-import { formatDate } from "@/lib/format";
-import { getPostsByType, getPublishedDate, loadPublishedDates } from "@/lib/posts";
-import { getArticleModifiedDate } from "@/lib/seo";
+import { getPostsByType, loadPublishedDates } from "@/lib/posts";
 import type { Post } from "@/types";
 
 export function getStaticPaths() {
@@ -25,49 +22,6 @@ export function getStaticPaths() {
 
 const { post } = Astro.props as { post: Post };
 const publishedDates = loadPublishedDates();
-const publishedDate = getPublishedDate(post, publishedDates);
-const modifiedDate = getArticleModifiedDate(post, publishedDate);
-const content = blocksToHtml(post.blocks);
 ---
 
-<Layout
-	title={post.title}
-	description={post.description || undefined}
-	ogType="article"
-	ogImage={`${post.type}-${post.slug}.png`}
-	publishedDate={publishedDate}
-	modifiedDate={modifiedDate}
-	section={post.type}
-	tags={post.tags}
->
-	<article>
-		<header>
-			<h1>{post.title}</h1>
-			<time datetime={publishedDate}>{formatDate(publishedDate)}</time>
-			{post.description && <p class="summary">{post.description}</p>}
-			{post.tags.length > 0 && <p class="tags">{post.tags.join(", ")}</p>}
-		</header>
-		<div class="content" data-pagefind-body set:html={content} />
-	</article>
-</Layout>
-
-<style>
-	article header {
-		margin-bottom: 2rem;
-	}
-	article h1 {
-		margin-bottom: 0.5rem;
-	}
-	article time {
-		color: var(--color-muted);
-	}
-	.summary {
-		margin-top: 1rem;
-		color: var(--color-subtle);
-	}
-	.tags {
-		margin-top: 0.5rem;
-		font-size: var(--font-size-sm);
-		color: var(--color-muted);
-	}
-</style>
+<PostArticle post={post} publishedDates={publishedDates} />

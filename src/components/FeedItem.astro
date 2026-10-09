@@ -1,0 +1,40 @@
+---
+import { formatDate } from "@/lib/format";
+import type { Post } from "@/types";
+
+interface Props {
+	post: Post;
+	date: string;
+	til?: boolean;
+}
+
+const { post, date, til = false } = Astro.props;
+const topics = post.tags.filter((tag) => tag.trim().toLowerCase() !== "til");
+const typeLabels = { publication: "Publication", thought: "Thought", notebook: "Notebook" };
+---
+
+<article>
+	<div class="meta">
+		{til ? (
+			<>
+				<time datetime={date}>{formatDate(date)}</time>
+				{topics.length > 0 && <span>· {topics.join(" · ")}</span>}
+			</>
+		) : (
+			<>
+				<span>{typeLabels[post.type]}</span>
+				<span>·</span>
+				<time datetime={date}>{formatDate(date)}</time>
+			</>
+		)}
+	</div>
+	<h3><a href={til ? `/til/${post.slug}` : `/${post.type}/${post.slug}`}>{post.title}</a></h3>
+</article>
+
+<style>
+	article { padding: 0.625rem 0 1rem; border-bottom: 1px solid var(--color-border); }
+	.meta { display: flex; flex-wrap: wrap; gap: 0.35rem; color: var(--color-muted); font-size: var(--font-size-sm); }
+	h3 { margin: 0.25rem 0 0; font-size: 1.1rem; font-weight: normal; }
+	h3 a { text-decoration: none; }
+	h3 a:hover { text-decoration: underline; }
+</style>
