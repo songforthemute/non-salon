@@ -5,6 +5,11 @@ import { blocksToHtml, blockToHtml, richTextToHtml } from "./block-to-html";
 const text = (content: string) => [{ type: "text", text: { content }, annotations: {} }];
 
 describe("richTextToHtml", () => {
+	it("preserves inline equations and escapes their source", () => {
+		expect(
+			richTextToHtml([{ type: "equation", equation: { expression: "x < y" }, annotations: {} }]),
+		).toBe('<code class="notion-equation-inline">x &lt; y</code>');
+	});
 	it("plain text", () => {
 		const richText = [{ type: "text", text: { content: "Hello" }, annotations: {} }];
 		expect(richTextToHtml(richText)).toBe("Hello");
@@ -91,6 +96,41 @@ describe("richTextToHtml", () => {
 });
 
 describe("blockToHtml", () => {
+	it("preserves standalone equation source", () => {
+		expect(blockToHtml({ type: "equation", equation: { expression: "a < b" } })).toBe(
+			'<pre class="notion-equation"><code>a &lt; b</code></pre>',
+		);
+	});
+
+	it("links localized media but not expiring file URLs", () => {
+		const base = {
+			type: "pdf",
+			pdf: {
+				type: "file",
+				file: { url: "https://file.notion.so/temporary.pdf" },
+				caption: text("Paper"),
+			},
+		};
+		expect(blockToHtml(base)).toContain("<span>PDF file</span>");
+		expect(blockToHtml(base)).not.toContain("href=");
+		expect(
+			blockToHtml({
+				...base,
+				pdf: { ...base.pdf, file: { url: "/media/publication/post/paper.pdf" } },
+			}),
+		).toContain('href="/media/publication/post/paper.pdf"');
+	});
+
+	it("renders refreshed synced children without adding an indent", () => {
+		const html = blocksToHtml([
+			{
+				type: "synced_block",
+				synced_block: { synced_from: { block_id: "source" } },
+				children: [{ type: "paragraph", paragraph: { rich_text: text("Current content") } }],
+			},
+		]);
+		expect(html).toBe("<p>Current content</p>");
+	});
 	it("paragraph", () => {
 		const block = {
 			type: "paragraph",

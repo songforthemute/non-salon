@@ -3,12 +3,14 @@ import { execSync } from "node:child_process";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
 import { PATHS } from "../src/config.js";
+import { reportBlockDiagnostics } from "../src/lib/block-diagnostics.js";
 import {
 	cleanupOrphanedImages,
 	hasRemoteImages,
 	populateImageDimensions,
 	processPostImages,
 } from "../src/lib/image-handler.js";
+import { cleanupOrphanedMedia, localizePostMedia } from "../src/lib/media-handler.js";
 import type { Post } from "../src/types.js";
 import { generateOgImages } from "./generate-og-images.js";
 
@@ -105,6 +107,14 @@ async function main() {
 		);
 	}
 
+	console.log("\n📎 Processing Notion media...");
+	for (const post of posts) {
+		const media = await localizePostMedia(post.type, post.slug, post.blocks);
+		post.blocks = media.blocks;
+		if (media.downloadedCount) console.log(`  ${post.slug}: ${media.downloadedCount} file(s)`);
+	}
+	reportBlockDiagnostics(posts);
+
 	if (cachedImageCount > 0) {
 		console.log(`⏭️  ${cachedImageCount} posts skipped (images cached)`);
 	}
@@ -114,6 +124,10 @@ async function main() {
 	const removedImageDirs = await cleanupOrphanedImages(currentPosts);
 	if (removedImageDirs > 0) {
 		console.log(`🗑️  Cleaned up ${removedImageDirs} orphaned image directories`);
+	}
+	const removedMediaDirs = await cleanupOrphanedMedia(currentPosts);
+	if (removedMediaDirs > 0) {
+		console.log(`🗑️  Cleaned up ${removedMediaDirs} orphaned media directories`);
 	}
 
 	// 9. 이미지 URL이 교체된 posts.json 저장

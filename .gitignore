@@ -32,6 +32,7 @@ data/last-build.json
 
 # Downloaded images (빌드 시 생성)
 public/images/
+public/media/
 
 # Generated OG images (빌드 시 생성)
 public/og/

@@ -1,10 +1,52 @@
 import { randomUUID } from "node:crypto";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { Block } from "@/types";
 import { blockToHtml } from "./block-to-html";
-import { getImageDimensions, populateImageDimensions } from "./image-handler";
+import { getImageDimensions, populateImageDimensions, processPostImages } from "./image-handler";
+
+describe("processPostImages", () => {
+	it("keeps cached local images while downloading a new synced image", async () => {
+		const slug = `vitest-mixed-images-${randomUUID()}`;
+		const directory = path.join(process.cwd(), "public", "images", "publication", slug);
+		await fs.mkdir(directory, { recursive: true });
+		await fs.writeFile(path.join(directory, "cached.png"), "cached");
+		vi.stubGlobal(
+			"fetch",
+			vi.fn(
+				async () =>
+					new Response(Buffer.from("GIF89a\x01\x00\x01\x00"), {
+						headers: { "content-type": "image/gif" },
+					}),
+			),
+		);
+		try {
+			const result = await processPostImages("publication", slug, [
+				{
+					id: "cached",
+					type: "image",
+					image: {
+						type: "file",
+						file: { url: `/images/publication/${slug}/cached.png` },
+						caption: [],
+					},
+				},
+				{
+					id: "new",
+					type: "image",
+					image: { type: "file", file: { url: "https://file.notion.so/new.gif" }, caption: [] },
+				},
+			]);
+			expect(result.downloadedCount).toBe(1);
+			expect(await fs.readFile(path.join(directory, "cached.png"), "utf8")).toBe("cached");
+			expect(result.blocks[1].image?.file?.url).toBe(`/images/publication/${slug}/new.gif`);
+		} finally {
+			vi.unstubAllGlobals();
+			await fs.rm(directory, { recursive: true, force: true });
+		}
+	});
+});
 
 const IMAGE_FIXTURE_DIRECTORY = path.join(
 	process.cwd(),

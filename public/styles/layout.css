@@ -258,6 +258,28 @@ pre code {
   margin: 1.25rem 0;
 }
 
+.content .notion-equation {
+  overflow-x: auto;
+}
+
+.content .notion-equation-inline {
+  white-space: nowrap;
+}
+
+.content .notion-media {
+  margin: 1.25rem 0;
+  padding: 0.375rem 0;
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+  overflow-wrap: anywhere;
+}
+
+.content .notion-media-caption,
+.content .notion-sync-unavailable {
+  color: var(--color-muted);
+  font-size: var(--font-size-sm);
+}
+
 a {
   word-break: break-all;
 }

@@ -1,4 +1,5 @@
 import type { Block, RichTextItem } from "@/types";
+import { notionHostedUrl } from "./media-handler";
 import { escapeHtml } from "./utils";
 
 function getImageUrl(image: {
@@ -54,6 +55,41 @@ function safeHttpUrl(rawUrl: string): URL | null {
 	}
 }
 
+function mediaToHtml(block: Block): string {
+	const type = block.type;
+	const data = block[type] as
+		| {
+				type?: "file" | "external";
+				file?: { url: string };
+				external?: { url: string };
+				url?: string;
+				name?: string;
+				caption?: RichTextItem[];
+		  }
+		| undefined;
+	if (!data) return "";
+	const rawUrl =
+		data.type === "file"
+			? data.file?.url
+			: data.type === "external"
+				? data.external?.url
+				: data.url;
+	const caption = richTextToHtml(data.caption || []);
+	const label = escapeHtml(data.name || `${type.toUpperCase()} file`);
+	// Notion-hosted file URLs expire. They are only linked after build-time localization.
+	const localUrl =
+		!block.media_error && rawUrl?.startsWith("/") && !rawUrl.startsWith("//") ? rawUrl : null;
+	const externalUrl =
+		(data.type === "external" || type === "embed") &&
+		!block.media_error &&
+		!notionHostedUrl(rawUrl || "")
+			? safeHttpUrl(rawUrl || "")
+			: null;
+	const url = localUrl || externalUrl?.href;
+	const title = url ? `<a href="${escapeHtml(url)}">${label}</a>` : `<span>${label}</span>`;
+	return `<div class="notion-media notion-media-${type}">${title}${caption ? `<div class="notion-media-caption">${caption}</div>` : ""}</div>`;
+}
+
 function tableToHtml(block: Block): string {
 	const data = block.table as {
 		table_width: number;
@@ -97,6 +133,8 @@ export function richTextToHtml(richText: RichTextItem[]): string {
 			} else if (item.type === "mention") {
 				content = escapeHtml(item.plain_text || "");
 				href = item.href || null;
+			} else if (item.type === "equation") {
+				content = `<code class="notion-equation-inline">${escapeHtml(item.equation?.expression || item.plain_text || "")}</code>`;
 			} else {
 				return "";
 			}
@@ -117,8 +155,9 @@ export function richTextToHtml(richText: RichTextItem[]): string {
 				content = `<strong>${content}</strong>`;
 			}
 
-			if (href) {
-				content = `<a href="${escapeHtml(href)}">${content}</a>`;
+			const safeHref = href ? safeHttpUrl(href) : null;
+			if (safeHref) {
+				content = `<a href="${escapeHtml(href as string)}">${content}</a>`;
 			}
 
 			return content;
@@ -188,6 +227,27 @@ export function blockToHtml(block: Block, options: ImageRenderOptions = {}): str
 
 		case "divider": {
 			return "<hr>";
+		}
+
+		case "equation": {
+			const expression = (block.equation as { expression?: string } | undefined)?.expression;
+			return expression
+				? `<pre class="notion-equation"><code>${escapeHtml(expression)}</code></pre>`
+				: "";
+		}
+
+		case "synced_block": {
+			return block.sync_error
+				? '<p class="notion-sync-unavailable">Synced content unavailable</p>'
+				: "";
+		}
+
+		case "file":
+		case "pdf":
+		case "audio":
+		case "video":
+		case "embed": {
+			return mediaToHtml(block);
 		}
 
 		case "bulleted_list_item": {
@@ -292,6 +352,11 @@ export function blocksToHtml(blocks: Block[], imageState = { hasRenderedImage: f
 				block.type !== "table" && block.children?.length
 					? blocksToHtml(block.children, imageState)
 					: "";
+			if (block.type === "synced_block" && !block.sync_error) {
+				if (childrenHtml) result.push(childrenHtml);
+				i++;
+				continue;
+			}
 			if (html) {
 				if (childrenHtml) html = insertChildren(type, html, childrenHtml);
 				result.push(html);

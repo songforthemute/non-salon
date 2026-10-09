@@ -2,6 +2,8 @@ import { execFileSync } from "node:child_process";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
 import { PATHS } from "../src/config.js";
+import { reportBlockDiagnostics } from "../src/lib/block-diagnostics.js";
+import type { Post } from "../src/types.js";
 import { generateOgImages } from "./generate-og-images.js";
 
 const FIXTURE_POSTS_PATH = path.join(process.cwd(), "fixtures/posts.json");
@@ -17,6 +19,7 @@ async function prepareFixturePosts(): Promise<void> {
 
 	await fs.mkdir(path.dirname(POSTS_PATH), { recursive: true });
 	await fs.writeFile(POSTS_PATH, `${JSON.stringify(posts, null, 2)}\n`);
+	reportBlockDiagnostics(posts as Post[]);
 	console.log(`📋 Prepared ${posts.length} fixture posts`);
 }
 

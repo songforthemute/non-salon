@@ -747,7 +747,7 @@ function extractImagesFromBlocks(blocks: Block[]): ImageInfo[] {
 				originalUrl = image.external.url;
 			}
 
-			if (originalUrl) {
+			if (originalUrl?.startsWith("http://") || originalUrl?.startsWith("https://")) {
 				images.push({
 					blockId: block.id.replace(/-/g, ""),
 					originalUrl,
@@ -922,17 +922,14 @@ export async function processPostImages(
 	// /images/{type}/{slug}/ 구조
 	const postImageDir = path.join(PUBLIC_IMAGES_DIR, type, slug);
 
-	// 기존 이미지 폴더 삭제 후 재생성 (PRD: 전체 재다운로드)
-	await fs.rm(postImageDir, { recursive: true, force: true });
-	await fs.mkdir(postImageDir, { recursive: true });
-
 	const images = extractImagesFromBlocks(blocks);
 
 	if (images.length === 0) {
-		// 이미지 없으면 빈 폴더도 삭제
-		await fs.rm(postImageDir, { recursive: true, force: true });
 		return { blocks, downloadedCount: 0 };
 	}
+	// A refreshed synced block may introduce a new remote image beside cached local
+	// images. Preserve those existing files while downloading only the new ones.
+	await fs.mkdir(postImageDir, { recursive: true });
 
 	// URL 매핑 생성
 	const urlMapping: Record<string, { url: string; dimensions?: ImageDimensions }> = {};
