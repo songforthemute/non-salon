@@ -78,7 +78,7 @@ const topics = getTilTopics(posts);
 	.result-summary { margin: 1.875rem 0 0.75rem; color: var(--color-muted); font-size: var(--font-size-sm); }
 	.posts { display: flex; flex-direction: column; }
 	#no-results { color: var(--color-muted); }
-	.calendar { position: absolute; z-index: 10; top: calc(100% + 1rem); right: 0; width: 17.5rem; box-sizing: border-box; padding: 0.875rem; border: 1px solid var(--color-border); background: white; color: var(--color-subtle); font-size: 0.8125rem; box-shadow: none; }
+	.calendar { position: absolute; z-index: 10; top: calc(100% + 1rem); right: 0; width: 17.5rem; max-width: calc(100vw - 2rem); box-sizing: border-box; padding: 0.875rem; border: 1px solid var(--color-border); background: white; color: var(--color-subtle); font-size: 0.8125rem; box-shadow: none; }
 	.calendar[hidden], [hidden] { display: none !important; }
 	.month-navigation { display: grid; grid-template-columns: 1.125rem 1fr 1.125rem; align-items: center; padding-bottom: 0.375rem; border-bottom: 1px solid var(--color-border); text-align: center; }
 	.month-navigation button { padding: 0; border: 0; background: transparent; color: var(--color-muted); font: inherit; font-size: 1.125rem; cursor: pointer; }

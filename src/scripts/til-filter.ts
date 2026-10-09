@@ -1,3 +1,5 @@
+import { shiftMonthClamped } from "@/lib/til-calendar";
+
 const trigger = document.querySelector<HTMLButtonElement>("#date-trigger");
 const calendar = document.querySelector<HTMLElement>("#til-calendar");
 const days = document.querySelector<HTMLElement>("#calendar-days");
@@ -225,9 +227,7 @@ if (
 		else if (event.key === "End")
 			next = addDays(value, 6 - ((new Date(`${value}T00:00:00Z`).getUTCDay() + 6) % 7));
 		else if (event.key === "PageUp" || event.key === "PageDown") {
-			const date = new Date(`${value}T00:00:00Z`);
-			date.setUTCMonth(date.getUTCMonth() + (event.key === "PageUp" ? -1 : 1));
-			next = iso(date);
+			next = shiftMonthClamped(value, event.key === "PageUp" ? -1 : 1);
 		}
 		if (next) {
 			event.preventDefault();
