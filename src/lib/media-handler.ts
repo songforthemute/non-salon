@@ -117,6 +117,8 @@ export async function localizePostMedia(
 		const result: Block[] = [];
 		for (const block of items) {
 			const copy = { ...block };
+			// A cached failure is not the result of this build's download or file check.
+			delete copy.media_error;
 			const url = hostedMediaUrl(block);
 			const data = MEDIA_TYPES.has(block.type)
 				? (block[block.type] as MediaData | undefined)
