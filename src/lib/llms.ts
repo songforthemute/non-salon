@@ -1,17 +1,11 @@
 import { SITE } from "@/config";
 import { isTilPost, sortByDate } from "@/lib/posts";
-import type { ContentType, Post } from "@/types";
+import type { Post, RegularContentType } from "@/types";
 
-const TYPE_LABELS: Record<ContentType, string> = {
+const TYPE_LABELS: Record<RegularContentType, string> = {
 	publication: "Publications",
 	thought: "Thoughts",
 	notebook: "Notebooks",
-};
-
-const TYPE_ROUTES: Record<ContentType, string> = {
-	publication: "publication",
-	thought: "thought",
-	notebook: "notebook",
 };
 
 function escapeMarkdown(text: string): string {
@@ -28,11 +22,10 @@ function describePost(post: Post): string {
 }
 
 function buildPostLine(post: Post): string {
-	const route = TYPE_ROUTES[post.type];
-	return `- [${escapeMarkdown(post.title)}](${SITE.url}/${route}/${post.slug}): ${describePost(post)}`;
+	return `- [${escapeMarkdown(post.title)}](${SITE.url}/${post.type}/${post.slug}): ${describePost(post)}`;
 }
 
-function buildTypeSection(type: ContentType, posts: Post[]): string {
+function buildTypeSection(type: RegularContentType, posts: Post[]): string {
 	const typePosts = sortByDate(
 		posts.filter((post) => post.type === type && post.status === "Published" && !isTilPost(post)),
 		{},
@@ -44,7 +37,7 @@ function buildTypeSection(type: ContentType, posts: Post[]): string {
 }
 
 export function buildLlmsTxt(posts: Post[]): string {
-	const sections = (Object.keys(TYPE_LABELS) as ContentType[])
+	const sections = (Object.keys(TYPE_LABELS) as RegularContentType[])
 		.map((type) => buildTypeSection(type, posts))
 		.filter(Boolean);
 

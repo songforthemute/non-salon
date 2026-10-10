@@ -1,6 +1,7 @@
 import "dotenv/config";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
+import { fileURLToPath } from "node:url";
 import { Client } from "@notionhq/client";
 import type {
 	BlockObjectResponse,
@@ -22,7 +23,7 @@ function getRichTextContent(richText: RichTextItemResponse[]): string {
 	return richText.map((t) => t.plain_text).join("");
 }
 
-function extractPostProperties(page: PageObjectResponse): Omit<FetchedPost, "blocks"> {
+export function extractPostProperties(page: PageObjectResponse): Omit<FetchedPost, "blocks"> {
 	const props = page.properties;
 
 	const titleProp = props.Title;
@@ -34,13 +35,16 @@ function extractPostProperties(page: PageObjectResponse): Omit<FetchedPost, "blo
 	const typeProp = props.Type;
 	const typeRaw =
 		typeProp?.type === "select"
-			? (typeProp.select?.name?.toLowerCase() ?? "")
+			? (typeProp.select?.name?.trim().toLowerCase() ?? "")
 			: typeProp?.type === "status"
-				? (typeProp.status?.name?.toLowerCase() ?? "")
+				? (typeProp.status?.name?.trim().toLowerCase() ?? "")
 				: "";
-	const type: ContentType = CONTENT_TYPES.includes(typeRaw as ContentType)
-		? (typeRaw as ContentType)
-		: "publication";
+	if (!CONTENT_TYPES.includes(typeRaw as ContentType)) {
+		throw new Error(
+			`Invalid Notion Type "${typeRaw || "(empty)"}" for "${title}" (${page.id}). Expected: ${CONTENT_TYPES.join(", ")}`,
+		);
+	}
+	const type = typeRaw as ContentType;
 
 	const statusProp = props.Status;
 	const status = statusProp.type === "status" ? (statusProp.status?.name ?? "") : "";
@@ -221,7 +225,7 @@ async function main() {
 	for (const meta of metas) {
 		const cached = cacheMap.get(meta.id);
 
-		if (cached && cached.lastEditedTime === meta.lastEditedTime) {
+		if (cached && cached.lastEditedTime === meta.lastEditedTime && cached.type === meta.type) {
 			// 변경 없음: 메타는 갱신하되 블록은 캐시 재사용
 			const blocks = await refreshSyncedBlocks(cached.blocks, (id) =>
 				getBlocksRecursive(notion, id),
@@ -246,7 +250,9 @@ async function main() {
 	);
 }
 
-main().catch((err) => {
-	console.error(err);
-	process.exit(1);
-});
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+	main().catch((err) => {
+		console.error(err);
+		process.exit(1);
+	});
+}

@@ -2,21 +2,21 @@
 import Layout from "@/layouts/Layout.astro";
 import { blocksToHtml } from "@/lib/block-to-html";
 import { formatDate } from "@/lib/format";
-import { getPublishedDate } from "@/lib/posts";
+import { getPublishedDate, isTilPost } from "@/lib/posts";
 import { getArticleModifiedDate } from "@/lib/seo";
 import type { Post } from "@/types";
 
 interface Props {
 	post: Post;
 	publishedDates: Record<string, string>;
-	til?: boolean;
 }
 
-const { post, publishedDates, til = false } = Astro.props;
+const { post, publishedDates } = Astro.props;
+const til = isTilPost(post);
 const publishedDate = getPublishedDate(post, publishedDates);
 const modifiedDate = getArticleModifiedDate(post, publishedDate);
 const content = blocksToHtml(post.blocks);
-const topics = post.tags.filter((tag) => tag.trim().toLowerCase() !== "til");
+const topics = post.tags;
 ---
 
 <Layout
@@ -26,7 +26,7 @@ const topics = post.tags.filter((tag) => tag.trim().toLowerCase() !== "til");
 	ogImage={til ? undefined : `${post.type}-${post.slug}.png`}
 	publishedDate={publishedDate}
 	modifiedDate={modifiedDate}
-	section={til ? "til" : post.type}
+	section={post.type}
 	tags={topics}
 	noindex={til}
 >

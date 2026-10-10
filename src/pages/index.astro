@@ -76,7 +76,7 @@ const tilPosts = getLatestPosts(getTilPosts(allPosts), publishedDates, 3);
       <p>No notes yet.</p>
     ) : (
       <div class="posts">
-        {tilPosts.map((post) => <FeedItem post={post} date={getPublishedDate(post, publishedDates)} til />)}
+        {tilPosts.map((post) => <FeedItem post={post} date={getPublishedDate(post, publishedDates)} />)}
       </div>
     )}
   </section>
