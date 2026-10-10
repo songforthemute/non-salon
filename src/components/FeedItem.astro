@@ -6,10 +6,11 @@ import type { Post } from "@/types";
 interface Props {
 	post: Post;
 	date: string;
+	compact?: boolean;
 }
 
-const { post, date } = Astro.props;
-const til = isTilPost(post);
+const { post, date, compact = false } = Astro.props;
+const showTopics = compact && isTilPost(post);
 const topics = post.tags;
 const typeLabels = {
 	publication: "Publication",
@@ -19,9 +20,9 @@ const typeLabels = {
 };
 ---
 
-<article>
+<article class:list={[{ compact }]}>
 	<div class="meta">
-		{til ? (
+		{showTopics ? (
 			<>
 				<time datetime={date}>{formatDate(date)}</time>
 				{topics.length > 0 && <span>· {topics.join(" · ")}</span>}
@@ -29,7 +30,6 @@ const typeLabels = {
 		) : (
 			<>
 				<span>{typeLabels[post.type]}</span>
-				<span>·</span>
 				<time datetime={date}>{formatDate(date)}</time>
 			</>
 		)}
@@ -38,9 +38,13 @@ const typeLabels = {
 </article>
 
 <style>
-	article { padding: 0.625rem 0 1rem; border-bottom: 1px solid var(--color-border); }
-	.meta { display: flex; flex-wrap: wrap; gap: 0.35rem; color: var(--color-muted); font-size: var(--font-size-sm); }
-	h3 { margin: 0.25rem 0 0; font-size: 1.1rem; font-weight: normal; }
+	article { padding-bottom: 1.5rem; border-bottom: 1px solid var(--color-border); }
+	article:not(.compact):last-child { border-bottom: none; }
+	.meta { display: flex; flex-wrap: wrap; gap: 0.75rem; color: var(--color-muted); font-size: var(--font-size-sm); }
+	h3 { margin: 0.35rem 0 0; font-size: 1.1rem; font-weight: normal; }
+	.compact { padding: 0.625rem 0 1rem; }
+	.compact .meta { gap: 0.35rem; }
+	.compact h3 { margin-top: 0.25rem; }
 	h3 a { text-decoration: none; }
 	h3 a:hover { text-decoration: underline; }
 </style>

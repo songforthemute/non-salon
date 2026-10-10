@@ -53,7 +53,7 @@ const topics = getTilTopics(posts);
 	<div id="til-results" class="posts">
 		{posts.map((post) => (
 			<div class="til-result" data-tags={JSON.stringify(post.tags)} data-date={getPublishedDate(post, publishedDates).slice(0, 10)}>
-				<FeedItem post={post} date={getPublishedDate(post, publishedDates)} />
+				<FeedItem post={post} date={getPublishedDate(post, publishedDates)} compact />
 			</div>
 		))}
 	</div>
