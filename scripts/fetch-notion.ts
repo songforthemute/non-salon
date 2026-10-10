@@ -7,6 +7,7 @@ import type {
 	PageObjectResponse,
 	RichTextItemResponse,
 } from "@notionhq/client/build/src/api-endpoints";
+import { refreshSyncedBlocks } from "../src/lib/synced-blocks.js";
 import { CONTENT_TYPES, type ContentType, type Post } from "../src/types.js";
 
 const DATA_DIR = path.join(process.cwd(), "data");
@@ -95,7 +96,12 @@ async function getBlocksRecursive(notion: Client, blockId: string): Promise<Bloc
 			if (!("type" in block)) continue;
 			const b = block as BlockObjectResponse;
 
-			if (b.has_children && !["child_page", "child_database"].includes(b.type)) {
+			const isSyncedDuplicate = b.type === "synced_block" && Boolean(b.synced_block.synced_from);
+			if (
+				b.has_children &&
+				!["child_page", "child_database"].includes(b.type) &&
+				!isSyncedDuplicate
+			) {
 				(b as BlockObjectResponse & { children: BlockObjectResponse[] }).children =
 					await getBlocksRecursive(notion, b.id);
 			}
@@ -217,13 +223,18 @@ async function main() {
 
 		if (cached && cached.lastEditedTime === meta.lastEditedTime) {
 			// 변경 없음: 메타는 갱신하되 블록은 캐시 재사용
-			posts.push({ ...meta, blocks: cached.blocks });
+			const blocks = await refreshSyncedBlocks(cached.blocks, (id) =>
+				getBlocksRecursive(notion, id),
+			);
+			posts.push({ ...meta, blocks: blocks as BlockObjectResponse[] });
 			cachedCount++;
 		} else {
 			// 신규 또는 변경: 블록 조회
 			console.log(`Fetching blocks for: ${meta.title}`);
-			const blocks = await getBlocksRecursive(notion, meta.id);
-			posts.push({ ...meta, blocks });
+			const blocks = await refreshSyncedBlocks(await getBlocksRecursive(notion, meta.id), (id) =>
+				getBlocksRecursive(notion, id),
+			);
+			posts.push({ ...meta, blocks: blocks as BlockObjectResponse[] });
 			fetchedCount++;
 		}
 	}

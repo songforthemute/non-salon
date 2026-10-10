@@ -26,8 +26,11 @@ function isActive(href: string): boolean {
 <style>
 	nav {
 		display: flex;
-		gap: 1rem;
+		flex-wrap: wrap;
+		justify-content: flex-start;
+		gap: 0.5rem 1rem;
 		margin-bottom: 2rem;
+		font-size: var(--font-size-sm);
 	}
 	nav a {
 		text-decoration: none;

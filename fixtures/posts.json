@@ -99,5 +99,48 @@
 				}
 			}
 		]
+	},
+	{
+		"id": "fixture-til-typescript",
+		"title": "CI Fixture: A TypeScript TIL",
+		"slug": "ci-fixture-til-typescript",
+		"type": "notebook",
+		"status": "Published",
+		"description": "A short learning note for topic and date filtering.",
+		"tags": ["TIL", "TypeScript"],
+		"lastUpdated": "2026-09-16T09:00:00.000Z",
+		"lastEditedTime": "2026-09-16T09:00:00.000Z",
+		"createdTime": "2026-09-16T09:00:00.000Z",
+		"publishedDate": "2026-09-16",
+		"blocks": [
+			{
+				"id": "fixture-til-typescript-paragraph",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": { "content": "A TypeScript learning note." },
+							"plain_text": "A TypeScript learning note.",
+							"annotations": {}
+						}
+					]
+				}
+			}
+		]
+	},
+	{
+		"id": "fixture-til-css",
+		"title": "CI Fixture: A CSS TIL",
+		"slug": "ci-fixture-til-css",
+		"type": "publication",
+		"status": "Published",
+		"description": "A second learning note for filtering coverage.",
+		"tags": ["til", "CSS"],
+		"lastUpdated": "2026-09-14T09:00:00.000Z",
+		"lastEditedTime": "2026-09-14T09:00:00.000Z",
+		"createdTime": "2026-09-14T09:00:00.000Z",
+		"publishedDate": "2026-09-14",
+		"blocks": []
 	}
 ]

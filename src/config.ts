@@ -20,6 +20,7 @@ export const NAV_LINKS = [
 	{ href: "/publications", label: "Publications" },
 	{ href: "/thoughts", label: "Thoughts" },
 	{ href: "/notebooks", label: "Notebooks" },
+	{ href: "/til", label: "TIL" },
 ] as const;
 
 // URL 세그먼트 ↔ ContentType 매핑 (상세 페이지용, 단수형)

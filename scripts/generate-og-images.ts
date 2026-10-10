@@ -2,7 +2,9 @@ import * as fs from "node:fs/promises";
 import * as path from "node:path";
 import { Resvg } from "@resvg/resvg-js";
 import { FONT_FAMILY, PATHS, SITE } from "../src/config.js";
+import { isTilPost } from "../src/lib/posts.js";
 import { escapeHtml } from "../src/lib/utils.js";
+import type { Post } from "../src/types.js";
 
 const OG_DIR = path.join(process.cwd(), "public/og");
 const POSTS_PATH = path.join(process.cwd(), PATHS.posts);
@@ -38,12 +40,6 @@ function renderPng(svg: string): Buffer {
 	return Buffer.from(resvg.render().asPng());
 }
 
-interface Post {
-	title: string;
-	slug: string;
-	type: string;
-}
-
 export async function generateOgImages(): Promise<number> {
 	// public/og/ 초기화
 	await fs.rm(OG_DIR, { recursive: true, force: true });
@@ -63,13 +59,13 @@ export async function generateOgImages(): Promise<number> {
 		return 1;
 	}
 
-	for (const post of postsData) {
+	for (const post of postsData.filter((post) => !isTilPost(post))) {
 		const svg = buildSvg(post.title, SITE.name);
 		const filename = `${post.type}-${post.slug}.png`;
 		await fs.writeFile(path.join(OG_DIR, filename), renderPng(svg));
 	}
 
-	return postsData.length + 1;
+	return postsData.filter((post) => !isTilPost(post)).length + 1;
 }
 
 // 직접 실행 시

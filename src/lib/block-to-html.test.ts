@@ -1,7 +1,15 @@
 import { describe, expect, it } from "vitest";
+import type { Block } from "@/types";
 import { blocksToHtml, blockToHtml, richTextToHtml } from "./block-to-html";
 
+const text = (content: string) => [{ type: "text", text: { content }, annotations: {} }];
+
 describe("richTextToHtml", () => {
+	it("preserves inline equations and escapes their source", () => {
+		expect(
+			richTextToHtml([{ type: "equation", equation: { expression: "x < y" }, annotations: {} }]),
+		).toBe('<code class="notion-equation-inline">x &lt; y</code>');
+	});
 	it("plain text", () => {
 		const richText = [{ type: "text", text: { content: "Hello" }, annotations: {} }];
 		expect(richTextToHtml(richText)).toBe("Hello");
@@ -88,6 +96,41 @@ describe("richTextToHtml", () => {
 });
 
 describe("blockToHtml", () => {
+	it("preserves standalone equation source", () => {
+		expect(blockToHtml({ type: "equation", equation: { expression: "a < b" } })).toBe(
+			'<pre class="notion-equation"><code>a &lt; b</code></pre>',
+		);
+	});
+
+	it("links localized media but not expiring file URLs", () => {
+		const base = {
+			type: "pdf",
+			pdf: {
+				type: "file",
+				file: { url: "https://file.notion.so/temporary.pdf" },
+				caption: text("Paper"),
+			},
+		};
+		expect(blockToHtml(base)).toContain("<span>PDF file</span>");
+		expect(blockToHtml(base)).not.toContain("href=");
+		expect(
+			blockToHtml({
+				...base,
+				pdf: { ...base.pdf, file: { url: "/media/publication/post/paper.pdf" } },
+			}),
+		).toContain('href="/media/publication/post/paper.pdf"');
+	});
+
+	it("renders refreshed synced children without adding an indent", () => {
+		const html = blocksToHtml([
+			{
+				type: "synced_block",
+				synced_block: { synced_from: { block_id: "source" } },
+				children: [{ type: "paragraph", paragraph: { rich_text: text("Current content") } }],
+			},
+		]);
+		expect(html).toBe("<p>Current content</p>");
+	});
 	it("paragraph", () => {
 		const block = {
 			type: "paragraph",
@@ -259,7 +302,7 @@ describe("blockToHtml", () => {
 	});
 
 	it("unsupported block returns empty", () => {
-		const block = { type: "toggle", toggle: {} };
+		const block = { type: "unsupported", unsupported: {} };
 		expect(blockToHtml(block)).toBe("");
 	});
 });
@@ -550,5 +593,167 @@ describe("blocksToHtml", () => {
 		expect(blocksToHtml(blocks)).toBe(
 			'<p>L1</p><div class="indent"><p>L2</p><div class="indent"><p>L3</p><div class="indent"><p>L4</p></div></div></div>',
 		);
+	});
+
+	it("renders nested paragraphs beyond four levels", () => {
+		const richText = (content: string) => [{ type: "text", text: { content }, annotations: {} }];
+		let block: Block = { type: "paragraph", paragraph: { rich_text: richText("L6") } };
+		for (let level = 5; level >= 1; level--) {
+			block = {
+				type: "paragraph",
+				paragraph: { rich_text: richText(`L${level}`) },
+				children: [block],
+			};
+		}
+
+		const html = blocksToHtml([block]);
+		expect(html).toContain("<p>L6</p>");
+		expect(html.match(/class="indent"/g)).toHaveLength(5);
+	});
+
+	it("preserves children of an unsupported parent block", () => {
+		const blocks = [
+			{
+				type: "unsupported",
+				unsupported: {},
+				children: [
+					{
+						type: "paragraph",
+						paragraph: {
+							rich_text: [{ type: "text", text: { content: "Nested" }, annotations: {} }],
+						},
+					},
+				],
+			},
+		];
+
+		expect(blocksToHtml(blocks)).toBe('<div class="indent"><p>Nested</p></div>');
+	});
+
+	it("preserves children of an empty paragraph", () => {
+		const blocks = [
+			{
+				type: "paragraph",
+				paragraph: { rich_text: [] },
+				children: [
+					{
+						type: "paragraph",
+						paragraph: {
+							rich_text: [{ type: "text", text: { content: "Nested" }, annotations: {} }],
+						},
+					},
+				],
+			},
+		];
+
+		expect(blocksToHtml(blocks)).toBe('<div class="indent"><p>Nested</p></div>');
+	});
+});
+
+describe("additional Notion blocks", () => {
+	it("renders table headers and rich text cells without duplicating rows", () => {
+		const block: Block = {
+			type: "table",
+			table: { table_width: 3, has_column_header: true, has_row_header: true },
+			children: [
+				{ type: "table_row", table_row: { cells: [text("Method"), text("Returns"), text("Use")] } },
+				{
+					type: "table_row",
+					table_row: {
+						cells: [
+							text(".map()"),
+							[{ type: "text", text: { content: "new array" }, annotations: { bold: true } }],
+							text("Transform items"),
+						],
+					},
+				},
+			],
+		};
+
+		const html = blocksToHtml([block]);
+		expect(html).toContain('<table class="notion-table" data-columns="3"');
+		expect(html).toContain('<thead><tr><th scope="col">Method</th>');
+		expect(html).toContain(
+			'<tbody><tr><th scope="row">.map()</th><td><strong>new array</strong></td>',
+		);
+		expect(html.match(/<tr>/g)).toHaveLength(2);
+	});
+
+	it("renders tables without column headers and pads missing cells", () => {
+		const block: Block = {
+			type: "table",
+			table: { table_width: 2, has_column_header: false, has_row_header: false },
+			children: [{ type: "table_row", table_row: { cells: [text("Only one cell")] } }],
+		};
+		const html = blockToHtml(block);
+		expect(html).toContain("<tbody><tr><td>Only one cell</td><td></td></tr></tbody>");
+		expect(html).not.toContain("<thead>");
+	});
+
+	it("keeps nested toggle content inside details", () => {
+		const block: Block = {
+			type: "toggle",
+			toggle: { rich_text: text("More details") },
+			children: [{ type: "paragraph", paragraph: { rich_text: text("The answer") } }],
+		};
+		expect(blocksToHtml([block])).toBe(
+			'<details class="notion-toggle"><summary>More details</summary><p>The answer</p></details>',
+		);
+	});
+
+	it("renders a toggleable heading with its nested blocks", () => {
+		const block: Block = {
+			type: "heading_2",
+			heading_2: { rich_text: text("Question"), is_toggleable: true },
+			children: [{ type: "paragraph", paragraph: { rich_text: text("Answer") } }],
+		};
+		expect(blocksToHtml([block])).toBe(
+			'<details class="notion-toggle notion-toggle-heading"><summary><h3>Question</h3></summary><p>Answer</p></details>',
+		);
+	});
+
+	it("renders checked and unchecked to-dos as read-only checkboxes", () => {
+		const checked: Block = { type: "to_do", to_do: { rich_text: text("Done"), checked: true } };
+		const unchecked: Block = {
+			type: "to_do",
+			to_do: { rich_text: text("Pending"), checked: false },
+		};
+		expect(blocksToHtml([checked, unchecked])).toBe(
+			'<label class="notion-to-do"><input type="checkbox" disabled checked><span class="notion-to-do-box" aria-hidden="true">✓</span><span>Done</span></label><label class="notion-to-do"><input type="checkbox" disabled><span class="notion-to-do-box" aria-hidden="true"></span><span>Pending</span></label>',
+		);
+	});
+
+	it("preserves child blocks under a to-do", () => {
+		const block: Block = {
+			type: "to_do",
+			to_do: { rich_text: text("Read"), checked: false },
+			children: [{ type: "paragraph", paragraph: { rich_text: text("More context") } }],
+		};
+		expect(blocksToHtml([block])).toContain('<div class="indent"><p>More context</p></div>');
+	});
+
+	it("renders bookmark captions, domains, and simple link previews", () => {
+		const bookmark: Block = {
+			type: "bookmark",
+			bookmark: { url: "https://www.example.com/a", caption: text("Read <this>") },
+		};
+		const preview: Block = {
+			type: "link_preview",
+			link_preview: { url: "https://example.com/resource" },
+		};
+		expect(blockToHtml(bookmark)).toBe(
+			'<div class="notion-bookmark"><a href="https://www.example.com/a">Read &lt;this&gt;</a><span class="notion-bookmark-domain">example.com</span></div>',
+		);
+		expect(blockToHtml(preview)).toBe(
+			'<p class="notion-link-preview"><a href="https://example.com/resource">https://example.com/resource</a></p>',
+		);
+	});
+
+	it("falls back to safe text for unsupported bookmark URLs", () => {
+		const block: Block = {
+			type: "bookmark",
+			bookmark: { url: "javascript:alert(1)" },
+		};
+		expect(blockToHtml(block)).toBe('<div class="notion-bookmark">javascript:alert(1)</div>');
 	});
 });

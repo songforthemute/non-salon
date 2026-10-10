@@ -58,6 +58,228 @@ pre code {
   margin: 1em 0;
 }
 
+.content .notion-table-scroll {
+  max-width: 100%;
+  margin: 1.1875rem 0;
+  overflow-x: auto;
+}
+
+.content .notion-table {
+  width: 100%;
+  min-width: var(--notion-table-min-width);
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: var(--font-size-sm);
+  line-height: 1.64;
+}
+
+.content .notion-table[data-columns="3"] col:first-child {
+  width: 21.13%;
+}
+
+.content .notion-table[data-columns="3"] col:nth-child(2) {
+  width: 28.27%;
+}
+
+.content .notion-table[data-columns="3"] col:nth-child(3) {
+  width: 50.6%;
+}
+
+.content .notion-table th,
+.content .notion-table td {
+  height: 4.5rem;
+  padding: 0;
+  border-bottom: 1px solid var(--color-border);
+  text-align: left;
+  vertical-align: middle;
+  overflow-wrap: anywhere;
+}
+
+.content .notion-table tr > :first-child {
+  padding-left: 0.75rem;
+}
+
+.content .notion-table tr > :last-child {
+  padding-right: 0.75rem;
+}
+
+.content .notion-table thead th {
+  height: 3.5rem;
+  border-top: 1px solid var(--color-border);
+  font-weight: 700;
+}
+
+.content .notion-table tbody tr:first-child > * {
+  border-top: 1px solid var(--color-border);
+}
+
+.content .notion-table tbody th {
+  font-weight: 700;
+}
+
+.content .notion-toggle {
+  margin: 1rem 0;
+}
+
+.content .notion-toggle summary {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  list-style: none;
+  cursor: pointer;
+}
+
+.content .notion-toggle summary::-webkit-details-marker {
+  display: none;
+}
+
+.content .notion-toggle summary:focus-visible {
+  outline: 1px solid #121212;
+  outline-offset: 4px;
+}
+
+.content .notion-toggle summary::before {
+  flex: 0 0 0.875rem;
+  content: "+";
+  color: var(--color-muted);
+}
+
+.content .notion-toggle[open] summary::before {
+  content: "−";
+}
+
+.content .notion-toggle > :not(summary) {
+  margin-left: 1.5rem;
+}
+
+.content .notion-toggle > summary + * {
+  margin-top: 0.75rem;
+}
+
+.content .notion-toggle-heading summary h2,
+.content .notion-toggle-heading summary h3,
+.content .notion-toggle-heading summary h4,
+.content .notion-toggle-heading summary h5 {
+  margin: 0;
+  line-height: 2rem;
+}
+
+.content .notion-toggle-heading summary h2 {
+  font-size: 1.5rem;
+}
+
+.content .notion-toggle-heading summary h3 {
+  font-size: 1.4375rem;
+}
+
+.content .notion-toggle-heading summary h4 {
+  font-size: 1.25rem;
+}
+
+.content .notion-toggle-heading summary h5 {
+  font-size: 1.125rem;
+}
+
+.content .notion-to-do {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 1rem 0 0;
+  position: relative;
+}
+
+.content .notion-to-do + .notion-to-do {
+  margin-top: 0.75rem;
+}
+
+.content .notion-to-do input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.content .notion-to-do-box {
+  flex: 0 0 1rem;
+  width: 1rem;
+  height: 1rem;
+  box-sizing: border-box;
+  border: 1px solid #121212;
+  background: #fff;
+  color: #fff;
+  font-size: 0.8125rem;
+  line-height: 0.875rem;
+  text-align: center;
+}
+
+.content .notion-to-do input:checked + .notion-to-do-box {
+  background: #121212;
+}
+
+.content .notion-to-do span:last-child {
+  min-width: 0;
+}
+
+.content .notion-bookmark {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  margin: 1rem 0;
+  padding: 0.375rem 0;
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.content .notion-bookmark a,
+.content .notion-link-preview a {
+  color: rgb(0, 0, 238);
+  text-decoration: none;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+.content .notion-bookmark a:hover,
+.content .notion-link-preview a:hover {
+  text-decoration: underline;
+}
+
+.content .notion-bookmark-domain {
+  color: var(--color-muted);
+  font-size: 0.8125rem;
+  line-height: 1.1875rem;
+}
+
+.content .notion-link-preview {
+  margin: 1.25rem 0;
+}
+
+.content .notion-equation {
+  overflow-x: auto;
+}
+
+.content .notion-equation-inline {
+  white-space: nowrap;
+}
+
+.content .notion-media {
+  margin: 1.25rem 0;
+  padding: 0.375rem 0;
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+  overflow-wrap: anywhere;
+}
+
+.content .notion-media-caption,
+.content .notion-sync-unavailable {
+  color: var(--color-muted);
+  font-size: var(--font-size-sm);
+}
+
 a {
   word-break: break-all;
 }

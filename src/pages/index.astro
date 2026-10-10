@@ -1,21 +1,20 @@
 ---
+import FeedItem from "@/components/FeedItem.astro";
 import { SITE } from "@/config";
 import Layout from "@/layouts/Layout.astro";
-import { formatDate } from "@/lib/format";
 import {
-  getLatestPosts,
-  getPublishedDate,
-  loadPosts,
-  loadPublishedDates,
+	getLatestPosts,
+	getPublishedDate,
+	getRegularPosts,
+	getTilPosts,
+	loadPosts,
+	loadPublishedDates,
 } from "@/lib/posts";
 
 const publishedDates = loadPublishedDates();
-const posts = getLatestPosts(loadPosts(), publishedDates, 5);
-const typeLabels = {
-  publication: "Publication",
-  thought: "Thought",
-  notebook: "Notebook",
-};
+const allPosts = loadPosts();
+const posts = getLatestPosts(getRegularPosts(allPosts), publishedDates, 5);
+const tilPosts = getLatestPosts(getTilPosts(allPosts), publishedDates, 3);
 ---
 
 <Layout title="Root">
@@ -62,23 +61,24 @@ const typeLabels = {
         <p>No posts yet.</p>
       ) : (
         <div class="posts">
-          {posts.map((post) => {
-            const date = getPublishedDate(post, publishedDates);
-            return (
-              <article>
-                <div class="meta">
-                  <span>{typeLabels[post.type]}</span>
-                  <time datetime={date}>{formatDate(date)}</time>
-                </div>
-                <h3>
-                  <a href={`/${post.type}/${post.slug}`}>{post.title}</a>
-                </h3>
-              </article>
-            );
-          })}
+          {posts.map((post) => <FeedItem post={post} date={getPublishedDate(post, publishedDates)} />)}
         </div>
       )
     }
+  </section>
+
+  <section class="latest til-latest">
+    <div class="section-heading">
+      <h2>Latest I Learned</h2>
+      <a href="/til">View all TIL</a>
+    </div>
+    {tilPosts.length === 0 ? (
+      <p>No notes yet.</p>
+    ) : (
+      <div class="posts">
+        {tilPosts.map((post) => <FeedItem post={post} date={getPublishedDate(post, publishedDates)} til />)}
+      </div>
+    )}
   </section>
 </Layout>
 
@@ -90,6 +90,8 @@ const typeLabels = {
   .latest {
     margin-top: 4rem;
   }
+
+  .til-latest { margin-top: 2.5rem; }
 
   .section-heading {
     display: flex;
@@ -114,33 +116,4 @@ const typeLabels = {
     gap: 1.5rem;
   }
 
-  article {
-    padding-bottom: 1.5rem;
-    border-bottom: 1px solid var(--color-border);
-  }
-
-  article:last-child {
-    border-bottom: none;
-  }
-
-  .meta {
-    display: flex;
-    gap: 0.75rem;
-    color: var(--color-muted);
-    font-size: var(--font-size-sm);
-  }
-
-  article h3 {
-    margin: 0.35rem 0 0;
-    font-size: 1.1rem;
-    font-weight: normal;
-  }
-
-  article h3 a {
-    text-decoration: none;
-  }
-
-  article h3 a:hover {
-    text-decoration: underline;
-  }
 </style>

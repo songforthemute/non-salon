@@ -13,6 +13,7 @@ export type RichTextItem = {
 		page?: { id: string };
 		link_preview?: { url: string };
 	};
+	equation?: { expression: string };
 	plain_text?: string;
 	href?: string | null;
 	annotations: {
