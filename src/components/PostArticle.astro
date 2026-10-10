@@ -32,12 +32,10 @@ const topics = post.tags;
 >
 	<article>
 		<header>
-			{til && <a class="back-link" href="/til">← All TIL</a>}
 			<h1>{post.title}</h1>
 			<time datetime={publishedDate}>{formatDate(publishedDate)}</time>
-			{til && topics.length > 0 && <p class="tags til-topics">{topics.join(" · ")}</p>}
 			{post.description && <p class="summary">{post.description}</p>}
-			{!til && topics.length > 0 && <p class="tags">{topics.join(", ")}</p>}
+			{topics.length > 0 && <p class="tags">{topics.join(", ")}</p>}
 		</header>
 		<div class="content" data-pagefind-body set:html={content} />
 	</article>
@@ -49,7 +47,4 @@ const topics = post.tags;
 	article time { color: var(--color-muted); }
 	.summary { margin-top: 1rem; color: var(--color-subtle); }
 	.tags { margin-top: 0.5rem; font-size: var(--font-size-sm); color: var(--color-muted); }
-	.til-topics { margin-top: 0.625rem; }
-	.back-link { display: inline-block; margin: 1.375rem 0 1.5rem; font-size: var(--font-size-sm); text-decoration: none; }
-	.back-link:hover { text-decoration: underline; }
 </style>

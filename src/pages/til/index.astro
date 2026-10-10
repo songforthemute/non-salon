@@ -17,7 +17,6 @@ const topics = getTilTopics(posts);
 
 <Layout title="Today I Learned" description="Short notes on things I have learned." noindex>
 	<h1>Today I Learned</h1>
-	<p class="intro">Short notes on things I have learned.</p>
 
 	<section class="filters" aria-label="Filter TIL notes">
 		<div class="filter-heading">
@@ -54,7 +53,7 @@ const topics = getTilTopics(posts);
 	<div id="til-results" class="posts">
 		{posts.map((post) => (
 			<div class="til-result" data-tags={JSON.stringify(post.tags)} data-date={getPublishedDate(post, publishedDates).slice(0, 10)}>
-				<FeedItem post={post} date={getPublishedDate(post, publishedDates)} />
+				<FeedItem post={post} date={getPublishedDate(post, publishedDates)} compact />
 			</div>
 		))}
 	</div>
@@ -64,9 +63,7 @@ const topics = getTilTopics(posts);
 <script src="@/scripts/til-filter.ts"></script>
 
 <style>
-	h1 { margin-bottom: 0.5rem; }
-	.intro { margin: 0; color: var(--color-subtle); }
-	.filters { margin-top: 2.125rem; }
+	h1 { margin-bottom: 2rem; }
 	.filter-heading { display: flex; justify-content: space-between; align-items: center; min-height: 2rem; color: var(--color-muted); font-size: var(--font-size-sm); }
 	.date-control { position: relative; }
 	.date-trigger { display: grid; place-items: center; width: 2rem; height: 2rem; padding: 0; border: 0; background: transparent; color: var(--color-muted); cursor: pointer; }
