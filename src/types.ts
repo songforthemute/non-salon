@@ -1,4 +1,6 @@
-export const CONTENT_TYPES = ["publication", "thought", "notebook"] as const;
+export const REGULAR_CONTENT_TYPES = ["publication", "thought", "notebook"] as const;
+export type RegularContentType = (typeof REGULAR_CONTENT_TYPES)[number];
+export const CONTENT_TYPES = [...REGULAR_CONTENT_TYPES, "til"] as const;
 export type ContentType = (typeof CONTENT_TYPES)[number];
 
 // Notion Rich Text

@@ -28,9 +28,9 @@ Node.js 24+ 필수. 패키지 매니저는 pnpm.
 
 Astro Content Collections를 사용하지 않음. `data/posts.json`은 gitignore 대상이며 빌드 시 생성됨.
 
-**콘텐츠 타입 3종:** `publication` (장문 기술 글), `thought` (짧은 에세이), `notebook` (학습 노트)
+**콘텐츠 타입 4종:** Notion `Type`의 `Publication`, `Thought`, `Notebook`, `TIL`을 각각 `publication`, `thought`, `notebook`, `til`로 정규화한다. `Type`은 select/status 모두 지원하며 대소문자와 앞뒤 공백을 무시한다. 유효하지 않거나 비어 있는 Type은 글 제목과 값을 포함한 오류로 빌드를 중단한다. Publication으로 임의 대체하지 않는다. Type이 바뀌면 캐시된 블록도 다시 가져와 이미지·미디어 경로를 새 타입으로 생성한다.
 
-**TIL:** 기존 Notion DB의 `Tags`에 `TIL`이 있으면 타입과 무관하게 Today I Learned로 분류한다(대소문자 무시). 나머지 태그는 주제 필터에 쓰며, 날짜는 `Published Date` → 영속화된 최초 발견 날짜 → 수정일 순으로 결정한다. TIL은 `/til` 및 `/til/{slug}`에만 노출되고 홈의 `Latest I Learned`에 따로 표시된다. 일반 타입 목록·아카이브·RSS·`llms.txt`와 일반 상세 경로에서는 제외한다. TIL 페이지는 `noindex`이며 사이트맵과 글별 OG 이미지 생성 대상에서도 제외한다. `/til`의 주제·날짜 필터는 클라이언트에서 처리하고 URL 쿼리(`topic`, `from`, `to`)에 보존한다.
+**TIL:** Notion `Type = TIL`인 글을 Today I Learned로 분류한다. `Tags`는 주제 필터에만 쓰며 콘텐츠 분류를 바꾸지 않는다. 날짜는 `Published Date` → 영속화된 최초 발견 날짜 → 수정일 순으로 결정한다. TIL은 `/til` 및 `/til/{slug}`에만 노출되고 홈의 `Latest I Learned`에 따로 표시된다. 일반 타입 목록·아카이브·RSS·`llms.txt`와 일반 상세 경로에서는 제외한다. TIL 페이지는 `noindex`이며 사이트맵과 글별 OG 이미지 생성 대상에서도 제외한다. `/til`의 주제·날짜 필터는 클라이언트에서 처리하고 URL 쿼리(`topic`, `from`, `to`)에 보존한다. 표시 컴포넌트도 글의 Type에서 TIL 여부를 판단한다.
 
 **URL 규칙 (RESTful):**
 - 목록: 복수형 (`/publications`, `/thoughts`, `/notebooks`)

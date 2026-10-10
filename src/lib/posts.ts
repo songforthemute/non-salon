@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { PATHS } from "@/config";
-import type { ContentType, Post } from "@/types";
+import type { ContentType, Post, RegularContentType } from "@/types";
 
 const postsPath = path.join(process.cwd(), PATHS.posts);
 const publishedDatesPath = path.join(process.cwd(), PATHS.publishedDates);
@@ -22,15 +22,15 @@ export function loadPublishedDates(): Record<string, string> {
 
 export function getPostsByType(type: ContentType): Post[] {
 	const posts = loadPosts();
-	return posts.filter((p) => p.type === type && !isTilPost(p));
+	return posts.filter((p) => p.type === type);
 }
 
 export function isTilPost(post: Post): boolean {
-	return post.tags.some((tag) => tag.trim().toLowerCase() === "til");
+	return post.type === "til";
 }
 
-export function getRegularPosts(posts: Post[]): Post[] {
-	return posts.filter((post) => !isTilPost(post));
+export function getRegularPosts(posts: Post[]): (Post & { type: RegularContentType })[] {
+	return posts.filter((post): post is Post & { type: RegularContentType } => !isTilPost(post));
 }
 
 export function getTilPosts(posts: Post[]): Post[] {
@@ -42,7 +42,7 @@ export function getTilTopics(posts: Post[]): string[] {
 	for (const post of getTilPosts(posts)) {
 		for (const tag of post.tags) {
 			const topic = tag.trim();
-			if (topic && topic.toLowerCase() !== "til" && !topics.has(topic.toLowerCase())) {
+			if (topic && !topics.has(topic.toLowerCase())) {
 				topics.set(topic.toLowerCase(), topic);
 			}
 		}

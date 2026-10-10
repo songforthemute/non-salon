@@ -1,16 +1,22 @@
 ---
 import { formatDate } from "@/lib/format";
+import { isTilPost } from "@/lib/posts";
 import type { Post } from "@/types";
 
 interface Props {
 	post: Post;
 	date: string;
-	til?: boolean;
 }
 
-const { post, date, til = false } = Astro.props;
-const topics = post.tags.filter((tag) => tag.trim().toLowerCase() !== "til");
-const typeLabels = { publication: "Publication", thought: "Thought", notebook: "Notebook" };
+const { post, date } = Astro.props;
+const til = isTilPost(post);
+const topics = post.tags;
+const typeLabels = {
+	publication: "Publication",
+	thought: "Thought",
+	notebook: "Notebook",
+	til: "TIL",
+};
 ---
 
 <article>
@@ -28,7 +34,7 @@ const typeLabels = { publication: "Publication", thought: "Thought", notebook: "
 			</>
 		)}
 	</div>
-	<h3><a href={til ? `/til/${post.slug}` : `/${post.type}/${post.slug}`}>{post.title}</a></h3>
+	<h3><a href={`/${post.type}/${post.slug}`}>{post.title}</a></h3>
 </article>
 
 <style>
