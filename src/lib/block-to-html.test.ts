@@ -266,6 +266,27 @@ describe("blockToHtml", () => {
 		);
 	});
 
+	it("renders WebP candidates with the original image as a fallback", () => {
+		const block: Block = {
+			type: "image",
+			image: {
+				type: "file",
+				file: { url: "/images/publication/post/image.png" },
+				caption: text("Caption"),
+				width: 1200,
+				height: 800,
+				webp: [
+					{ url: "/images/publication/post/image-480.webp?v=1&format=webp", width: 480 },
+					{ url: "/images/publication/post/image-960.webp", width: 960 },
+				],
+			},
+		};
+
+		expect(blockToHtml(block, { loading: "lazy" })).toBe(
+			'<figure><picture><source type="image/webp" srcset="/images/publication/post/image-480.webp?v=1&amp;format=webp 480w, /images/publication/post/image-960.webp 960w" sizes="(max-width: 44rem) calc(100vw - 2rem - 80px), calc(42rem - 80px)"><img src="/images/publication/post/image.png" alt="Caption" width="1200" height="800" loading="lazy" decoding="async"></picture><figcaption>Caption</figcaption></figure>',
+		);
+	});
+
 	it("image without caption", () => {
 		const block = {
 			type: "image",

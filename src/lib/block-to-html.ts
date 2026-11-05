@@ -20,6 +20,9 @@ type ImageRenderOptions = {
 	loading?: "eager" | "lazy";
 };
 
+// Account for the body padding and the browser's default figure margins.
+const IMAGE_SIZES = "(max-width: 44rem) calc(100vw - 2rem - 80px), calc(42rem - 80px)";
+
 const CONTAINER_CLOSING_TAGS: Record<string, string> = {
 	quote: "</blockquote>",
 	callout: "</aside>",
@@ -288,14 +291,8 @@ export function blockToHtml(block: Block, options: ImageRenderOptions = {}): str
 		}
 
 		case "image": {
-			const data = block.image as {
-				type: string;
-				file?: { url: string };
-				external?: { url: string };
-				caption: RichTextItem[];
-				width?: number;
-				height?: number;
-			};
+			const data = block.image;
+			if (!data) return "";
 			const url = getImageUrl(data);
 			const caption = richTextToHtml(data.caption);
 			const alt = escapeHtml(data.caption.map((c) => c.text?.content || "").join(""));
@@ -303,7 +300,11 @@ export function blockToHtml(block: Block, options: ImageRenderOptions = {}): str
 			const dimensions =
 				data.width && data.height ? ` width="${data.width}" height="${data.height}"` : "";
 			const loading = options.loading === "lazy" ? ' loading="lazy"' : "";
-			const image = `<img src="${url}" alt="${alt}"${dimensions}${loading} decoding="async">`;
+			let image = `<img src="${url}" alt="${alt}"${dimensions}${loading} decoding="async">`;
+			if (data.webp?.length) {
+				const srcset = data.webp.map(({ url, width }) => `${url} ${width}w`).join(", ");
+				image = `<picture><source type="image/webp" srcset="${escapeHtml(srcset)}" sizes="${IMAGE_SIZES}">${image}</picture>`;
+			}
 
 			if (caption) {
 				return `<figure>${image}<figcaption>${caption}</figcaption></figure>`;

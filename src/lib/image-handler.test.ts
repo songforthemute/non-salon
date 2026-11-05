@@ -1,10 +1,16 @@
 import { randomUUID } from "node:crypto";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
+import sharp from "sharp";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { Block } from "@/types";
 import { blockToHtml } from "./block-to-html";
-import { getImageDimensions, populateImageDimensions, processPostImages } from "./image-handler";
+import {
+	getImageDimensions,
+	populateImageDimensions,
+	populateWebpVariants,
+	processPostImages,
+} from "./image-handler";
 
 describe("processPostImages", () => {
 	it("keeps cached local images while downloading a new synced image", async () => {
@@ -565,5 +571,73 @@ describe("populateImageDimensions", () => {
 		expect(blockToHtml(enrichedBlock)).toBe(
 			`<figure><img src="${IMAGE_FIXTURE_URL}" alt="" width="640" height="480" decoding="async"></figure>`,
 		);
+	});
+});
+
+describe("populateWebpVariants", () => {
+	const slug = `vitest-webp-${randomUUID()}`;
+	const directory = path.join(process.cwd(), "public", "images", "publication", slug);
+	const originalPath = path.join(directory, "original.png");
+	const originalUrl = `/images/publication/${slug}/original.png`;
+	const image: NonNullable<Block["image"]> = {
+		type: "file",
+		file: { url: originalUrl },
+		caption: [],
+	};
+
+	beforeEach(async () => {
+		await fs.mkdir(directory, { recursive: true });
+	});
+
+	afterEach(async () => {
+		await fs.rm(directory, { recursive: true, force: true });
+	});
+
+	it("generates candidates for a cached image and reuses or repairs them on rebuild", async () => {
+		await sharp({ create: { width: 1000, height: 700, channels: 3, background: "red" } })
+			.png()
+			.toFile(originalPath);
+		const blocks: Block[] = [{ type: "toggle", children: [{ type: "image", image }] }];
+		const [first] = await populateWebpVariants(blocks);
+		const enriched = first.children?.[0].image;
+		const variants = enriched?.webp ?? [];
+		expect(enriched?.file?.url).toBe(originalUrl);
+		expect(variants.map(({ width }) => width)).toEqual([480, 960, 1000]);
+
+		const files = variants.map(({ url }) => path.join(directory, path.basename(url)));
+		for (const [index, file] of files.entries()) {
+			const { width, format } = await sharp(file).metadata();
+			expect({ width, format }).toEqual({ width: variants[index].width, format: "webp" });
+		}
+		const cacheTimestamp = new Date("2020-01-01T00:00:00Z");
+		await fs.utimes(files[0], cacheTimestamp, cacheTimestamp);
+		await fs.unlink(files[1]);
+
+		const [rebuilt] = await populateWebpVariants([first]);
+		expect(rebuilt.children?.[0].image?.webp).toEqual(variants);
+		expect((await fs.stat(files[0])).mtimeMs).toBe(cacheTimestamp.getTime());
+		expect((await sharp(files[1]).metadata()).width).toBe(960);
+
+		await sharp({ create: { width: 1000, height: 700, channels: 3, background: "blue" } })
+			.png()
+			.toFile(originalPath);
+		const [updated] = await populateWebpVariants([rebuilt]);
+		expect(updated.children?.[0].image?.webp?.[0].url).not.toBe(variants[0].url);
+	});
+
+	it("uses the original for APNG and discards stale WebP metadata", async () => {
+		// A two-frame APNG with red and green pixels.
+		const apng = Buffer.from(
+			"iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAACGFjVEwAAAACAAAAAPONk3AAAAAaZmNUTAAAAAAAAAABAAAAAQAAAAAAAAAAAAEACgAAWn8w0AAAAAxJREFUeJxj+M/AAAADAQEAyf6S7wAAABpmY1RMAAAAAQAAAAEAAAABAAAAAAAAAAAAAQAKAADBDNoEAAAAEGZkQVQAAAACeJxjYPjPAAACAgEAGz+uYAAAAABJRU5ErkJggg==",
+			"base64",
+		);
+		await fs.writeFile(originalPath, apng);
+		const [block] = await populateWebpVariants([
+			{ type: "image", image: { ...image, webp: [{ url: "/images/stale.webp", width: 1 }] } },
+		]);
+
+		expect(block.image?.webp).toBeUndefined();
+		expect(blockToHtml(block)).toContain(`<img src="${originalUrl}"`);
+		expect(await fs.readdir(directory)).toEqual(["original.png"]);
 	});
 });
