@@ -287,6 +287,55 @@ describe("blockToHtml", () => {
 		);
 	});
 
+	it("links an opted-in image to the original and exposes the largest WebP for preview", () => {
+		const imagePreview = { hasLink: false };
+		const block: Block = {
+			type: "image",
+			image: {
+				type: "file",
+				file: { url: "/images/shot.png?v=1&original=1" },
+				caption: [
+					{
+						type: "text",
+						text: { content: 'DevTools "Network"', link: { url: "https://example.com/help" } },
+						annotations: {},
+					},
+				],
+				webp: [
+					{ url: "/images/shot-1440.webp?v=1&wide=1", width: 1440 },
+					{ url: "/images/shot-480.webp", width: 480 },
+				],
+			},
+		};
+
+		const html = blockToHtml(block, { imagePreview });
+
+		expect(html).toContain(
+			'<a class="image-preview-link" data-image-preview href="/images/shot.png?v=1&amp;original=1" data-preview-src="/images/shot-1440.webp?v=1&amp;wide=1" aria-label="DevTools &quot;Network&quot; 확대"><picture>',
+		);
+		expect(html).toContain(
+			'</picture></a><figcaption><a href="https://example.com/help">DevTools &quot;Network&quot;</a></figcaption>',
+		);
+		expect(imagePreview.hasLink).toBe(true);
+	});
+
+	it.each([
+		"javascript:alert(1)",
+		"//example.com/shot.png",
+		"/images/..\\shot.png",
+		"/images/%2e%2e/shot.png",
+		"/images/..%2fshot.png",
+	])("leaves an unsafe preview URL unlinked (%s)", (url) => {
+		const imagePreview = { hasLink: false };
+		const block: Block = {
+			type: "image",
+			image: { type: "external", external: { url }, caption: [] },
+		};
+
+		expect(blockToHtml(block, { imagePreview })).toContain("<figure><img ");
+		expect(imagePreview.hasLink).toBe(false);
+	});
+
 	it("image without caption", () => {
 		const block = {
 			type: "image",
@@ -352,6 +401,35 @@ describe("blocksToHtml", () => {
 		expect(blocksToHtml(blocks)).toBe(
 			'<figure><img src="/images/first.png" alt="" decoding="async"></figure><figure><img src="/images/second.png" alt="" loading="lazy" decoding="async"></figure>',
 		);
+	});
+
+	it("makes a nested image previewable without requiring a WebP variant", () => {
+		const imagePreview = { hasLink: false };
+		const imageState = { hasRenderedImage: false, imagePreview };
+		const blocks: Block[] = [
+			{
+				type: "bulleted_list_item",
+				bulleted_list_item: { rich_text: text("Step") },
+				children: [
+					{
+						type: "image",
+						image: {
+							type: "external",
+							external: { url: "https://example.com/shot.png" },
+							caption: [],
+						},
+					},
+				],
+			},
+		];
+
+		const html = blocksToHtml(blocks, imageState);
+
+		expect(html).toContain(
+			'data-image-preview href="https://example.com/shot.png" aria-label="이미지 확대"',
+		);
+		expect(imageState.hasRenderedImage).toBe(true);
+		expect(imagePreview.hasLink).toBe(true);
 	});
 
 	it("wraps consecutive bulleted items in ul", () => {

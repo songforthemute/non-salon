@@ -1,4 +1,5 @@
 ---
+import ImagePreview from "@/components/ImagePreview.astro";
 import Layout from "@/layouts/Layout.astro";
 import { blocksToHtml } from "@/lib/block-to-html";
 import { formatDate } from "@/lib/format";
@@ -15,7 +16,8 @@ const { post, publishedDates } = Astro.props;
 const til = isTilPost(post);
 const publishedDate = getPublishedDate(post, publishedDates);
 const modifiedDate = getArticleModifiedDate(post, publishedDate);
-const content = blocksToHtml(post.blocks);
+const imagePreview = { hasLink: false };
+const content = blocksToHtml(post.blocks, { hasRenderedImage: false, imagePreview });
 const topics = post.tags;
 ---
 
@@ -39,8 +41,9 @@ const topics = post.tags;
 			{post.description && <p class="summary">{post.description}</p>}
 			{!til && topics.length > 0 && <p class="tags">{topics.join(", ")}</p>}
 		</header>
-		<div class="content" data-pagefind-body set:html={content} />
+		<div class="content" data-pagefind-body data-image-preview-content set:html={content} />
 	</article>
+	{imagePreview.hasLink && <ImagePreview />}
 </Layout>
 
 <style>
