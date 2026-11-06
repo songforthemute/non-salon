@@ -20,6 +20,33 @@ img {
   height: auto;
 }
 
+.image-preview-link {
+  display: inline-block;
+  max-width: 100%;
+  color: inherit;
+  text-decoration: none;
+  cursor: zoom-in;
+}
+
+.image-preview-link:focus-visible {
+  outline: 1px solid #121212;
+  outline-offset: 4px;
+}
+
+.image-preview-hint {
+  display: none;
+}
+
+@media (pointer: coarse) {
+  .image-preview-hint {
+    display: block;
+    width: fit-content;
+    color: var(--color-subtle);
+    font-size: var(--font-size-sm);
+    text-decoration: underline;
+  }
+}
+
 code {
   padding: 0.08em 0.28em;
   background: var(--color-code-background);

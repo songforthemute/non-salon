@@ -16,8 +16,16 @@ function getImageUrl(image: {
 	return "";
 }
 
+type ImagePreviewState = { hasLink: boolean };
+
 type ImageRenderOptions = {
 	loading?: "eager" | "lazy";
+	imagePreview?: ImagePreviewState;
+};
+
+type ImageRenderState = {
+	hasRenderedImage: boolean;
+	imagePreview?: ImagePreviewState;
 };
 
 // Account for the body padding and the browser's default figure margins.
@@ -56,6 +64,17 @@ function safeHttpUrl(rawUrl: string): URL | null {
 	} catch {
 		return null;
 	}
+}
+
+function safeImagePreviewUrl(rawUrl: string): string | null {
+	if (!rawUrl.startsWith("/images/")) {
+		return /^https?:\/\//i.test(rawUrl) ? (safeHttpUrl(rawUrl)?.href ?? null) : null;
+	}
+
+	const [path] = rawUrl.split(/[?#]/, 1);
+	if (/\\|%(?:2f|5c)/i.test(path)) return null;
+	const pathname = new URL(rawUrl, "https://preview.invalid").pathname;
+	return pathname.startsWith("/images/") && pathname !== "/images/" ? rawUrl : null;
 }
 
 function mediaToHtml(block: Block): string {
@@ -300,10 +319,30 @@ export function blockToHtml(block: Block, options: ImageRenderOptions = {}): str
 			const dimensions =
 				data.width && data.height ? ` width="${data.width}" height="${data.height}"` : "";
 			const loading = options.loading === "lazy" ? ' loading="lazy"' : "";
-			let image = `<img src="${url}" alt="${alt}"${dimensions}${loading} decoding="async">`;
+			let image = `<img src="${escapeHtml(url)}" alt="${alt}"${dimensions}${loading} decoding="async">`;
 			if (data.webp?.length) {
 				const srcset = data.webp.map(({ url, width }) => `${url} ${width}w`).join(", ");
 				image = `<picture><source type="image/webp" srcset="${escapeHtml(srcset)}" sizes="${IMAGE_SIZES}">${image}</picture>`;
+			}
+
+			if (options.imagePreview) {
+				const originalUrl = safeImagePreviewUrl(url);
+				if (originalUrl) {
+					let previewUrl: string | null = null;
+					let previewWidth = 0;
+					for (const variant of data.webp ?? []) {
+						if (variant.width <= previewWidth) continue;
+						const candidate = safeImagePreviewUrl(variant.url);
+						if (candidate) {
+							previewUrl = candidate;
+							previewWidth = variant.width;
+						}
+					}
+					const previewSrc = previewUrl ? ` data-preview-src="${escapeHtml(previewUrl)}"` : "";
+					const label = alt.trim() ? `${alt.trim()} 확대` : "이미지 확대";
+					image = `<a class="image-preview-link" data-image-preview href="${escapeHtml(originalUrl)}"${previewSrc} aria-label="${label}">${image}</a>`;
+					options.imagePreview.hasLink = true;
+				}
 			}
 
 			if (caption) {
@@ -317,7 +356,10 @@ export function blockToHtml(block: Block, options: ImageRenderOptions = {}): str
 	}
 }
 
-export function blocksToHtml(blocks: Block[], imageState = { hasRenderedImage: false }): string {
+export function blocksToHtml(
+	blocks: Block[],
+	imageState: ImageRenderState = { hasRenderedImage: false },
+): string {
 	const result: string[] = [];
 	let i = 0;
 
@@ -332,7 +374,10 @@ export function blocksToHtml(blocks: Block[], imageState = { hasRenderedImage: f
 			while (i < blocks.length && blocks[i].type === type) {
 				const currentBlock = blocks[i];
 				const imageLoading = imageState.hasRenderedImage ? "lazy" : "eager";
-				let itemHtml = blockToHtml(currentBlock, { loading: imageLoading });
+				let itemHtml = blockToHtml(currentBlock, {
+					loading: imageLoading,
+					imagePreview: imageState.imagePreview,
+				});
 				if (currentBlock.type === "image" && itemHtml) imageState.hasRenderedImage = true;
 
 				if (currentBlock.children && currentBlock.children.length > 0) {
@@ -347,7 +392,10 @@ export function blocksToHtml(blocks: Block[], imageState = { hasRenderedImage: f
 			result.push(`<${tag}>${items.join("")}</${tag}>`);
 		} else {
 			const imageLoading = imageState.hasRenderedImage ? "lazy" : "eager";
-			let html = blockToHtml(block, { loading: imageLoading });
+			let html = blockToHtml(block, {
+				loading: imageLoading,
+				imagePreview: imageState.imagePreview,
+			});
 			if (block.type === "image" && html) imageState.hasRenderedImage = true;
 			const childrenHtml =
 				block.type !== "table" && block.children?.length
