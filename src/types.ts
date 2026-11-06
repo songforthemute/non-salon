@@ -28,6 +28,8 @@ export type RichTextItem = {
 	};
 };
 
+export type WebpVariant = { url: string; width: number };
+
 // Notion Block (generic)
 export type Block = {
 	id?: string;
@@ -40,6 +42,7 @@ export type Block = {
 		caption: RichTextItem[];
 		width?: number;
 		height?: number;
+		webp?: WebpVariant[];
 	};
 	[key: string]: unknown;
 };

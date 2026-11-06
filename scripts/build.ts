@@ -8,6 +8,7 @@ import {
 	cleanupOrphanedImages,
 	hasRemoteImages,
 	populateImageDimensions,
+	populateWebpVariants,
 	processPostImages,
 } from "../src/lib/image-handler.js";
 import { cleanupOrphanedMedia, localizePostMedia } from "../src/lib/media-handler.js";
@@ -99,12 +100,12 @@ async function main() {
 		totalImages += downloadedCount;
 	}
 
-	// Cached images predate dimension metadata. Fill it from the local asset so
-	// rendered image elements reserve their layout space on every build.
+	// Include cached local images when filling dimensions and generating WebP variants.
 	for (const post of posts) {
 		post.blocks = await populateImageDimensions(
 			post.blocks as Parameters<typeof populateImageDimensions>[0],
 		);
+		post.blocks = await populateWebpVariants(post.blocks);
 	}
 
 	console.log("\n📎 Processing Notion media...");

@@ -1,13 +1,18 @@
+import { createHash, randomUUID } from "node:crypto";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
+import sharp from "sharp";
 import { PATHS } from "@/config";
-import type { Block } from "@/types";
+import type { Block, WebpVariant } from "@/types";
 
 const PUBLIC_IMAGES_DIR = path.join(process.cwd(), PATHS.images);
 // Remote Notion assets are untrusted input. Keep the build bounded when an asset is
 // unexpectedly large or a malformed AVIF advertises excessive metadata entries.
 const MAX_IMAGE_DOWNLOAD_BYTES = 20 * 1024 * 1024;
 const IMAGE_DOWNLOAD_TIMEOUT_MS = 15_000;
+const WEBP_WIDTHS = [480, 960, 1440];
+const WEBP_OPTIONS = { quality: 85, smartSubsample: true };
+const WEBP_RECIPE = JSON.stringify([1, sharp.versions.sharp, WEBP_WIDTHS, WEBP_OPTIONS]);
 const MAX_BMFF_BOXES = 1_024;
 const MAX_AVIF_ASSOCIATION_ENTRIES = 1_024;
 const MAX_AVIF_PROPERTY_ASSOCIATIONS = 4_096;
@@ -1029,6 +1034,96 @@ export async function populateImageDimensions(blocks: Block[]): Promise<Block[]>
 	}
 
 	return Promise.all(blocks.map(enrich));
+}
+
+function isAnimatedPng(buffer: Buffer): boolean {
+	// APNG declares animation before the first image data chunk.
+	for (let offset = 8; offset + 12 <= buffer.length; ) {
+		const chunk = buffer.toString("ascii", offset + 4, offset + 8);
+		if (chunk === "acTL") return true;
+		if (chunk === "IDAT" || chunk === "IEND") return false;
+		offset += buffer.readUInt32BE(offset) + 12;
+	}
+	return false;
+}
+
+async function generateWebpVariants(localPath: string, url: string): Promise<WebpVariant[]> {
+	const original = await fs.readFile(localPath);
+	const input = sharp(original);
+	const { format, pages, autoOrient } = await input.metadata();
+	if (format !== "png" && format !== "jpeg") return [];
+	if ((pages ?? 1) > 1 || (format === "png" && isAnimatedPng(original))) return [];
+	const widths = [...new Set(WEBP_WIDTHS.map((width) => Math.min(width, autoOrient.width)))];
+	const hash = createHash("sha256").update(WEBP_RECIPE).update(original).digest("hex").slice(0, 16);
+	const basename = path.basename(localPath, path.extname(localPath));
+	const variants: WebpVariant[] = [];
+
+	// Keep the original if WebP cannot offer the largest display size at a lower cost.
+	for (const width of widths.reverse()) {
+		const filename = `${basename}.${hash}.${width}w.webp`;
+		const destination = path.join(path.dirname(localPath), filename);
+		const cached = await fs.stat(destination).catch(() => undefined);
+		if (!cached?.isFile() || cached.size === 0 || cached.size >= original.length) {
+			const output = await input
+				.clone()
+				.autoOrient()
+				.resize({ width, withoutEnlargement: true })
+				.webp(WEBP_OPTIONS)
+				.toBuffer();
+			if (output.length >= original.length) {
+				if (variants.length === 0) return [];
+				continue;
+			}
+			const temporaryPath = `${destination}.${randomUUID()}.tmp`;
+			try {
+				await fs.writeFile(temporaryPath, output);
+				await fs.rename(temporaryPath, destination);
+			} finally {
+				await fs.rm(temporaryPath, { force: true });
+			}
+		}
+		variants.unshift({ url: path.posix.join(path.posix.dirname(url), filename), width });
+	}
+	return variants;
+}
+
+export async function populateWebpVariants(blocks: Block[]): Promise<Block[]> {
+	const variantsByUrl = new Map<string, WebpVariant[]>();
+
+	async function getVariants(url: string | undefined): Promise<WebpVariant[]> {
+		if (!url || !/\.(?:png|jpe?g)$/i.test(url)) return [];
+		const localPath = getLocalImagePath(url);
+		if (!localPath) return [];
+		const cached = variantsByUrl.get(url);
+		if (cached) return cached;
+
+		const variants = await generateWebpVariants(localPath, url).catch((error: unknown) => {
+			console.warn(`  ⚠️  Failed to create WebP variants for ${url}:`, error);
+			return [];
+		});
+		variantsByUrl.set(url, variants);
+		return variants;
+	}
+
+	async function enrich(items: Block[]): Promise<Block[]> {
+		const result: Block[] = [];
+		for (const item of items) {
+			let block = item;
+			if (block.type === "image" && block.image) {
+				const image = block.image;
+				const url = image.type === "file" ? image.file?.url : image.external?.url;
+				const webp = await getVariants(url);
+				if (webp.length || image.webp) {
+					block = { ...block, image: { ...image, webp: webp.length ? webp : undefined } };
+				}
+			}
+			if (block.children?.length) block = { ...block, children: await enrich(block.children) };
+			result.push(block);
+		}
+		return result;
+	}
+
+	return enrich(blocks);
 }
 
 export async function cleanupOrphanedImages(
