@@ -2,6 +2,7 @@ export const SITE = {
 	name: "non.salon",
 	url: "https://non.salon",
 	author: "songforthemute",
+	email: "huni0423@naver.com",
 	authorUrl: "https://github.com/songforthemute",
 	sameAs: ["https://github.com/songforthemute", "https://medium.com/@songforthemute"],
 	description: "Archived Web Logs",
@@ -15,12 +16,15 @@ export const PATHS = {
 	images: "public/images",
 } as const;
 
+export const RESUME_LINK = { href: "/resume", label: "Résumé" } as const;
+
 export const NAV_LINKS = [
 	{ href: "/", label: "Root" },
 	{ href: "/publications", label: "Publications" },
 	{ href: "/thoughts", label: "Thoughts" },
 	{ href: "/notebooks", label: "Notebooks" },
 	{ href: "/til", label: "TIL" },
+	RESUME_LINK,
 ] as const;
 
 // URL 세그먼트 ↔ ContentType 매핑 (상세 페이지용, 단수형)

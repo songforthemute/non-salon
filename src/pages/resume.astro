@@ -1,0 +1,27 @@
+---
+import ResumeView from "@/components/ResumeView.astro";
+import { RESUME_CONTENT, type ResumeWriting } from "@/data/resume";
+import Layout from "@/layouts/Layout.astro";
+import { getPostsByType, getPublishedDate, loadPublishedDates } from "@/lib/posts";
+
+const publications = getPostsByType("publication");
+const publishedDates = loadPublishedDates();
+const writings = RESUME_CONTENT.writing.slugs.flatMap<ResumeWriting>((slug) => {
+	const post = publications.find(
+		(publication) => publication.slug === slug && publication.status === "Published",
+	);
+	if (!post) return [];
+
+	return [
+		{
+			title: post.title,
+			href: `/publication/${post.slug}`,
+			date: getPublishedDate(post, publishedDates),
+		},
+	];
+});
+---
+
+<Layout title={RESUME_CONTENT.title} description={RESUME_CONTENT.description}>
+	<ResumeView content={RESUME_CONTENT} writings={writings} />
+</Layout>
