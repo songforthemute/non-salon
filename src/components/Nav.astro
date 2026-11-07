@@ -1,5 +1,5 @@
 ---
-import { NAV_LINKS } from "@/config";
+import { NAV_LINKS, RESUME_LINK } from "@/config";
 
 const { pathname } = Astro.url;
 
@@ -11,11 +11,11 @@ function isActive(href: string): boolean {
 }
 ---
 
-<nav>
+<nav aria-label="Site">
 	{NAV_LINKS.map((link) => (
 		<a
 			href={link.href}
-			class:list={[{ active: isActive(link.href) }]}
+			class:list={[{ active: isActive(link.href), "resume-link": link.href === RESUME_LINK.href }]}
 			aria-current={isActive(link.href) ? "page" : undefined}
 		>
 			{link.label}
@@ -40,5 +40,13 @@ function isActive(href: string): boolean {
 	}
 	nav a.active {
 		font-weight: bold;
+	}
+	.resume-link.active {
+		color: inherit;
+	}
+	@media (min-width: 42rem) {
+		.resume-link {
+			margin-inline-start: auto;
+		}
 	}
 </style>

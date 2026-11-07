@@ -1,0 +1,325 @@
+---
+import type { ResumeContent, ResumeWriting } from "@/data/resume";
+import { formatDate } from "@/lib/format";
+
+interface Props {
+	content: ResumeContent;
+	writings: readonly ResumeWriting[];
+}
+
+const { content, writings } = Astro.props;
+const {
+	title,
+	profile,
+	contentsLabel,
+	sections,
+	experience,
+	projects,
+	writing,
+	skills,
+	education,
+} = content;
+
+const sectionOrder = [
+	{ id: "experience", visible: experience.length > 0 },
+	{ id: "work", visible: projects.length > 0 },
+	{ id: "writing", visible: true },
+	{ id: "skills", visible: skills.length > 0 },
+	{ id: "education", visible: education.length > 0 },
+] as const;
+const visibleSections = sectionOrder.filter(({ visible }) => visible);
+---
+
+<article class="resume-view">
+	<header class="resume-hero">
+		<p class="resume-kicker">{title}</p>
+		<h1>{profile.name}</h1>
+		<p class="resume-role">{profile.role}</p>
+		<div class="resume-summary">
+			{profile.summary.map((paragraph) => <p>{paragraph}</p>)}
+		</div>
+		<div class="resume-contacts">
+			{profile.links.map(({ label, href }) => (
+				<a href={href}>
+					{label}{href.startsWith("https://") && <span aria-hidden="true"> ↗</span>}
+				</a>
+			))}
+		</div>
+	</header>
+
+	<nav class="resume-contents" aria-label={contentsLabel}>
+		<p class="resume-contents-label" aria-hidden="true">{contentsLabel}</p>
+		{visibleSections.map(({ id }) => <a href={`#${id}`}>{sections[id].navLabel}</a>)}
+	</nav>
+
+	<div class="resume-sections">
+		{visibleSections.map(({ id }, index) => (
+			<section
+				id={id}
+				aria-labelledby={`${id}-heading`}
+				tabindex="-1"
+				class:list={["resume-section", { "resume-section-compact": id === "skills" || id === "education" }]}
+			>
+				<div class="resume-heading">
+					<h2 id={`${id}-heading`}>
+						<span class="resume-number" aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
+						{sections[id].title}
+					</h2>
+					{id === "writing" && (
+						<a href={writing.publications.href} class="resume-publications">
+							{writing.publications.label}<span aria-hidden="true"> ↗</span>
+						</a>
+					)}
+				</div>
+
+				{id === "experience" && (
+					<ul class="resume-list" role="list">
+						{experience.map(({ period, company, role, summary }) => (
+							<li class="resume-entry">
+								<p class="resume-meta">{period}</p>
+								<div class="resume-entry-details">
+									<h3>{company} · {role}</h3>
+									<p>{summary}</p>
+								</div>
+							</li>
+						))}
+					</ul>
+				)}
+
+				{id === "work" && (
+					<ul class="resume-list" role="list">
+						{projects.map(({ category, name, href, description, technologies }) => (
+							<li class="resume-entry">
+								<p class="resume-meta">{category}</p>
+								<div class="resume-entry-details">
+									<h3 class="resume-project-title">
+										<a href={href}>{name}<span aria-hidden="true"> ↗</span></a>
+									</h3>
+									<p>{description}</p>
+									{technologies.length > 0 && <p class="resume-meta">{technologies.join(" · ")}</p>}
+								</div>
+							</li>
+						))}
+					</ul>
+				)}
+
+				{id === "writing" && writings.length > 0 && (
+					<ul class="resume-list resume-writing" role="list">
+						{writings.map(({ title, href, date }) => (
+							<li class="resume-entry">
+								<time class="resume-meta" datetime={date}>{formatDate(date)}</time>
+								<a href={href}>{title}</a>
+							</li>
+						))}
+					</ul>
+				)}
+
+				{id === "skills" && <p>{skills.join(" · ")}</p>}
+
+				{id === "education" && (
+					<ul class="resume-list" role="list">
+						{education.map(({ area, school }) => (
+							<li>{area}{school && ` · ${school}`}</li>
+						))}
+					</ul>
+				)}
+			</section>
+		))}
+	</div>
+</article>
+
+<style>
+	.resume-view {
+		color: #111;
+		line-height: 1.625;
+		overflow-wrap: anywhere;
+	}
+
+	.resume-view :is(h1, h2, h3, p) {
+		margin: 0;
+	}
+
+	.resume-view a {
+		word-break: normal;
+	}
+
+	.resume-hero {
+		padding-top: 1.5rem;
+		margin-bottom: 2.125rem;
+	}
+
+	.resume-kicker {
+		color: var(--color-muted);
+		font-size: 0.75rem;
+		line-height: 1.25rem;
+		letter-spacing: 0.1em;
+		text-transform: uppercase;
+	}
+
+	.resume-hero h1 {
+		margin-block: 0.3125rem 0.25rem;
+		font-size: 3.125rem;
+		line-height: 1.36;
+		letter-spacing: -0.025em;
+	}
+
+	.resume-role {
+		font-size: 1.1875rem;
+		line-height: 1.875rem;
+	}
+
+	.resume-summary {
+		margin-top: 1rem;
+	}
+
+	.resume-contacts,
+	.resume-contents {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: flex-start;
+		align-items: baseline;
+		gap: 0.25rem 1rem;
+	}
+
+	.resume-contacts {
+		margin-top: 1.0625rem;
+	}
+
+	.resume-contents {
+		margin-bottom: 2.1875rem;
+		padding-top: 0.625rem;
+		border-top: 1px solid #a6a6a6;
+		column-gap: 1.1875rem;
+	}
+
+	.resume-meta,
+	.resume-contents,
+	.resume-publications {
+		font-size: var(--font-size-sm);
+		line-height: 1.375rem;
+	}
+
+	.resume-meta,
+	.resume-contents-label,
+	.resume-number {
+		color: var(--color-muted);
+	}
+
+	.resume-contents a,
+	.resume-writing a {
+		text-decoration: none;
+	}
+
+	.resume-contents a:is(:hover, :focus-visible),
+	.resume-writing a:is(:hover, :focus-visible) {
+		text-decoration: underline;
+	}
+
+	.resume-sections {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 2rem;
+	}
+
+	.resume-section {
+		display: grid;
+		grid-column: 1 / -1;
+		align-content: start;
+		gap: 0.9375rem;
+		padding-top: 0.9375rem;
+		border-top: 1px solid var(--color-border);
+		scroll-margin-top: 1rem;
+	}
+
+	.resume-section-compact {
+		grid-column: auto;
+	}
+
+	.resume-heading {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: space-between;
+		align-items: baseline;
+		gap: 0.25rem 1rem;
+	}
+
+	.resume-heading h2 {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		font-size: 1.5rem;
+		line-height: 1.5;
+	}
+
+	.resume-number {
+		font-size: 0.75rem;
+		line-height: 1.25rem;
+		font-weight: normal;
+		letter-spacing: 0.02em;
+	}
+
+	.resume-list {
+		display: grid;
+		gap: 0.5rem;
+		padding: 0;
+		margin: 0;
+		list-style: none;
+	}
+
+	.resume-entry {
+		display: grid;
+		grid-template-columns: 6.875rem minmax(0, 1fr);
+		gap: 1.25rem;
+		align-items: baseline;
+	}
+
+	.resume-entry-details {
+		display: grid;
+		gap: 0.3125rem;
+	}
+
+	.resume-entry h3 {
+		font-size: 1.125rem;
+		line-height: 1.75rem;
+	}
+
+	.resume-project-title {
+		font-weight: normal;
+	}
+
+	@media (max-width: 40rem) {
+		.resume-hero {
+			padding-top: 0;
+			margin-bottom: 1.6875rem;
+		}
+
+		.resume-hero h1 {
+			font-size: 2.25rem;
+			line-height: 1.45;
+			letter-spacing: -0.02em;
+		}
+
+		.resume-contents {
+			margin-bottom: 1.8125rem;
+			column-gap: 0.9375rem;
+		}
+
+		.resume-contents-label {
+			display: none;
+		}
+
+		.resume-sections {
+			grid-template-columns: minmax(0, 1fr);
+			gap: 1.75rem;
+		}
+
+		.resume-entry {
+			grid-template-columns: minmax(0, 1fr);
+			gap: 0.3125rem;
+		}
+
+		.resume-writing .resume-entry {
+			gap: 0.0625rem;
+		}
+	}
+</style>
