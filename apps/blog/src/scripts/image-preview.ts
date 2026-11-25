@@ -17,11 +17,26 @@ function initImagePreview(content: HTMLElement, dialog: HTMLDialogElement) {
 	const viewport = dialog.querySelector<HTMLElement>("[data-image-preview-viewport]");
 	const stage = dialog.querySelector<HTMLElement>("[data-image-preview-stage]");
 	const status = dialog.querySelector<HTMLElement>("[data-image-preview-status]");
-	const original = dialog.querySelector<HTMLAnchorElement>("[data-image-preview-original]");
+	const originalTemplate = dialog.querySelector<HTMLTemplateElement>(
+		"[data-image-preview-original-template]",
+	);
+	const original = originalTemplate?.content
+		.querySelector<HTMLAnchorElement>("[data-image-preview-original]")
+		?.cloneNode(true) as HTMLAnchorElement | undefined;
 	const zoomOut = dialog.querySelector<HTMLButtonElement>('[data-image-preview-action="out"]');
 	const zoomIn = dialog.querySelector<HTMLButtonElement>('[data-image-preview-action="in"]');
 	const fit = dialog.querySelector<HTMLButtonElement>('[data-image-preview-action="fit"]');
-	if (!viewport || !stage || !status || !original || !zoomOut || !zoomIn || !fit) return;
+	if (
+		!viewport ||
+		!stage ||
+		!status ||
+		!originalTemplate ||
+		!original ||
+		!zoomOut ||
+		!zoomIn ||
+		!fit
+	)
+		return;
 
 	const pointers = new Map<number, Point>();
 	let preview: Preview | undefined;
@@ -179,6 +194,8 @@ function initImagePreview(content: HTMLElement, dialog: HTMLDialogElement) {
 		draw();
 		stage.replaceChildren();
 		stage.removeAttribute("style");
+		original.remove();
+		original.removeAttribute("href");
 		setStatus("");
 		if (closed) {
 			closed.trigger.focus({ preventScroll: true });
@@ -241,6 +258,7 @@ function initImagePreview(content: HTMLElement, dialog: HTMLDialogElement) {
 		};
 		preview = active;
 		original.href = trigger.href;
+		if (!original.isConnected) originalTemplate.before(original);
 		if (displayedUrl) {
 			const thumbnail = new Image();
 			thumbnail.alt = source.alt;
