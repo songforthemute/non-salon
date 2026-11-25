@@ -1,146 +1,6896 @@
 [
 	{
-		"id": "fixture-publication-1",
-		"title": "CI Fixture: A Deterministic Publication",
-		"slug": "ci-fixture-publication",
+		"id": "3a7928cd-d576-8186-9efb-d8224a0e2658",
+		"title": "sticky 요소의 stuck 상태 별 동적 스타일 적용하기",
+		"slug": "sticky-stuck-state-dynamic-styling",
 		"type": "publication",
 		"status": "Published",
-		"description": "A representative publication used to build and audit the static site in CI.",
-		"tags": ["ci", "performance"],
-		"lastUpdated": "2026-08-18T09:00:00.000Z",
-		"lastEditedTime": "2026-08-18T09:00:00.000Z",
-		"createdTime": "2026-08-17T09:00:00.000Z",
-		"publishedDate": "2026-08-17",
+		"description": "ResizeObserver와 getBoundingClientRect()로 sticky 요소의 상태에 따라 스타일을 적용하는 방법.",
+		"tags": [
+			"Frontend",
+			"Vue"
+		],
+		"lastUpdated": "2026-09-15T08:24:00.000Z",
+		"lastEditedTime": "2026-09-15T08:24:00.000Z",
+		"createdTime": "2026-07-24T19:33:00.000Z",
+		"publishedDate": "2025-01-22",
 		"blocks": [
 			{
-				"id": "fixture-publication-heading",
-				"type": "heading_1",
-				"heading_1": {
+				"id": "9bacd181-69d9-4dd2-8864-c381551fa665",
+				"type": "paragraph",
+				"paragraph": {
 					"rich_text": [
 						{
 							"type": "text",
-							"text": { "content": "A representative detail page" },
-							"plain_text": "A representative detail page",
-							"annotations": {}
+							"text": {
+								"content": "근래에, 전에 개발했던 피쳐의 확장 및 개선을 위한 개발을 진행하며 기존에 개발해두었던 컴포넌트들도 더 멋있는 디자인을 입힐 필요가 생겼다. 특히 페이지 하단의 참여 완료를 위한 플로팅 위젯 형태의 컴포넌트는 디자이너님이 신경 써서 시안을 뽑아주신 만큼 멋드러졌고, 쉽지 않은 스타일 구현이 필요했다. 특히 플로팅 위젯은 sticky 형태로, 네비게이션처럼 사용자의 화면을 따라다니며 사용자가 미션을 수행하면서 추가로 스크롤을 하지 않아도 퀘스트에 바로 참여까지 완료할 수 있도록 해주는 인터랙티브한 형태가 필요했다.",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "근래에, 전에 개발했던 피쳐의 확장 및 개선을 위한 개발을 진행하며 기존에 개발해두었던 컴포넌트들도 더 멋있는 디자인을 입힐 필요가 생겼다. 특히 페이지 하단의 참여 완료를 위한 플로팅 위젯 형태의 컴포넌트는 디자이너님이 신경 써서 시안을 뽑아주신 만큼 멋드러졌고, 쉽지 않은 스타일 구현이 필요했다. 특히 플로팅 위젯은 sticky 형태로, 네비게이션처럼 사용자의 화면을 따라다니며 사용자가 미션을 수행하면서 추가로 스크롤을 하지 않아도 퀘스트에 바로 참여까지 완료할 수 있도록 해주는 인터랙티브한 형태가 필요했다.",
+							"href": null
 						}
-					]
+					],
+					"icon": null,
+					"color": "default"
 				}
 			},
 			{
-				"id": "fixture-publication-paragraph",
+				"id": "3a8928cd-d576-812c-ba1c-d02f777b48e4",
+				"type": "image",
+				"image": {
+					"caption": [],
+					"type": "external",
+					"external": {
+						"url": "/images/publication/sticky-stuck-state-dynamic-styling/3a8928cdd576812cba1cd02f777b48e4.png"
+					},
+					"width": 3600,
+					"height": 1866
+				}
+			},
+			{
+				"id": "dd5ffde4-2260-42f5-a34f-1ca1507f91e6",
 				"type": "paragraph",
 				"paragraph": {
 					"rich_text": [
 						{
 							"type": "text",
-							"text": { "content": "This fixture keeps CI builds independent from Notion and external content." },
-							"plain_text": "This fixture keeps CI builds independent from Notion and external content.",
-							"annotations": {}
+							"text": {
+								"content": "다만, 여태 컴포넌트가 상단에 존재하고, 하단 스크롤에 따라오는 형태는 여럿 구현해본 경험이 있지만 반대로 컴포넌트가 하단에 존재해서 위에서 따라다니는 형태는 구현해본 경험이 없었다. 단순한 sticky로만 구현하는 것이 아닌 컴포넌트의 동적인 위치 변화를 정확하게 감지하고 이에 따라 스타일을 변경하는, 간만에 깊은 생각이 필요한 스타일링을 할 기회가 되었다.",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "다만, 여태 컴포넌트가 상단에 존재하고, 하단 스크롤에 따라오는 형태는 여럿 구현해본 경험이 있지만 반대로 컴포넌트가 하단에 존재해서 위에서 따라다니는 형태는 구현해본 경험이 없었다. 단순한 sticky로만 구현하는 것이 아닌 컴포넌트의 동적인 위치 변화를 정확하게 감지하고 이에 따라 스타일을 변경하는, 간만에 깊은 생각이 필요한 스타일링을 할 기회가 되었다.",
+							"href": null
 						}
-					]
+					],
+					"icon": null,
+					"color": "default"
 				}
-			}
-		]
-	},
-	{
-		"id": "fixture-thought-1",
-		"title": "CI Fixture: A Thought",
-		"slug": "ci-fixture-thought",
-		"type": "thought",
-		"status": "Published",
-		"description": "A second content type for archive and type-index coverage.",
-		"tags": ["ci"],
-		"lastUpdated": "2026-08-16T09:00:00.000Z",
-		"lastEditedTime": "2026-08-16T09:00:00.000Z",
-		"createdTime": "2026-08-15T09:00:00.000Z",
-		"publishedDate": "2026-08-15",
-		"blocks": [
+			},
 			{
-				"id": "fixture-thought-paragraph",
+				"id": "a78eb687-bf2a-4c0f-95ea-96c2a1c9faaf",
 				"type": "paragraph",
 				"paragraph": {
 					"rich_text": [
 						{
 							"type": "text",
-							"text": { "content": "A concise thought for the CI fixture." },
-							"plain_text": "A concise thought for the CI fixture.",
-							"annotations": {}
+							"text": {
+								"content": "우선, 회사에서는 Nuxt/Vue 프레임워크를 이용해 프론트엔드 애플리케이션의 개발을 진행하고 있다. 초기에는 이 플로팅 위젯의 ref를 이용해서 offsetTop의 값을 얻어서 기록하고, 이전의 값과 현재의 값을 비교해서 sticky 요소의 stuck 상태 별로 스타일을 적용하도록 로직을 구현했었다. 스크롤 이벤트에 부착함과 더불어 스로틀링도 적용하여 최대한 성능적인 부분도 놓치지 않게끔 노력했다.",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "우선, 회사에서는 Nuxt/Vue 프레임워크를 이용해 프론트엔드 애플리케이션의 개발을 진행하고 있다. 초기에는 이 플로팅 위젯의 ref를 이용해서 offsetTop의 값을 얻어서 기록하고, 이전의 값과 현재의 값을 비교해서 sticky 요소의 stuck 상태 별로 스타일을 적용하도록 로직을 구현했었다. 스크롤 이벤트에 부착함과 더불어 스로틀링도 적용하여 최대한 성능적인 부분도 놓치지 않게끔 노력했다.",
+							"href": null
 						}
-					]
+					],
+					"icon": null,
+					"color": "default"
 				}
-			}
-		]
-	},
-	{
-		"id": "fixture-notebook-1",
-		"title": "CI Fixture: A Notebook",
-		"slug": "ci-fixture-notebook",
-		"type": "notebook",
-		"status": "Published",
-		"description": "A third content type for complete static route coverage.",
-		"tags": ["ci"],
-		"lastUpdated": "2026-08-14T09:00:00.000Z",
-		"lastEditedTime": "2026-08-14T09:00:00.000Z",
-		"createdTime": "2026-08-13T09:00:00.000Z",
-		"publishedDate": "2026-08-13",
-		"blocks": [
+			},
 			{
-				"id": "fixture-notebook-list",
+				"id": "5fb13b97-dbdc-4660-8fcc-8fa3bad1e20e",
+				"type": "code",
+				"code": {
+					"caption": [],
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "const handleScroll = () => {\n  if (floatingBarRef.value) {\n    const { offsetTop } = floatingBarRef.value\n\n    isSticky.value = offsetTop === floatingBarOffsetTop.value\n    floatingBarOffsetTop.value = offsetTop\n  }\n}\n\n// 등록과 해제에 동일한 함수 참조 사용\nconst throttledHandleScroll = useThrottleFn(handleScroll, 30)\n\nonMounted(() => {\n  window.addEventListener('scroll', throttledHandleScroll)\n  handleScroll() // 초기 상태 지정\n})\n\nonBeforeUnmount(() => {\n  window.removeEventListener('scroll', throttledHandleScroll)\n})",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "const handleScroll = () => {\n  if (floatingBarRef.value) {\n    const { offsetTop } = floatingBarRef.value\n\n    isSticky.value = offsetTop === floatingBarOffsetTop.value\n    floatingBarOffsetTop.value = offsetTop\n  }\n}\n\n// 등록과 해제에 동일한 함수 참조 사용\nconst throttledHandleScroll = useThrottleFn(handleScroll, 30)\n\nonMounted(() => {\n  window.addEventListener('scroll', throttledHandleScroll)\n  handleScroll() // 초기 상태 지정\n})\n\nonBeforeUnmount(() => {\n  window.removeEventListener('scroll', throttledHandleScroll)\n})",
+							"href": null
+						}
+					],
+					"language": "typescript"
+				}
+			},
+			{
+				"id": "ca5bda4b-7e40-4591-8537-a9e9da144c61",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "스크롤하며 확인했을 때는 의도한 대로 동작하는 것처럼 보였다. 하지만 스크롤 이벤트만으로는 미션 컴포넌트의 펼침·접힘이나 브라우저 리사이즈에 따른 변화를 반영할 수 없었다. 우선 콘텐츠 크기가 달라질 때도 다시 측정할 수 있는 방법이 필요했다.",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "스크롤하며 확인했을 때는 의도한 대로 동작하는 것처럼 보였다. 하지만 스크롤 이벤트만으로는 미션 컴포넌트의 펼침·접힘이나 브라우저 리사이즈에 따른 변화를 반영할 수 없었다. 우선 콘텐츠 크기가 달라질 때도 다시 측정할 수 있는 방법이 필요했다.",
+							"href": null
+						}
+					],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "dfbef91c-5b58-4d15-9762-acaec8d529dc",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "그래서 고려한 것은 ResizeObserver API였다. 아마 IntersectionObserver API를 사용해본 경험이 있다면 익숙할 것이다. 이 ResizeObserver API는 브라우저의 크기 변화를 감지하는 resize 이벤트와는 조금 다른 부분이 있다. 바로 브라우저의 크기가 아닌, 특정 요소의 크기 변화를 감지할 수 있다는 것이다.",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "그래서 고려한 것은 ResizeObserver API였다. 아마 IntersectionObserver API를 사용해본 경험이 있다면 익숙할 것이다. 이 ResizeObserver API는 브라우저의 크기 변화를 감지하는 resize 이벤트와는 조금 다른 부분이 있다. 바로 브라우저의 크기가 아닌, 특정 요소의 크기 변화를 감지할 수 있다는 것이다.",
+							"href": null
+						}
+					],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "3dc928cd-d576-8060-9a72-e44bed1291fe",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "미션을 펼치고 접으면 페이지의 크기도 달라지니, 이때 위젯의 위치를 다시 계산하면 되겠다는 생각이 들었다. 바로 페이지를 감싸는 요소에 식별자를 추가하고 옵저버를 연결했다.",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "미션을 펼치고 접으면 페이지의 크기도 달라지니, 이때 위젯의 위치를 다시 계산하면 되겠다는 생각이 들었다. 바로 페이지를 감싸는 요소에 식별자를 추가하고 옵저버를 연결했다.",
+							"href": null
+						}
+					],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "ca767aa5-e888-486d-85d3-73dd7d172db1",
+				"type": "code",
+				"code": {
+					"caption": [],
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "const throttledHandleScroll = useThrottleFn(handleScroll, 30)\n\nonMounted(() => {\n  observer.value = new ResizeObserver(throttledHandleScroll)\n\n  const page = document.getElementById(PAGE_ID)\n  if (page) observer.value.observe(page)\n\n  window.addEventListener('scroll', throttledHandleScroll)\n  handleScroll()\n})\n\nonBeforeUnmount(() => {\n  window.removeEventListener('scroll', throttledHandleScroll)\n  observer.value?.disconnect()\n})",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "const throttledHandleScroll = useThrottleFn(handleScroll, 30)\n\nonMounted(() => {\n  observer.value = new ResizeObserver(throttledHandleScroll)\n\n  const page = document.getElementById(PAGE_ID)\n  if (page) observer.value.observe(page)\n\n  window.addEventListener('scroll', throttledHandleScroll)\n  handleScroll()\n})\n\nonBeforeUnmount(() => {\n  window.removeEventListener('scroll', throttledHandleScroll)\n  observer.value?.disconnect()\n})",
+							"href": null
+						}
+					],
+					"language": "typescript"
+				}
+			},
+			{
+				"id": "28bde635-2fa8-4edd-9629-338d77b494c0",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "얼추 동작하는 느낌은 들었으나, 정확도가 문제였다. 접혀 있던 미션을 펼쳐서 사이즈가 늘어났는데도 sticky 여부를 검사하는 로직이 제대로 동작하지 않는 것 같았다. 또한, 브라우저를 가로로 리사이징하면서도 offsetTop을 계산하고 저장하는 로직이 영향을 받아 정상적으로 동작하지 않았다.",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "얼추 동작하는 느낌은 들었으나, 정확도가 문제였다. 접혀 있던 미션을 펼쳐서 사이즈가 늘어났는데도 sticky 여부를 검사하는 로직이 제대로 동작하지 않는 것 같았다. 또한, 브라우저를 가로로 리사이징하면서도 offsetTop을 계산하고 저장하는 로직이 영향을 받아 정상적으로 동작하지 않았다.",
+							"href": null
+						}
+					],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "3dc928cd-d576-80bb-a52b-f068b0244748",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "다시 생각해 보니, 크기가 바뀔 때도 계산하도록 연결했을 뿐 이전의 offsetTop과 비교하는 방식은 그대로였다. 이전보다 위치가 바뀌었는지를 보는 것보다, 지금 위젯이 화면의 어디에 있는지를 확인하는 편이 낫겠다는 생각이 들었다.",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "다시 생각해 보니, 크기가 바뀔 때도 계산하도록 연결했을 뿐 이전의 offsetTop과 비교하는 방식은 그대로였다. 이전보다 위치가 바뀌었는지를 보는 것보다, 지금 위젯이 화면의 어디에 있는지를 확인하는 편이 낫겠다는 생각이 들었다.",
+							"href": null
+						}
+					],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "3dc928cd-d576-8061-8e98-d192d58e23bc",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "3dc928cd-d576-80e9-a420-fb273c753b9a",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "고민 속에서 getBoundingClientRect() API를 발견했다. 요소의 크기뿐 아니라 뷰포트를 기준으로 어디에 있는지도 알 수 있었다. 그렇다면 위젯이 화면 하단에 붙어 있을 때, top 값에 위젯의 높이와 하단에서 띄운 간격을 더하면 화면 높이와 같아지지 않을까?",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "고민 속에서 getBoundingClientRect() API를 발견했다. 요소의 크기뿐 아니라 뷰포트를 기준으로 어디에 있는지도 알 수 있었다. 그렇다면 위젯이 화면 하단에 붙어 있을 때, top 값에 위젯의 높이와 하단에서 띄운 간격을 더하면 화면 높이와 같아지지 않을까?",
+							"href": null
+						}
+					],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "3dc928cd-d576-8089-b301-e78f27c3a9c2",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "이 값을 비교하면 이전 위치를 따로 저장하지 않고도 상태를 구분할 수 있을 것 같았다. 하단 간격은 1rem을 사용하고 있어서, getComputedStyle로 루트 요소의 폰트 크기를 읽어 계산에 더했다.",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "이 값을 비교하면 이전 위치를 따로 저장하지 않고도 상태를 구분할 수 있을 것 같았다. 하단 간격은 1rem을 사용하고 있어서, getComputedStyle로 루트 요소의 폰트 크기를 읽어 계산에 더했다.",
+							"href": null
+						}
+					],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "3dc928cd-d576-8019-80fc-f6295e65d494",
+				"type": "code",
+				"code": {
+					"caption": [],
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "const getRootElementFontSize = () =>\n  parseFloat(getComputedStyle(document.documentElement).fontSize)\n\nconst handleScroll = () => {\n  const element = floatingBarRef.value\n  if (!element) return\n\n  const { height, top } = element.getBoundingClientRect()\n  isSticky.value =\n    height + top + getRootElementFontSize() !== window.innerHeight\n}\n\nconst throttledHandleScroll = useThrottleFn(handleScroll, 30)\n\nonMounted(() => {\n  observer.value = new ResizeObserver(throttledHandleScroll)\n\n  const page = document.getElementById(PAGE_ID)\n  if (page) observer.value.observe(page)\n\n  window.addEventListener('scroll', throttledHandleScroll)\n  handleScroll()\n})\n\nonBeforeUnmount(() => {\n  window.removeEventListener('scroll', throttledHandleScroll)\n  observer.value?.disconnect()\n})",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "const getRootElementFontSize = () =>\n  parseFloat(getComputedStyle(document.documentElement).fontSize)\n\nconst handleScroll = () => {\n  const element = floatingBarRef.value\n  if (!element) return\n\n  const { height, top } = element.getBoundingClientRect()\n  isSticky.value =\n    height + top + getRootElementFontSize() !== window.innerHeight\n}\n\nconst throttledHandleScroll = useThrottleFn(handleScroll, 30)\n\nonMounted(() => {\n  observer.value = new ResizeObserver(throttledHandleScroll)\n\n  const page = document.getElementById(PAGE_ID)\n  if (page) observer.value.observe(page)\n\n  window.addEventListener('scroll', throttledHandleScroll)\n  handleScroll()\n})\n\nonBeforeUnmount(() => {\n  window.removeEventListener('scroll', throttledHandleScroll)\n  observer.value?.disconnect()\n})",
+							"href": null
+						}
+					],
+					"language": "javascript"
+				}
+			},
+			{
+				"id": "3dc928cd-d576-80ce-bfc1-cf351d79815b",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "이 로직에서는 플로팅 위젯의 위치를 뷰포트와 비교하며 얻어내어 계산하고 있으므로, 접힌 미션 컴포넌트의 펼침, 브라우저의 가로 리사이즈 및 CSS 브레이크포인트를 넘나드는 동작에도 예상한대로 동작하는 것을 확인할 수 있었다.",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "이 로직에서는 플로팅 위젯의 위치를 뷰포트와 비교하며 얻어내어 계산하고 있으므로, 접힌 미션 컴포넌트의 펼침, 브라우저의 가로 리사이즈 및 CSS 브레이크포인트를 넘나드는 동작에도 예상한대로 동작하는 것을 확인할 수 있었다.",
+							"href": null
+						}
+					],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "3dc928cd-d576-803b-9c3e-eb8c60e09255",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "3dc928cd-d576-80cc-91f4-e2899c3077d3",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "여기서 한 발 더 나아가서, 측정 요청을 처리하는 방식도 개선해볼 수 있다. 기존에는 스로틀링을 적용하여 30ms 간격으로 실행 빈도를 제한했지만, requestAnimationFrame을 이용하면 하드웨어의 화면 갱신 주기에 맞춰 측정을 예약할 수 있다. 스크롤 이벤트와 ResizeObserver에서 동일한 함수를 호출하도록 연결하고, 이미 예약된 측정이 있다면 추가 예약을 생략하는 방식이다. 이렇게 하면 사용자마다 다른 하드웨어에 따른 주사 빈도에 맞춰 더 자연스러운 애니메이션 인터랙션을 보여줄 수도 있다.",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "여기서 한 발 더 나아가서, 측정 요청을 처리하는 방식도 개선해볼 수 있다. 기존에는 스로틀링을 적용하여 30ms 간격으로 실행 빈도를 제한했지만, requestAnimationFrame을 이용하면 하드웨어의 화면 갱신 주기에 맞춰 측정을 예약할 수 있다. 스크롤 이벤트와 ResizeObserver에서 동일한 함수를 호출하도록 연결하고, 이미 예약된 측정이 있다면 추가 예약을 생략하는 방식이다. 이렇게 하면 사용자마다 다른 하드웨어에 따른 주사 빈도에 맞춰 더 자연스러운 애니메이션 인터랙션을 보여줄 수도 있다.",
+							"href": null
+						}
+					],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "8f818532-17da-483e-96d3-836b276ba930",
+				"type": "code",
+				"code": {
+					"caption": [],
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "let frameId: number | null = null\n\nconst scheduleMeasure = () => {\n  if (frameId !== null) return\n\n  frameId = requestAnimationFrame(() => {\n    frameId = null\n    handleScroll()\n  })\n}\n\nonMounted(() => {\n  observer.value = new ResizeObserver(scheduleMeasure)\n\n  const page = document.getElementById(PAGE_ID)\n  if (page) observer.value.observe(page)\n\n  window.addEventListener('scroll', scheduleMeasure)\n  handleScroll()\n})\n\nonBeforeUnmount(() => {\n  window.removeEventListener('scroll', scheduleMeasure)\n  observer.value?.disconnect()\n\n  if (frameId !== null) cancelAnimationFrame(frameId)\n})",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "let frameId: number | null = null\n\nconst scheduleMeasure = () => {\n  if (frameId !== null) return\n\n  frameId = requestAnimationFrame(() => {\n    frameId = null\n    handleScroll()\n  })\n}\n\nonMounted(() => {\n  observer.value = new ResizeObserver(scheduleMeasure)\n\n  const page = document.getElementById(PAGE_ID)\n  if (page) observer.value.observe(page)\n\n  window.addEventListener('scroll', scheduleMeasure)\n  handleScroll()\n})\n\nonBeforeUnmount(() => {\n  window.removeEventListener('scroll', scheduleMeasure)\n  observer.value?.disconnect()\n\n  if (frameId !== null) cancelAnimationFrame(frameId)\n})",
+							"href": null
+						}
+					],
+					"language": "typescript"
+				}
+			},
+			{
+				"id": "3dc928cd-d576-803b-b6db-e66418a9e9f7",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "기존의 스로틀 함수 대신 scheduleMeasure를 연결하고, 언마운트할 때는 이벤트와 옵저버를 해제하면서 남아 있는 rAF 예약도 취소하면 된다. 다만 rAF는 보통 화면 주사율에 맞춰 호출되며, 30ms 스로틀보다 계산이 더 자주 실행될 수 있으므로, 호출 수 감소나 성능 향상이 보장되는 것은 아니다.",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "기존의 스로틀 함수 대신 scheduleMeasure를 연결하고, 언마운트할 때는 이벤트와 옵저버를 해제하면서 남아 있는 rAF 예약도 취소하면 된다. 다만 rAF는 보통 화면 주사율에 맞춰 호출되며, 30ms 스로틀보다 계산이 더 자주 실행될 수 있으므로, 호출 수 감소나 성능 향상이 보장되는 것은 아니다.",
+							"href": null
+						}
+					],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "3dc928cd-d576-8034-b4fb-f4a2e60cee61",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "88390b03-aa26-4476-90a2-d29603db5cea",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "단순 스타일 구현과 API의 활용 수준에 가깝지만, 원하는 기획과 디자인을 구현해주었다는 뿌듯함을 얻은 건 기본이고, 스타일링에 대한 오만함을 내려두고, 목표와 현재의 상황을 기반으로 쌓아올린 지식 체계를 통해 가설을 세워 분석해나가는 사고가 정말 중요하다는 생각이 들었다. 앞으로도 항상 겸손하며 더욱 지식 체계를 넓혀, 기획자와 디자이너가 원하는 서비스의 모습이 어떤 것이라도 성능 친화적이고 깨끗한 코드로 구현해줄 수 있는 능력을 기르고자 한다.",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "단순 스타일 구현과 API의 활용 수준에 가깝지만, 원하는 기획과 디자인을 구현해주었다는 뿌듯함을 얻은 건 기본이고, 스타일링에 대한 오만함을 내려두고, 목표와 현재의 상황을 기반으로 쌓아올린 지식 체계를 통해 가설을 세워 분석해나가는 사고가 정말 중요하다는 생각이 들었다. 앞으로도 항상 겸손하며 더욱 지식 체계를 넓혀, 기획자와 디자이너가 원하는 서비스의 모습이 어떤 것이라도 성능 친화적이고 깨끗한 코드로 구현해줄 수 있는 능력을 기르고자 한다.",
+							"href": null
+						}
+					],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "ccf6e67d-9f51-4254-8a6f-9b6b16306d67",
+				"type": "heading_2",
+				"heading_2": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "References",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "References",
+							"href": null
+						}
+					],
+					"is_toggleable": false,
+					"color": "default"
+				}
+			},
+			{
+				"id": "6c16645c-9330-4cc7-8935-cd13484020aa",
 				"type": "bulleted_list_item",
 				"bulleted_list_item": {
 					"rich_text": [
 						{
 							"type": "text",
-							"text": { "content": "A fixture list item." },
-							"plain_text": "A fixture list item.",
-							"annotations": {}
+							"text": {
+								"content": "ResizeObserver",
+								"link": {
+									"url": "https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver"
+								}
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "ResizeObserver",
+							"href": "https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver"
 						}
-					]
+					],
+					"color": "default"
 				}
-			}
-		]
-	},
-	{
-		"id": "fixture-til-typescript",
-		"title": "CI Fixture: A TypeScript TIL",
-		"slug": "ci-fixture-til-typescript",
-		"type": "til",
-		"status": "Published",
-		"description": "A short learning note for topic and date filtering.",
-		"tags": ["TypeScript"],
-		"lastUpdated": "2026-09-16T09:00:00.000Z",
-		"lastEditedTime": "2026-09-16T09:00:00.000Z",
-		"createdTime": "2026-09-16T09:00:00.000Z",
-		"publishedDate": "2026-09-16",
-		"blocks": [
+			},
 			{
-				"id": "fixture-til-typescript-paragraph",
+				"id": "4947d5db-dc6b-4eb6-bc74-98246e75ca6b",
+				"type": "bulleted_list_item",
+				"bulleted_list_item": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "Element.getBoundingClientRect()",
+								"link": {
+									"url": "https://developer.mozilla.org/ko/docs/Web/API/Element/getBoundingClientRect"
+								}
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "Element.getBoundingClientRect()",
+							"href": "https://developer.mozilla.org/ko/docs/Web/API/Element/getBoundingClientRect"
+						}
+					],
+					"color": "default"
+				}
+			},
+			{
+				"id": "977fb639-5c82-40ae-9534-559bb2949257",
+				"type": "bulleted_list_item",
+				"bulleted_list_item": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "Window.getComputedStyle()",
+								"link": {
+									"url": "https://developer.mozilla.org/ko/docs/Web/API/Window/getComputedStyle"
+								}
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "Window.getComputedStyle()",
+							"href": "https://developer.mozilla.org/ko/docs/Web/API/Window/getComputedStyle"
+						}
+					],
+					"color": "default"
+				}
+			},
+			{
+				"id": "d35e381e-ac69-495e-b454-fb4724a77bae",
+				"type": "divider",
+				"divider": {}
+			},
+			{
+				"id": "d9dedbea-776b-4a83-90bb-0e4b61950623",
 				"type": "paragraph",
 				"paragraph": {
 					"rich_text": [
 						{
 							"type": "text",
-							"text": { "content": "A TypeScript learning note." },
-							"plain_text": "A TypeScript learning note.",
-							"annotations": {}
+							"text": {
+								"content": "원문: ",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "원문: ",
+							"href": null
+						},
+						{
+							"type": "text",
+							"text": {
+								"content": "Medium",
+								"link": {
+									"url": "https://medium.com/@songforthemute/sticky-%EC%9A%94%EC%86%8C%EC%9D%98-stuck-%EC%83%81%ED%83%9C-%EB%B3%84-%EB%8F%99%EC%A0%81-%EC%8A%A4%ED%83%80%EC%9D%BC-%EC%A0%81%EC%9A%A9%ED%95%98%EA%B8%B0-9794f8b820a1"
+								}
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "Medium",
+							"href": "https://medium.com/@songforthemute/sticky-%EC%9A%94%EC%86%8C%EC%9D%98-stuck-%EC%83%81%ED%83%9C-%EB%B3%84-%EB%8F%99%EC%A0%81-%EC%8A%A4%ED%83%80%EC%9D%BC-%EC%A0%81%EC%9A%A9%ED%95%98%EA%B8%B0-9794f8b820a1"
 						}
-					]
+					],
+					"icon": null,
+					"color": "default"
 				}
 			}
 		]
 	},
 	{
-		"id": "fixture-til-css",
-		"title": "CI Fixture: A CSS TIL",
-		"slug": "ci-fixture-til-css",
+		"id": "32d928cd-d576-808c-8fc8-c55ab9a9dc6c",
+		"title": "마술 공학",
+		"slug": "magic-engineering",
+		"type": "thought",
+		"status": "Published",
+		"description": "프론트엔드, 그 마술과도 같은 공학에 대해",
+		"tags": [
+			"Frontend"
+		],
+		"lastUpdated": "2026-05-04T16:08:00.000Z",
+		"lastEditedTime": "2026-05-04T16:08:00.000Z",
+		"createdTime": "2026-03-24T14:05:00.000Z",
+		"publishedDate": "2026-03-26",
+		"blocks": [
+			{
+				"id": "32e928cd-d576-800e-9117-d4281a3b28f3",
+				"type": "heading_3",
+				"heading_3": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "동시성의 두 축",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "동시성의 두 축",
+							"href": null
+						}
+					],
+					"is_toggleable": false,
+					"color": "default"
+				}
+			},
+			{
+				"id": "32d928cd-d576-8079-a304-c81ebfb9974f",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "백엔드 엔지니어에게 동시성이란, 보통 누가 왔는가의 문제다. 몇 명이, 언제, 어디서. 공간을 격리하고, 점유를 선언하고, 경합을 중재한다. 락, 트랜잭션, 세마포어. 전부 ",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "백엔드 엔지니어에게 동시성이란, 보통 누가 왔는가의 문제다. 몇 명이, 언제, 어디서. 공간을 격리하고, 점유를 선언하고, 경합을 중재한다. 락, 트랜잭션, 세마포어. 전부 ",
+							"href": null
+						},
+						{
+							"type": "text",
+							"text": {
+								"content": "‘이 자리에 지금 누가 앉아있는가’",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": true,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "‘이 자리에 지금 누가 앉아있는가’",
+							"href": null
+						},
+						{
+							"type": "text",
+							"text": {
+								"content": "를 통제하는 도구들이다.",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "를 통제하는 도구들이다.",
+							"href": null
+						}
+					],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "32d928cd-d576-8033-aaa1-c8afd0463c04",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "프론트엔드에서 동시성은 다른 축 위에 놓인다. 누가 들어왔는가는 문제가 아니다. 문제는 언제 무엇이 도착하는가다. 사용자 입력이 언제 올지, 네트워크 응답이 언제 돌아올지, 애니메이션 프레임이 언제 찍힐지. 디바운싱, 스로틀링, ",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "프론트엔드에서 동시성은 다른 축 위에 놓인다. 누가 들어왔는가는 문제가 아니다. 문제는 언제 무엇이 도착하는가다. 사용자 입력이 언제 올지, 네트워크 응답이 언제 돌아올지, 애니메이션 프레임이 언제 찍힐지. 디바운싱, 스로틀링, ",
+							"href": null
+						},
+						{
+							"type": "text",
+							"text": {
+								"content": "AbortController",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": true,
+								"color": "default"
+							},
+							"plain_text": "AbortController",
+							"href": null
+						},
+						{
+							"type": "text",
+							"text": {
+								"content": ", React의 배치 처리, ",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": ", React의 배치 처리, ",
+							"href": null
+						},
+						{
+							"type": "text",
+							"text": {
+								"content": "useTransition",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": true,
+								"color": "default"
+							},
+							"plain_text": "useTransition",
+							"href": null
+						},
+						{
+							"type": "text",
+							"text": {
+								"content": ". 전부 시간축 위의 이벤트 도착 순서와 처리 우선순위를 통제하는 도구들이다.",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": ". 전부 시간축 위의 이벤트 도착 순서와 처리 우선순위를 통제하는 도구들이다.",
+							"href": null
+						}
+					],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "32d928cd-d576-8020-bd52-dc1c3ed24fb5",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "이 구조는 우연이 아닐 것이다. 웹 프론트엔드는 단일 UI 스레드 중심 모델 위에 세워져 있어 공유 메모리 경합보다는 입력, 렌더링, 응답, 취소, 우선순위 같은 시간축 문제로 복잡도가 집중되는 경향이 있다. 따라서 프론트엔드의 복잡도는 주로 시간적 비결정성의 방향으로 수렴한다.",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "이 구조는 우연이 아닐 것이다. 웹 프론트엔드는 단일 UI 스레드 중심 모델 위에 세워져 있어 공유 메모리 경합보다는 입력, 렌더링, 응답, 취소, 우선순위 같은 시간축 문제로 복잡도가 집중되는 경향이 있다. 따라서 프론트엔드의 복잡도는 주로 시간적 비결정성의 방향으로 수렴한다.",
+							"href": null
+						}
+					],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "32d928cd-d576-80cd-8df8-fb632834f0e7",
+				"type": "divider",
+				"divider": {}
+			},
+			{
+				"id": "32e928cd-d576-808a-b589-c3c75262d6de",
+				"type": "heading_3",
+				"heading_3": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "실패 탐색 경로",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "실패 탐색 경로",
+							"href": null
+						}
+					],
+					"is_toggleable": false,
+					"color": "default"
+				}
+			},
+			{
+				"id": "32d928cd-d576-80aa-b1c8-f19bf604b235",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "주요 복잡도를 다루는 측면에서는 대칭, 역전이 일어나곤 한다. 백엔드는 처리 경로의 비용과 일관성에 민감하고, 프론트는 표현 표면의 비용과 지각 연속성에 민감하다. 이 교차 구조가 두 분야가 서로를 잘 이해하지 못하는 근본 원인일 것이다. 같은 단어를 쓰면서 직교하는 축을 가리키고 있으니까.",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "주요 복잡도를 다루는 측면에서는 대칭, 역전이 일어나곤 한다. 백엔드는 처리 경로의 비용과 일관성에 민감하고, 프론트는 표현 표면의 비용과 지각 연속성에 민감하다. 이 교차 구조가 두 분야가 서로를 잘 이해하지 못하는 근본 원인일 것이다. 같은 단어를 쓰면서 직교하는 축을 가리키고 있으니까.",
+							"href": null
+						}
+					],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "32e928cd-d576-80f9-a3cd-db03e3587d3a",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "물론, 이 구분은 절대적인 분할이 아니라 주된 관심 축의 차이에서 기인한다. 어느 축에서 실패가 먼저 드러나고, 어느 축을 먼저 제어해야 시스템이 성립하는가가 다르다. 백엔드도 공간을 다루고, 프론트엔드도 시간을 다룬다. 다만 백엔드는 공유 자원의 경합을 제어해 시스템의 일관성을 지키고, 프론트엔드는 이벤트의 도착 순서와 우선순위를 제어해 사용자 지각의 연속성을 지킨다. 백엔드는 압도적인 복잡도를 겪는다면, 프론트엔드는 보이지 않고 잡히지 않는 복잡도를 다룬다. 서로가 복잡도를 다루지 않는 것이 아니라, 무엇을 먼저 문제로 인식하느냐가 다르다.",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "물론, 이 구분은 절대적인 분할이 아니라 주된 관심 축의 차이에서 기인한다. 어느 축에서 실패가 먼저 드러나고, 어느 축을 먼저 제어해야 시스템이 성립하는가가 다르다. 백엔드도 공간을 다루고, 프론트엔드도 시간을 다룬다. 다만 백엔드는 공유 자원의 경합을 제어해 시스템의 일관성을 지키고, 프론트엔드는 이벤트의 도착 순서와 우선순위를 제어해 사용자 지각의 연속성을 지킨다. 백엔드는 압도적인 복잡도를 겪는다면, 프론트엔드는 보이지 않고 잡히지 않는 복잡도를 다룬다. 서로가 복잡도를 다루지 않는 것이 아니라, 무엇을 먼저 문제로 인식하느냐가 다르다.",
+							"href": null
+						}
+					],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "32d928cd-d576-80be-8938-dfa7ae22cc05",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "이처럼 주된 관심 축과 실패가 먼저 드러나는 표면이 다르다면, 각 분야가 주로 상대하는 비결정성의 양상도 달라질 수밖에 없다. 백엔드도 매우 어려운 비결정성을 다뤄야 한다. 분산 시스템의 합의 문제만 봐도 절대 쉬운 문제가 아니다. 비단 비잔틴 합의라고 하면, 신뢰할 수 없는 참여자 사이에서 합의를 이끌어내야 하는 블록체인 상의 합의 알고리즘인데, 이 얼마나 철학적으로 모호한 주제를 기술적으로 증명해야함인가. 다만 그 비결정성을 다룸에, 서버 간 통신은 프로토콜이 정해져 있고, 스키마가 합의되어 있고, 타임아웃이 명시되어 있다. 어렵더라도 조건과 제약을 정의할 수 있고, 정의된 제약 안에서 결정론적인 분산과 동작을 추구할 수 있다.",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "이처럼 주된 관심 축과 실패가 먼저 드러나는 표면이 다르다면, 각 분야가 주로 상대하는 비결정성의 양상도 달라질 수밖에 없다. 백엔드도 매우 어려운 비결정성을 다뤄야 한다. 분산 시스템의 합의 문제만 봐도 절대 쉬운 문제가 아니다. 비단 비잔틴 합의라고 하면, 신뢰할 수 없는 참여자 사이에서 합의를 이끌어내야 하는 블록체인 상의 합의 알고리즘인데, 이 얼마나 철학적으로 모호한 주제를 기술적으로 증명해야함인가. 다만 그 비결정성을 다룸에, 서버 간 통신은 프로토콜이 정해져 있고, 스키마가 합의되어 있고, 타임아웃이 명시되어 있다. 어렵더라도 조건과 제약을 정의할 수 있고, 정의된 제약 안에서 결정론적인 분산과 동작을 추구할 수 있다.",
+							"href": null
+						}
+					],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "32d928cd-d576-80de-a04a-ef97217fe9ce",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "프론트엔드의 비결정성은 성격이 다르다. 인간의 입력은 그 어떤 것도 보장하지 않고 믿을 수 없다. 터치 좌표의 정밀도, 입력 속도, 의도의 모호성, 접근성 요구사항, 문화적 맥락까지. 조건과 제약을 형식적으로 정의하는 것 자체가 난해하다. 무한 엔트로피를 유한한 상태 머신으로 수렴시킴이 필요하다.",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "프론트엔드의 비결정성은 성격이 다르다. 인간의 입력은 그 어떤 것도 보장하지 않고 믿을 수 없다. 터치 좌표의 정밀도, 입력 속도, 의도의 모호성, 접근성 요구사항, 문화적 맥락까지. 조건과 제약을 형식적으로 정의하는 것 자체가 난해하다. 무한 엔트로피를 유한한 상태 머신으로 수렴시킴이 필요하다.",
+							"href": null
+						}
+					],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "32d928cd-d576-80c8-b988-faf2e7b0d528",
+				"type": "divider",
+				"divider": {}
+			},
+			{
+				"id": "32e928cd-d576-80db-a87f-ed9f1c4a11ab",
+				"type": "heading_3",
+				"heading_3": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "프론트엔드는 무엇을 최적화하는가",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "프론트엔드는 무엇을 최적화하는가",
+							"href": null
+						}
+					],
+					"is_toggleable": false,
+					"color": "default"
+				}
+			},
+			{
+				"id": "32d928cd-d576-80af-8eb7-d970d311a577",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "Rob Pike는 말했다. ",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "Rob Pike는 말했다. ",
+							"href": null
+						},
+						{
+							"type": "text",
+							"text": {
+								"content": "‘Concurrency is about dealing with lots of things at once, parallelism is about doing lots of things at once.’",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": true,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "‘Concurrency is about dealing with lots of things at once, parallelism is about doing lots of things at once.’",
+							"href": null
+						},
+						{
+							"type": "text",
+							"text": {
+								"content": " 이 시간적 비결정성을 더 정밀하게 들여다보면 이 구분에서 병렬성보다 동시성 쪽에 프론트엔드는 가까이 있다. 여러 일을 실제로 동시에 하는 것이 아니라, 여러 일을 동시에 다루는 것. 시분할 컴퓨팅 모델이 정확히 이것이고, React의 Concurrent Rendering은 이를 UI 스케줄링에 적용한 것이다. ",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": " 이 시간적 비결정성을 더 정밀하게 들여다보면 이 구분에서 병렬성보다 동시성 쪽에 프론트엔드는 가까이 있다. 여러 일을 실제로 동시에 하는 것이 아니라, 여러 일을 동시에 다루는 것. 시분할 컴퓨팅 모델이 정확히 이것이고, React의 Concurrent Rendering은 이를 UI 스케줄링에 적용한 것이다. ",
+							"href": null
+						},
+						{
+							"type": "text",
+							"text": {
+								"content": "requestIdleCallback",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": true,
+								"color": "default"
+							},
+							"plain_text": "requestIdleCallback",
+							"href": null
+						},
+						{
+							"type": "text",
+							"text": {
+								"content": "과 Fiber 아키텍처는 ",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "과 Fiber 아키텍처는 ",
+							"href": null
+						},
+						{
+							"type": "text",
+							"text": {
+								"content": "‘CPU 시간이라는 단일 자원을 어떤 작업 단위에 얼마나 할당할 것인가’",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": true,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "‘CPU 시간이라는 단일 자원을 어떤 작업 단위에 얼마나 할당할 것인가’",
+							"href": null
+						},
+						{
+							"type": "text",
+							"text": {
+								"content": "라는 OS 스케줄러의 문제를 풀어오던 과정과 유사하다.",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "라는 OS 스케줄러의 문제를 풀어오던 과정과 유사하다.",
+							"href": null
+						}
+					],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "32e928cd-d576-80c0-80e7-d02f3c35b04c",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "스케줄링이 시간의 배분이라면, 그 배분된 시간 안에서 상태를 다루는 방식도 시간을 의식할 수밖에 없다. 프론트엔드에서는 상태를 누가 소유하는가보다, 상태가 어떤 순서로 흐르는가가 중요하다. 흐르는 ‘객체’가 중요하다고 보는 것보다, 객체의 ‘흐름’이 더 중요하다. 참조 투명성이 프론트엔드에서 특별히 가치 있는 이유도 여기에 있다. 같은 입력이 항상 같은 출력을 낸다는 것은 시간적 불변성의 지향이다.",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "스케줄링이 시간의 배분이라면, 그 배분된 시간 안에서 상태를 다루는 방식도 시간을 의식할 수밖에 없다. 프론트엔드에서는 상태를 누가 소유하는가보다, 상태가 어떤 순서로 흐르는가가 중요하다. 흐르는 ‘객체’가 중요하다고 보는 것보다, 객체의 ‘흐름’이 더 중요하다. 참조 투명성이 프론트엔드에서 특별히 가치 있는 이유도 여기에 있다. 같은 입력이 항상 같은 출력을 낸다는 것은 시간적 불변성의 지향이다.",
+							"href": null
+						}
+					],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "32e928cd-d576-80a4-90d0-cc7d4e96baea",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "JS에서는 클로저로 특정 시점의 값을 렉시컬 스코프에 가둬서, 외부 시간이 흘러도 캡처된 값을 변하지 않게 한다. React의 이벤트 핸들러가 특정 렌더 시점의 state를 캡처하는 것이 전형적이다. 실행 시점은 미래에 위임하되, 컨텍스트는 등록 시점에 고정한다. 클로저를 통한 시간의 동결이다. 부수효과는 이 동결을 깨트리고, useEffect가 그렇게 다루기 어려운 이유는 그것이 시간의 비예측성을 프로그래머에게 직접 노출하는 표면으로 작용하기 때문이다.",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "JS에서는 클로저로 특정 시점의 값을 렉시컬 스코프에 가둬서, 외부 시간이 흘러도 캡처된 값을 변하지 않게 한다. React의 이벤트 핸들러가 특정 렌더 시점의 state를 캡처하는 것이 전형적이다. 실행 시점은 미래에 위임하되, 컨텍스트는 등록 시점에 고정한다. 클로저를 통한 시간의 동결이다. 부수효과는 이 동결을 깨트리고, useEffect가 그렇게 다루기 어려운 이유는 그것이 시간의 비예측성을 프로그래머에게 직접 노출하는 표면으로 작용하기 때문이다.",
+							"href": null
+						}
+					],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "32e928cd-d576-80e5-80ac-e3933b9040f5",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "이 비결정적인 도구와 환경 위에서, 프론트엔드에 요구되는 역할은 오히려 넓어져만 간다. 프론트엔드가 함수형 모델을 택하고, UML보다 플로우 차트를 선호하는 것은 취향이 아니라 환경에서 기인한 전략이라고 생각한다. JS조차 TS가 있음에도 브라우저 런타임과 사용자 입력이 만들어내는 비결정성까지 제거하지는 못하고, 브라우저 벤더사들마다 구현도 다른, 그런 환경에서 살아남을 수 있도록 진화한 것이 아닐까.",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "이 비결정적인 도구와 환경 위에서, 프론트엔드에 요구되는 역할은 오히려 넓어져만 간다. 프론트엔드가 함수형 모델을 택하고, UML보다 플로우 차트를 선호하는 것은 취향이 아니라 환경에서 기인한 전략이라고 생각한다. JS조차 TS가 있음에도 브라우저 런타임과 사용자 입력이 만들어내는 비결정성까지 제거하지는 못하고, 브라우저 벤더사들마다 구현도 다른, 그런 환경에서 살아남을 수 있도록 진화한 것이 아닐까.",
+							"href": null
+						}
+					],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "32d928cd-d576-80d1-a47f-c091e63b31eb",
+				"type": "divider",
+				"divider": {}
+			},
+			{
+				"id": "32e928cd-d576-8044-a542-f9d076b57a25",
+				"type": "heading_3",
+				"heading_3": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "현대 프론트엔드가 난해한 이유",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "현대 프론트엔드가 난해한 이유",
+							"href": null
+						}
+					],
+					"is_toggleable": false,
+					"color": "default"
+				}
+			},
+			{
+				"id": "32d928cd-d576-8024-a1cb-e0793f9b5664",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "지금의 프론트엔드는 그저 JSP, ASP 등에서 뷰어 역할만 하던 프론트엔드와는 완전히 달라졌다.",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "지금의 프론트엔드는 그저 JSP, ASP 등에서 뷰어 역할만 하던 프론트엔드와는 완전히 달라졌다.",
+							"href": null
+						}
+					],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "32d928cd-d576-801a-8369-e1babe567b38",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "Service Worker, SharedWebWorker, IndexedDB, PWA, SPA/SSR 등으로 촉발된 역할 확장부터, 서버리스와 엣지 컴퓨팅, CDN, SSG/ISR, 크로스플랫폼 클라이언트 등 인프라 레벨의 성숙도를 요구하고, BFF라는 백엔드 엔지니어링도 일부 수행한다. 클라이언트도 하나였다는 전제는 이제 반만 맞다. 심리학적이고 데이터과학적인 사용자의 행동 분석과 제품 분석마저 요구한다. 제품의 VOC로서 가장 먼저 작용하는 것은 여전히 프론트엔드인데다, 애자일 개발 패러다임은 이미 당연하고 만연해졌으니까. 연역과 귀납이라는 두 접근 방식 중 하나가 아닌, 둘 다 이미 강요받고 있다.",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "Service Worker, SharedWebWorker, IndexedDB, PWA, SPA/SSR 등으로 촉발된 역할 확장부터, 서버리스와 엣지 컴퓨팅, CDN, SSG/ISR, 크로스플랫폼 클라이언트 등 인프라 레벨의 성숙도를 요구하고, BFF라는 백엔드 엔지니어링도 일부 수행한다. 클라이언트도 하나였다는 전제는 이제 반만 맞다. 심리학적이고 데이터과학적인 사용자의 행동 분석과 제품 분석마저 요구한다. 제품의 VOC로서 가장 먼저 작용하는 것은 여전히 프론트엔드인데다, 애자일 개발 패러다임은 이미 당연하고 만연해졌으니까. 연역과 귀납이라는 두 접근 방식 중 하나가 아닌, 둘 다 이미 강요받고 있다.",
+							"href": null
+						}
+					],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "32d928cd-d576-80b7-a228-c105bb50a672",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "웹이라는 통신 프로토콜과 브라우저라는 VM 위에서, 현대 프론트엔드는 단순 UI 구현을 넘어 클라이언트 운영 전반을 다루게 되었다. 그렇기에 ‘ClientOps’라는 표현이 더 적확할지도 모른다. 입문 장벽이 낮다던 프론트엔드의 인식은 이제 유효하지 않다. 그저 시각적으로 쉬워보이는 마술만이 남았다.",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "웹이라는 통신 프로토콜과 브라우저라는 VM 위에서, 현대 프론트엔드는 단순 UI 구현을 넘어 클라이언트 운영 전반을 다루게 되었다. 그렇기에 ‘ClientOps’라는 표현이 더 적확할지도 모른다. 입문 장벽이 낮다던 프론트엔드의 인식은 이제 유효하지 않다. 그저 시각적으로 쉬워보이는 마술만이 남았다.",
+							"href": null
+						}
+					],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "32d928cd-d576-8056-a7b3-f48c3af7daab",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "그런데 이렇게 복잡해졌음에도 프론트엔드 엔지니어링은 대등하게 다루어지지 않는 이미지가 있었다. 역사도 짧고, 프론트엔드가 다루는 ",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "그런데 이렇게 복잡해졌음에도 프론트엔드 엔지니어링은 대등하게 다루어지지 않는 이미지가 있었다. 역사도 짧고, 프론트엔드가 다루는 ",
+							"href": null
+						},
+						{
+							"type": "text",
+							"text": {
+								"content": "’좋은 사용자 경험’",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": true,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "’좋은 사용자 경험’",
+							"href": null
+						},
+						{
+							"type": "text",
+							"text": {
+								"content": "은 형식적으로 정의하기 어렵기 때문이다. Core Web Vitals 같은 메트릭이 있지만, LCP가 2.5초 이하라고 해서 그것이 좋은 경험인지는 여전히 인간의 판단에 의존한다. 어떻게 측정할 것인가라는 정의조차 난해하고 편차가 크다. 하드웨어의 스펙과 성능 대비 비용은 평균적으로 수준이 좋아지고 있지만, 역설적으로 프론트엔드 엔지니어링은 어려워져만 간다.",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "은 형식적으로 정의하기 어렵기 때문이다. Core Web Vitals 같은 메트릭이 있지만, LCP가 2.5초 이하라고 해서 그것이 좋은 경험인지는 여전히 인간의 판단에 의존한다. 어떻게 측정할 것인가라는 정의조차 난해하고 편차가 크다. 하드웨어의 스펙과 성능 대비 비용은 평균적으로 수준이 좋아지고 있지만, 역설적으로 프론트엔드 엔지니어링은 어려워져만 간다.",
+							"href": null
+						}
+					],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "32d928cd-d576-80fc-8ad9-f06bd03dbc3a",
+				"type": "divider",
+				"divider": {}
+			},
+			{
+				"id": "32e928cd-d576-80e1-b281-e6046339a7f3",
+				"type": "heading_3",
+				"heading_3": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "LLM 시대로",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "LLM 시대로",
+							"href": null
+						}
+					],
+					"is_toggleable": false,
+					"color": "default"
+				}
+			},
+			{
+				"id": "32d928cd-d576-80be-9b06-de4ce27d4814",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "그럼에도 React의 선언적 이벤트 관리 모델과 Flux 기반의 상태 관리 모델로 어느 정도 수렴되는 것처럼 보이기도 한다. 기술 변화가 빠르고 아는 것이 많아야 한다던 프론트엔드의 인식은, 사실 이 수렴의 과정이었을 것이다.",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "그럼에도 React의 선언적 이벤트 관리 모델과 Flux 기반의 상태 관리 모델로 어느 정도 수렴되는 것처럼 보이기도 한다. 기술 변화가 빠르고 아는 것이 많아야 한다던 프론트엔드의 인식은, 사실 이 수렴의 과정이었을 것이다.",
+							"href": null
+						}
+					],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "32d928cd-d576-8032-a224-d79b17abf7da",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "이 수렴의 끝에서, 현대 프론트엔드는 LLM 애플리케이션을 다루는 것과 다르지 않은 구조를 갖게 되었다. 비결정론적 출력을 결정론적 UX로 수렴시키는 것. 스트리밍 응답의 점진적 렌더링, 환각에 대한 우아한 처리, 에이전트의 중간 상태를 사용자에게 어떻게 노출할 것인가. 전부 프론트엔드가 늘 다뤄왔던 근본 과제와 동형이다.",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "이 수렴의 끝에서, 현대 프론트엔드는 LLM 애플리케이션을 다루는 것과 다르지 않은 구조를 갖게 되었다. 비결정론적 출력을 결정론적 UX로 수렴시키는 것. 스트리밍 응답의 점진적 렌더링, 환각에 대한 우아한 처리, 에이전트의 중간 상태를 사용자에게 어떻게 노출할 것인가. 전부 프론트엔드가 늘 다뤄왔던 근본 과제와 동형이다.",
+							"href": null
+						}
+					],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "32d928cd-d576-800b-8ecf-e02cd945068a",
+				"type": "divider",
+				"divider": {}
+			},
+			{
+				"id": "32e928cd-d576-80bd-918b-c9ef715b806a",
+				"type": "heading_3",
+				"heading_3": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "결론",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "결론",
+							"href": null
+						}
+					],
+					"is_toggleable": false,
+					"color": "default"
+				}
+			},
+			{
+				"id": "32d928cd-d576-80ed-ba58-dbd4d822d5fa",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "결국, 이 모든 복잡도를 프론트엔드가 다루는 방식은 하나로 수렴한다. 추상화다. 모든 공학이 추상화를 한다. 하지만 추상화의 수신자가 다르면 실패가 인지되는 방식이 달라진다. ",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "결국, 이 모든 복잡도를 프론트엔드가 다루는 방식은 하나로 수렴한다. 추상화다. 모든 공학이 추상화를 한다. 하지만 추상화의 수신자가 다르면 실패가 인지되는 방식이 달라진다. ",
+							"href": null
+						}
+					],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "32d928cd-d576-80ef-ac31-f386939249b6",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "어떤 추상화든 실패하면 신뢰가 무너진다. 결제가 이중 처리되어도, 데이터가 유실되어도 신뢰는 무너진다. 차이는 실패의 심각성이 아니라 실패가 드러나는 경로에 있다. 시스템을 수신자로 한 추상화는, 실패가 로그와 메트릭을 통해 드러나고, 엔지니어가 사후에 추적하고 복구할 수 있다. 인간을 수신자로 한 추상화는, 실패가 실시간으로 인지된다. 로딩이 3초를 넘으면 이탈하고, 에러 메시지가 기술적이면 불안해하고, 일관되지 않은 상태의 반복은 사용자에게 신뢰를 줄 수 없다. 사후 복구의 기회가 주어지기 전에 신뢰가 먼저 소실된다.",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "어떤 추상화든 실패하면 신뢰가 무너진다. 결제가 이중 처리되어도, 데이터가 유실되어도 신뢰는 무너진다. 차이는 실패의 심각성이 아니라 실패가 드러나는 경로에 있다. 시스템을 수신자로 한 추상화는, 실패가 로그와 메트릭을 통해 드러나고, 엔지니어가 사후에 추적하고 복구할 수 있다. 인간을 수신자로 한 추상화는, 실패가 실시간으로 인지된다. 로딩이 3초를 넘으면 이탈하고, 에러 메시지가 기술적이면 불안해하고, 일관되지 않은 상태의 반복은 사용자에게 신뢰를 줄 수 없다. 사후 복구의 기회가 주어지기 전에 신뢰가 먼저 소실된다.",
+							"href": null
+						}
+					],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "32e928cd-d576-80c4-8ae5-d9c3cdc9f0ae",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "프론트엔드의 추상화는 기술적 정확성뿐 아니라 인지적 연속성을 보장해야 하는 이유다. 모든 복잡도를 흡수하고, 그 흡수의 흔적마저 투명하게 지워야 한다. ",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "프론트엔드의 추상화는 기술적 정확성뿐 아니라 인지적 연속성을 보장해야 하는 이유다. 모든 복잡도를 흡수하고, 그 흡수의 흔적마저 투명하게 지워야 한다. ",
+							"href": null
+						}
+					],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "32d928cd-d576-80b8-8dcd-d2bb9666fe9b",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "Arthur C. Clarke는 말했다. ",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "Arthur C. Clarke는 말했다. ",
+							"href": null
+						},
+						{
+							"type": "text",
+							"text": {
+								"content": "‘충분히 발전한 기술은 마술과 구별할 수 없다.’",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": true,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "‘충분히 발전한 기술은 마술과 구별할 수 없다.’",
+							"href": null
+						},
+						{
+							"type": "text",
+							"text": {
+								"content": " 그것은 기술의 한계를 말한 것이 아니라, 기술의 최고 형태를 말한 것이다. 성공할수록 존재가 투명해지는 공학. 프론트엔드 엔지니어링은 이 진화의 한가운데에 서 있고, HCI의 꽃 중 하나이다.",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": " 그것은 기술의 한계를 말한 것이 아니라, 기술의 최고 형태를 말한 것이다. 성공할수록 존재가 투명해지는 공학. 프론트엔드 엔지니어링은 이 진화의 한가운데에 서 있고, HCI의 꽃 중 하나이다.",
+							"href": null
+						}
+					],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "32d928cd-d576-8084-8dfc-ea9481cae698",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "그야말로 마술 공학, 현대 프론트엔드 엔지니어링이 걸어가고 있는 길을 첨예하게 일컫는 표현이 아닐까. 피땀 흘려 이룩해준 백엔드의 무대와 질서 위에서, 시스템의 완결을 위해서, 가장 투명해보이는 마술을 부려야 한다.",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "그야말로 마술 공학, 현대 프론트엔드 엔지니어링이 걸어가고 있는 길을 첨예하게 일컫는 표현이 아닐까. 피땀 흘려 이룩해준 백엔드의 무대와 질서 위에서, 시스템의 완결을 위해서, 가장 투명해보이는 마술을 부려야 한다.",
+							"href": null
+						}
+					],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "32e928cd-d576-8040-bad5-ea99e01bb07c",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [],
+					"icon": null,
+					"color": "default"
+				}
+			}
+		]
+	},
+	{
+		"id": "311928cd-d576-80fa-a6f9-fc59495fb986",
+		"title": "질의-문서의 상호작용 방식",
+		"slug": "query-document-interaction",
+		"type": "notebook",
+		"status": "Published",
+		"description": "RAG 구축을 하며 등장하는 질의-문서의 상호작용의 종류에 대해 알아본다.",
+		"tags": [
+			"Encoder",
+			"RAG"
+		],
+		"lastUpdated": "2026-03-02T17:40:00.000Z",
+		"lastEditedTime": "2026-03-02T17:40:00.000Z",
+		"createdTime": "2026-02-24T15:25:00.000Z",
+		"publishedDate": "2026-02-25",
+		"blocks": [
+			{
+				"id": "311928cd-d576-80d1-a431-e47a4f07e59c",
+				"type": "heading_1",
+				"heading_1": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "Bi-Encoder",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "Bi-Encoder",
+							"href": null
+						}
+					],
+					"is_toggleable": false,
+					"color": "default"
+				}
+			},
+			{
+				"id": "311928cd-d576-8031-9b94-c137e1596e8f",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "질의(Query), 문서(Document)를 각각 독립적",
+								"link": null
+							},
+							"annotations": {
+								"bold": true,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "질의(Query), 문서(Document)를 각각 독립적",
+							"href": null
+						},
+						{
+							"type": "text",
+							"text": {
+								"content": "으로 인코딩한 뒤, 벡터 유사도로 관련성을 계산하는 구조. 두 입력이 독립적으로 인코딩되기 때문에 Bi-encoder이다. encoder란 문장을 입력받아 고정 길이 임베딩 벡터로 변환하는 신경망 모델이다.",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "으로 인코딩한 뒤, 벡터 유사도로 관련성을 계산하는 구조. 두 입력이 독립적으로 인코딩되기 때문에 Bi-encoder이다. encoder란 문장을 입력받아 고정 길이 임베딩 벡터로 변환하는 신경망 모델이다.",
+							"href": null
+						}
+					],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "311928cd-d576-806f-bd4e-ea4ac26f1d76",
+				"type": "code",
+				"code": {
+					"caption": [],
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "query -> encoder -> q_vector\ndoc   -> encoder -> d_vector\n\nscore = similarity(q_vector, d_vector)",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "query -> encoder -> q_vector\ndoc   -> encoder -> d_vector\n\nscore = similarity(q_vector, d_vector)",
+							"href": null
+						}
+					],
+					"language": "python"
+				}
+			},
+			{
+				"id": "311928cd-d576-8012-8d06-ea3503eb16e7",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "311928cd-d576-80d1-b0a1-f2b5e1ffb30f",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "여기서 encoder는 보통 다음과 같은 모델이다.",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "여기서 encoder는 보통 다음과 같은 모델이다.",
+							"href": null
+						}
+					],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "311928cd-d576-8099-a7b4-ee6839dbc585",
+				"type": "bulleted_list_item",
+				"bulleted_list_item": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "BERT 기반 sentence encoder(문장 임베딩용으로 튜닝한 BERT)",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "BERT 기반 sentence encoder(문장 임베딩용으로 튜닝한 BERT)",
+							"href": null
+						}
+					],
+					"color": "default"
+				}
+			},
+			{
+				"id": "311928cd-d576-8020-8ddf-cdc768f1734c",
+				"type": "bulleted_list_item",
+				"bulleted_list_item": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "SBERT(pair 유사도 학습으로 파인 튜닝한 모델)",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "SBERT(pair 유사도 학습으로 파인 튜닝한 모델)",
+							"href": null
+						}
+					],
+					"color": "default"
+				}
+			},
+			{
+				"id": "311928cd-d576-80c0-ab82-c15990f069e6",
+				"type": "bulleted_list_item",
+				"bulleted_list_item": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "E5(검색용으로 contrastive learning을 통해 학습된 임베딩 모델)",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "E5(검색용으로 contrastive learning을 통해 학습된 임베딩 모델)",
+							"href": null
+						}
+					],
+					"color": "default"
+				}
+			},
+			{
+				"id": "311928cd-d576-8061-b4c6-c7a65c13e1e4",
+				"type": "bulleted_list_item",
+				"bulleted_list_item": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "text-embedding(OpenAI, Google 등에서 제공하는 API 기반 임베딩 모델—문장을 벡터로 변환하는 서비스형 모델)",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "text-embedding(OpenAI, Google 등에서 제공하는 API 기반 임베딩 모델—문장을 벡터로 변환하는 서비스형 모델)",
+							"href": null
+						}
+					],
+					"color": "default"
+				}
+			},
+			{
+				"id": "311928cd-d576-80c4-bf8a-e4c1f20e1060",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "311928cd-d576-80e9-a52a-ec969c23ebce",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "Bi-Encoder는 ",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "Bi-Encoder는 ",
+							"href": null
+						},
+						{
+							"type": "text",
+							"text": {
+								"content": "확장성(scalability)",
+								"link": null
+							},
+							"annotations": {
+								"bold": true,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "확장성(scalability)",
+							"href": null
+						},
+						{
+							"type": "text",
+							"text": {
+								"content": "이 핵심인데, 문서가 n개라면,",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "이 핵심인데, 문서가 n개라면,",
+							"href": null
+						}
+					],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "311928cd-d576-807d-99e4-e1bfae5abe76",
+				"type": "bulleted_list_item",
+				"bulleted_list_item": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "Cross-Encoder는 질의마다 n번 forward pass—신경망에 입력을 넣고 출력을 n회 반복한다.",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "Cross-Encoder는 질의마다 n번 forward pass—신경망에 입력을 넣고 출력을 n회 반복한다.",
+							"href": null
+						}
+					],
+					"color": "default"
+				}
+			},
+			{
+				"id": "311928cd-d576-8008-a310-dc82d3289b9a",
+				"type": "bulleted_list_item",
+				"bulleted_list_item": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "Bi-Encoder는 문서를 사전에 인코딩해 벡터로 저장해둘 수 있다. 검색 시에는 질의 벡터와 단순 유사도 계산만 하면 된다. 따라서 문서 수 n에 대해서 질의당 신경망 연산은 O(1)이며, 모델을 n번 돌릴 필요가 없다. ",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "Bi-Encoder는 문서를 사전에 인코딩해 벡터로 저장해둘 수 있다. 검색 시에는 질의 벡터와 단순 유사도 계산만 하면 된다. 따라서 문서 수 n에 대해서 질의당 신경망 연산은 O(1)이며, 모델을 n번 돌릴 필요가 없다. ",
+							"href": null
+						}
+					],
+					"color": "default"
+				}
+			},
+			{
+				"id": "311928cd-d576-80cf-a6e2-e8ec2d43ae53",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "311928cd-d576-80df-bece-df0b08c944bf",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "매우 빠르고, 대규모 검색에 강하며, 벡터 DB에 적합하다. RAG의 검색 과정에서 1차 필터링에 최적이다. 하지만 질의-문서 간 정밀 상호작용이 부족하고, 단어 순서나 문맥 차이 구분이 약하다. 따라서 ‘비슷하지만 실제로는 틀린 문서’를 걸러내기 어렵다.",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "매우 빠르고, 대규모 검색에 강하며, 벡터 DB에 적합하다. RAG의 검색 과정에서 1차 필터링에 최적이다. 하지만 질의-문서 간 정밀 상호작용이 부족하고, 단어 순서나 문맥 차이 구분이 약하다. 따라서 ‘비슷하지만 실제로는 틀린 문서’를 걸러내기 어렵다.",
+							"href": null
+						}
+					],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "311928cd-d576-8023-8a90-df756c80d096",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "311928cd-d576-8061-ba3d-e53316c1c2fe",
+				"type": "heading_3",
+				"heading_3": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "Contrastive Learning",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "Contrastive Learning",
+							"href": null
+						}
+					],
+					"is_toggleable": false,
+					"color": "default"
+				}
+			},
+			{
+				"id": "311928cd-d576-80c1-8a6c-d251b62596b8",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "Bi-Encoder에서 기본적으로 차용되는 학습 방식.",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "Bi-Encoder에서 기본적으로 차용되는 학습 방식.",
+							"href": null
+						}
+					],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "311928cd-d576-80b2-b10a-d5fb87c29f4c",
+				"type": "code",
+				"code": {
+					"caption": [],
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "similarity(q, positive) ↑\nsimilarity(q, negative) ↓",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "similarity(q, positive) ↑\nsimilarity(q, negative) ↓",
+							"href": null
+						}
+					],
+					"language": "python"
+				}
+			},
+			{
+				"id": "311928cd-d576-80ac-9b1a-f9efe5c50e55",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "이렇게 학습해서 ",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "이렇게 학습해서 ",
+							"href": null
+						},
+						{
+							"type": "text",
+							"text": {
+								"content": "의미적으로 관련된 쌍은 공간에서 가깝도록",
+								"link": null
+							},
+							"annotations": {
+								"bold": true,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "의미적으로 관련된 쌍은 공간에서 가깝도록",
+							"href": null
+						},
+						{
+							"type": "text",
+							"text": {
+								"content": " 만든다. 보통 cross-entropy 기반 손실(loss) 함수를 사용하고, 특히 InfoNCE loss 형태의 cross-entropy를 많이 사용한다.",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": " 만든다. 보통 cross-entropy 기반 손실(loss) 함수를 사용하고, 특히 InfoNCE loss 형태의 cross-entropy를 많이 사용한다.",
+							"href": null
+						}
+					],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "311928cd-d576-807d-8c53-f12fd860fe78",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "311928cd-d576-803f-9c49-da24d34b236b",
+				"type": "heading_3",
+				"heading_3": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "손실(loss) 함수",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "손실(loss) 함수",
+							"href": null
+						}
+					],
+					"is_toggleable": false,
+					"color": "default"
+				}
+			},
+			{
+				"id": "311928cd-d576-8088-bf45-ddbc192c7751",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "신경망은 ‘예측이 정답과 얼마나 다른가?’의 목표를 위해, ‘다름의 정도’를 숫자로 계산하고 그 것을 ",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "신경망은 ‘예측이 정답과 얼마나 다른가?’의 목표를 위해, ‘다름의 정도’를 숫자로 계산하고 그 것을 ",
+							"href": null
+						},
+						{
+							"type": "text",
+							"text": {
+								"content": "손실",
+								"link": null
+							},
+							"annotations": {
+								"bold": true,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "손실",
+							"href": null
+						},
+						{
+							"type": "text",
+							"text": {
+								"content": "(loss)이라고 한다. 정답과 완전히 같으면 0, 많이 틀릴 경우 그만큼 커진다. 모델은 이 손실을 최소화(minimize)하도록 학습한다. 따라서 손실 함수는 모델이 줄이려고 하는 값이다.",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "(loss)이라고 한다. 정답과 완전히 같으면 0, 많이 틀릴 경우 그만큼 커진다. 모델은 이 손실을 최소화(minimize)하도록 학습한다. 따라서 손실 함수는 모델이 줄이려고 하는 값이다.",
+							"href": null
+						}
+					],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "311928cd-d576-8029-9a91-c495dc54820f",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "311928cd-d576-802d-ac34-f224a2daa803",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "Cross-entropy는 ‘모델이 정답을 얼마나 확신하고 있는가’를 측정하는 함수다. 유사도 점수를 softmax로 확률처럼 만든다. 정답 문서 확률이 낮으면 손실이 커지고, 정답 확률이 1에 가까우면 손실이 작다. 그래서 contrastive learning에서 자연스럽게 쓰인다.",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "Cross-entropy는 ‘모델이 정답을 얼마나 확신하고 있는가’를 측정하는 함수다. 유사도 점수를 softmax로 확률처럼 만든다. 정답 문서 확률이 낮으면 손실이 커지고, 정답 확률이 1에 가까우면 손실이 작다. 그래서 contrastive learning에서 자연스럽게 쓰인다.",
+							"href": null
+						}
+					],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "311928cd-d576-80fd-9198-e1827c0afc66",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "311928cd-d576-80eb-b062-f629237011ca",
+				"type": "heading_3",
+				"heading_3": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "Dense와의 관계",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "Dense와의 관계",
+							"href": null
+						}
+					],
+					"is_toggleable": false,
+					"color": "default"
+				}
+			},
+			{
+				"id": "311928cd-d576-8030-a825-dfa911913532",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "Bi-Encoder는 상호작용 구조다. 그 위에 얹히는 표현은 Dense embedding이 일반적이고, Neural sparse인 SPLADE-like dual encoder도 가능하다.",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "Bi-Encoder는 상호작용 구조다. 그 위에 얹히는 표현은 Dense embedding이 일반적이고, Neural sparse인 SPLADE-like dual encoder도 가능하다.",
+							"href": null
+						}
+					],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "311928cd-d576-8001-b1ee-d006f116755a",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "311928cd-d576-803c-a97c-fa61f4c121d7",
+				"type": "heading_1",
+				"heading_1": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "Cross-Encoder",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "Cross-Encoder",
+							"href": null
+						}
+					],
+					"is_toggleable": false,
+					"color": "default"
+				}
+			},
+			{
+				"id": "311928cd-d576-8019-9f7e-d72d7b766076",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "질의(Query)와 문서(Document)를 하나의 입력",
+								"link": null
+							},
+							"annotations": {
+								"bold": true,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "질의(Query)와 문서(Document)를 하나의 입력",
+							"href": null
+						},
+						{
+							"type": "text",
+							"text": {
+								"content": "으로 함께 인코딩하고, Transformer가 두 텍스트를 동시에 보면서 직접 관련성 점수를 예측하는 구조. Top-K가 이미 어느 정도 줄어든 상황, 잘못된 문서를 최대한 제거해야 하는 상황, 검색 품질이 중요한 도메인 등에서 주로 사용한다.",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "으로 함께 인코딩하고, Transformer가 두 텍스트를 동시에 보면서 직접 관련성 점수를 예측하는 구조. Top-K가 이미 어느 정도 줄어든 상황, 잘못된 문서를 최대한 제거해야 하는 상황, 검색 품질이 중요한 도메인 등에서 주로 사용한다.",
+							"href": null
+						}
+					],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "311928cd-d576-8045-9912-c0e44271e0ae",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "311928cd-d576-80b4-a4e2-dd69e422ea8a",
+				"type": "code",
+				"code": {
+					"caption": [],
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "[CLS] Query [SEP] Document [SEP]\n      ↓\n   Transformer\n      ↓\n relevance score",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "[CLS] Query [SEP] Document [SEP]\n      ↓\n   Transformer\n      ↓\n relevance score",
+							"href": null
+						}
+					],
+					"language": "python"
+				}
+			},
+			{
+				"id": "311928cd-d576-80ea-8561-ef7a145d5b42",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "Bi-Encoder는 벡터 유사도를 계산하지만, Cross-Encoder는 모델이 직접 점수를 출력한다.",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "Bi-Encoder는 벡터 유사도를 계산하지만, Cross-Encoder는 모델이 직접 점수를 출력한다.",
+							"href": null
+						}
+					],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "311928cd-d576-8051-aa09-fe56fb1c65d3",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "311928cd-d576-80f3-9281-e372baf401fd",
+				"type": "heading_3",
+				"heading_3": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "Cross-attention",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "Cross-attention",
+							"href": null
+						}
+					],
+					"is_toggleable": false,
+					"color": "default"
+				}
+			},
+			{
+				"id": "311928cd-d576-8071-881d-d30e3641f12f",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "Transformer는 self-attention을 사용하는데, Cross-Encoder에서는 질의 토큰이 문서 토큰을, 문서 토큰이 질의 토큰을 참고한다. 즉, ",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "Transformer는 self-attention을 사용하는데, Cross-Encoder에서는 질의 토큰이 문서 토큰을, 문서 토큰이 질의 토큰을 참고한다. 즉, ",
+							"href": null
+						},
+						{
+							"type": "text",
+							"text": {
+								"content": "토큰 단위에서 서로 직접 상호작용",
+								"link": null
+							},
+							"annotations": {
+								"bold": true,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "토큰 단위에서 서로 직접 상호작용",
+							"href": null
+						},
+						{
+							"type": "text",
+							"text": {
+								"content": "한다.",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "한다.",
+							"href": null
+						}
+					],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "311928cd-d576-8033-acf2-c89ff520b4a3",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "311928cd-d576-80af-9b99-f9b8b41a2d91",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "따라서 문서가 n개일 때 질의-문서 쌍마다 forward pass가 발생하고, 총 n번의 모델 실행이 발생한다. 그래서 대규모 전체 검색에는 부적합하며, GPU 효율성이 높고 RAG에서 reranking 계층에서 주로 채택된다.",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "따라서 문서가 n개일 때 질의-문서 쌍마다 forward pass가 발생하고, 총 n번의 모델 실행이 발생한다. 그래서 대규모 전체 검색에는 부적합하며, GPU 효율성이 높고 RAG에서 reranking 계층에서 주로 채택된다.",
+							"href": null
+						}
+					],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "311928cd-d576-809e-a9d8-d8a8bb0e5f31",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "311928cd-d576-8088-9ac6-ebd2f86610f9",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "Bi-Encoder는 질의는 질의끼리, 문서는 문서끼리만 self-attention이 일어난다. 하지만 Cross-Encoder는 질의와 문서가 하나의 시퀀스로 묶여 attention이 교차한다.",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "Bi-Encoder는 질의는 질의끼리, 문서는 문서끼리만 self-attention이 일어난다. 하지만 Cross-Encoder는 질의와 문서가 하나의 시퀀스로 묶여 attention이 교차한다.",
+							"href": null
+						}
+					],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "311928cd-d576-80e1-8e89-f9bf5ffd7a5e",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "311928cd-d576-8017-a188-cb4b0bb46c7e",
+				"type": "code",
+				"code": {
+					"caption": [],
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "# 질의:\nEthereum nonce conflict\n\n# 문서:\nThis document explains how transaction ordering affects nonce reuse.",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "# 질의:\nEthereum nonce conflict\n\n# 문서:\nThis document explains how transaction ordering affects nonce reuse.",
+							"href": null
+						}
+					],
+					"language": "python"
+				}
+			},
+			{
+				"id": "311928cd-d576-8052-b9ff-e734b92e82d4",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "Cross-Encoder는 ‘conflict’-’transaction ordering’과 같은 관계를 직접 attention으로 연결할 수 있고, 그래서 미묘한 문맥 차이까지 잡는다.",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "Cross-Encoder는 ‘conflict’-’transaction ordering’과 같은 관계를 직접 attention으로 연결할 수 있고, 그래서 미묘한 문맥 차이까지 잡는다.",
+							"href": null
+						}
+					],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "311928cd-d576-80b9-b3ae-e15a3496971e",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "311928cd-d576-80e5-9d6e-ede7df082c00",
+				"type": "heading_3",
+				"heading_3": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "학습 방식",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "학습 방식",
+							"href": null
+						}
+					],
+					"is_toggleable": false,
+					"color": "default"
+				}
+			},
+			{
+				"id": "311928cd-d576-8050-9d62-fdd14fd49996",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "Cross-Encoder는 보통 다음 방식으로 학습한다:",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "Cross-Encoder는 보통 다음 방식으로 학습한다:",
+							"href": null
+						}
+					],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "311928cd-d576-804a-aaa1-ce913cce8522",
+				"type": "bulleted_list_item",
+				"bulleted_list_item": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "Binary Classification(binary cross-entropy loss)",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "Binary Classification(binary cross-entropy loss)",
+							"href": null
+						}
+					],
+					"color": "default"
+				}
+			},
+			{
+				"id": "311928cd-d576-80e6-87cc-fdb647945da3",
+				"type": "bulleted_list_item",
+				"bulleted_list_item": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "Regression(MSE loss)",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "Regression(MSE loss)",
+							"href": null
+						}
+					],
+					"color": "default"
+				}
+			},
+			{
+				"id": "311928cd-d576-8010-8e20-dff379aa5a73",
+				"type": "bulleted_list_item",
+				"bulleted_list_item": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "Pairwise Ranking(Margin ranking loss 등)",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "Pairwise Ranking(Margin ranking loss 등)",
+							"href": null
+						}
+					],
+					"color": "default"
+				}
+			},
+			{
+				"id": "311928cd-d576-80d6-bd20-e690a3230d80",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "311928cd-d576-8071-b8fd-d65a2e64a84f",
+				"type": "heading_1",
+				"heading_1": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "ColBERT(Late Interaction Model)",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "ColBERT(Late Interaction Model)",
+							"href": null
+						}
+					],
+					"is_toggleable": false,
+					"color": "default"
+				}
+			},
+			{
+				"id": "311928cd-d576-8024-a777-d19040cce700",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "1 문서 = 1 벡터, 1질의 = 1벡터가 아닌, 토큰 단위 벡터를 유지한 채로 비교한다. 즉, 문서와 질의를 하나의 벡터로 압축하지 않는다. 문서와 질의에서 각각 토큰별 벡터를 생성하고, 각 질의 토큰이 문서 토큰 중 가장 유사한 것과 매칭되고, 그 점수들을 합산한다. 따라서 dense, sparse 표현보다 기본적으로 연산 비용도 크고, 저장 공간도 비대해진다. (다만 sparse에서 vocab 크기 차원을 갖기에 반드시 큰 건 아니다.)",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "1 문서 = 1 벡터, 1질의 = 1벡터가 아닌, 토큰 단위 벡터를 유지한 채로 비교한다. 즉, 문서와 질의를 하나의 벡터로 압축하지 않는다. 문서와 질의에서 각각 토큰별 벡터를 생성하고, 각 질의 토큰이 문서 토큰 중 가장 유사한 것과 매칭되고, 그 점수들을 합산한다. 따라서 dense, sparse 표현보다 기본적으로 연산 비용도 크고, 저장 공간도 비대해진다. (다만 sparse에서 vocab 크기 차원을 갖기에 반드시 큰 건 아니다.)",
+							"href": null
+						}
+					],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "311928cd-d576-80d7-b695-fb41f0854987",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "311928cd-d576-807e-b319-f8420f7c49a9",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "토큰 단위 세밀한 대응 관계가 중요할 때, 긴 문서에서 특정 구간만 관련될 때, 미묘한 의미 차이 구분이 중요할 때, 검색 품질이 곧 경쟁력이 될 때, 잘못된 문서 하나가 치명적일 때 사용하는 것이 좋다. 단순 FAQ, 작은 문서 집합, 속도 최우선 서비스에는 과하다. Dense 1차 필터 후 ColBERT rerank 방식도 있다.",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "토큰 단위 세밀한 대응 관계가 중요할 때, 긴 문서에서 특정 구간만 관련될 때, 미묘한 의미 차이 구분이 중요할 때, 검색 품질이 곧 경쟁력이 될 때, 잘못된 문서 하나가 치명적일 때 사용하는 것이 좋다. 단순 FAQ, 작은 문서 집합, 속도 최우선 서비스에는 과하다. Dense 1차 필터 후 ColBERT rerank 방식도 있다.",
+							"href": null
+						}
+					],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "311928cd-d576-80ec-b071-dc55d7359140",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "311928cd-d576-8069-957d-f6a30ab4ef7e",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "질의와 문서가 각각 독립적으로",
+								"link": null
+							},
+							"annotations": {
+								"bold": true,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "질의와 문서가 각각 독립적으로",
+							"href": null
+						},
+						{
+							"type": "text",
+							"text": {
+								"content": " 인코딩된 후에 마지막 단계에서 토큰 단위로 상호작용하기 때문에 Bi-Encoder 기반의 Late Interaction이다. 독립 인코딩은 유지하면서, 유사도 계산 단계에서 토큰 단위 상호작용을 수행한다.",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": " 인코딩된 후에 마지막 단계에서 토큰 단위로 상호작용하기 때문에 Bi-Encoder 기반의 Late Interaction이다. 독립 인코딩은 유지하면서, 유사도 계산 단계에서 토큰 단위 상호작용을 수행한다.",
+							"href": null
+						}
+					],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "311928cd-d576-80f2-a84e-cdeb8acc959e",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "311928cd-d576-80ba-8365-d7b1f3edd1b8",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "Early Interation인 dense single-vector 검색에서는 문서 내부 정보가 이미 압축된 후에 비교가 일어난다. 상호작용도 벡터 하나 대 하나로 단순하다.",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "Early Interation인 dense single-vector 검색에서는 문서 내부 정보가 이미 압축된 후에 비교가 일어난다. 상호작용도 벡터 하나 대 하나로 단순하다.",
+							"href": null
+						}
+					],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "311928cd-d576-8050-b4d6-e2acd6e4c06f",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [],
+					"icon": null,
+					"color": "default"
+				}
+			}
+		]
+	},
+	{
+		"id": "3f5928cd-d576-80c5-847c-cc327c93570f",
+		"title": "pnpm workspace, turborepo",
+		"slug": "oct-10th-pnpm-turborepo",
 		"type": "til",
 		"status": "Published",
-		"description": "A second learning note for filtering coverage.",
-		"tags": ["CSS"],
-		"lastUpdated": "2026-09-14T09:00:00.000Z",
-		"lastEditedTime": "2026-09-14T09:00:00.000Z",
-		"createdTime": "2026-09-14T09:00:00.000Z",
-		"publishedDate": "2026-09-14",
-		"blocks": []
+		"description": null,
+		"tags": [
+			"pnpm",
+			"turborepo"
+		],
+		"lastUpdated": "2026-10-10T10:06:00.000Z",
+		"lastEditedTime": "2026-10-10T10:06:00.000Z",
+		"createdTime": "2026-10-10T10:05:00.000Z",
+		"publishedDate": "2026-10-10",
+		"blocks": [
+			{
+				"id": "3f5928cd-d576-805b-92c8-f159c62025ee",
+				"type": "paragraph",
+				"paragraph": {
+					"rich_text": [],
+					"icon": null,
+					"color": "default"
+				}
+			},
+			{
+				"id": "3f5928cd-d576-8049-ac99-deb9dd47480d",
+				"type": "image",
+				"image": {
+					"caption": [],
+					"type": "file",
+					"file": {
+						"url": "/images/til/oct-10th-pnpm-turborepo/3f5928cdd5768049ac99deb9dd47480d.png"
+					},
+					"width": 1664,
+					"height": 884
+				}
+			},
+			{
+				"id": "3f5928cd-d576-8072-88e9-d3004844aa36",
+				"type": "heading_1",
+				"heading_1": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "pnpm",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "pnpm",
+							"href": null
+						}
+					],
+					"is_toggleable": false,
+					"color": "default"
+				}
+			},
+			{
+				"id": "3f5928cd-d576-80b3-9fe4-fef84b052d7f",
+				"type": "bulleted_list_item",
+				"bulleted_list_item": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "여러 애플리케이션, 패키지를 한 저장소에서 설치, 연결",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "여러 애플리케이션, 패키지를 한 저장소에서 설치, 연결",
+							"href": null
+						}
+					],
+					"color": "default"
+				},
+				"children": [
+					{
+						"id": "3f5928cd-d576-801a-af55-e0579dce5481",
+						"type": "bulleted_list_item",
+						"bulleted_list_item": {
+							"rich_text": [
+								{
+									"type": "text",
+									"text": {
+										"content": "가령, 앱 ",
+										"link": null
+									},
+									"annotations": {
+										"bold": false,
+										"italic": false,
+										"strikethrough": false,
+										"underline": false,
+										"code": false,
+										"color": "default"
+									},
+									"plain_text": "가령, 앱 ",
+									"href": null
+								},
+								{
+									"type": "text",
+									"text": {
+										"content": "foo",
+										"link": null
+									},
+									"annotations": {
+										"bold": false,
+										"italic": false,
+										"strikethrough": false,
+										"underline": false,
+										"code": true,
+										"color": "default"
+									},
+									"plain_text": "foo",
+									"href": null
+								},
+								{
+									"type": "text",
+									"text": {
+										"content": "가 공유 패키지 ",
+										"link": null
+									},
+									"annotations": {
+										"bold": false,
+										"italic": false,
+										"strikethrough": false,
+										"underline": false,
+										"code": false,
+										"color": "default"
+									},
+									"plain_text": "가 공유 패키지 ",
+									"href": null
+								},
+								{
+									"type": "text",
+									"text": {
+										"content": "bar",
+										"link": null
+									},
+									"annotations": {
+										"bold": false,
+										"italic": false,
+										"strikethrough": false,
+										"underline": false,
+										"code": true,
+										"color": "default"
+									},
+									"plain_text": "bar",
+									"href": null
+								},
+								{
+									"type": "text",
+									"text": {
+										"content": "에 의존한다고 선언하면 공유 패키지로 있는 ",
+										"link": null
+									},
+									"annotations": {
+										"bold": false,
+										"italic": false,
+										"strikethrough": false,
+										"underline": false,
+										"code": false,
+										"color": "default"
+									},
+									"plain_text": "에 의존한다고 선언하면 공유 패키지로 있는 ",
+									"href": null
+								},
+								{
+									"type": "text",
+									"text": {
+										"content": "bar",
+										"link": null
+									},
+									"annotations": {
+										"bold": false,
+										"italic": false,
+										"strikethrough": false,
+										"underline": false,
+										"code": true,
+										"color": "default"
+									},
+									"plain_text": "bar",
+									"href": null
+								},
+								{
+									"type": "text",
+									"text": {
+										"content": "를 사용하게 함",
+										"link": null
+									},
+									"annotations": {
+										"bold": false,
+										"italic": false,
+										"strikethrough": false,
+										"underline": false,
+										"code": false,
+										"color": "default"
+									},
+									"plain_text": "를 사용하게 함",
+									"href": null
+								}
+							],
+							"color": "default"
+						}
+					},
+					{
+						"id": "3f5928cd-d576-80a9-a7e4-fd31ef9214ce",
+						"type": "bulleted_list_item",
+						"bulleted_list_item": {
+							"rich_text": [
+								{
+									"type": "text",
+									"text": {
+										"content": "공통 lockfile을 관리하고, 패키지간 의존 관계를 고려해 빌드 스크립트를 실행하거나, 특정 패키지만 선택할 수도 있음 ",
+										"link": null
+									},
+									"annotations": {
+										"bold": false,
+										"italic": false,
+										"strikethrough": false,
+										"underline": false,
+										"code": false,
+										"color": "default"
+									},
+									"plain_text": "공통 lockfile을 관리하고, 패키지간 의존 관계를 고려해 빌드 스크립트를 실행하거나, 특정 패키지만 선택할 수도 있음 ",
+									"href": null
+								},
+								{
+									"type": "text",
+									"text": {
+										"content": "(cf. ",
+										"link": null
+									},
+									"annotations": {
+										"bold": false,
+										"italic": true,
+										"strikethrough": false,
+										"underline": false,
+										"code": false,
+										"color": "default"
+									},
+									"plain_text": "(cf. ",
+									"href": null
+								},
+								{
+									"type": "text",
+									"text": {
+										"content": "pnpm -r build",
+										"link": null
+									},
+									"annotations": {
+										"bold": false,
+										"italic": true,
+										"strikethrough": false,
+										"underline": false,
+										"code": true,
+										"color": "default"
+									},
+									"plain_text": "pnpm -r build",
+									"href": null
+								},
+								{
+									"type": "text",
+									"text": {
+										"content": ")",
+										"link": null
+									},
+									"annotations": {
+										"bold": false,
+										"italic": true,
+										"strikethrough": false,
+										"underline": false,
+										"code": false,
+										"color": "default"
+									},
+									"plain_text": ")",
+									"href": null
+								}
+							],
+							"color": "default"
+						}
+					}
+				]
+			},
+			{
+				"id": "3f5928cd-d576-8019-8be3-c2288fc7d546",
+				"type": "bulleted_list_item",
+				"bulleted_list_item": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "Node.js 패키지 매니저 — 의존성 해결·설치·버전 관리와 저장 공간의 효율화가 주안점",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "Node.js 패키지 매니저 — 의존성 해결·설치·버전 관리와 저장 공간의 효율화가 주안점",
+							"href": null
+						}
+					],
+					"color": "default"
+				}
+			},
+			{
+				"id": "3f5928cd-d576-800d-af9c-c82e65842ff6",
+				"type": "heading_3",
+				"heading_3": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "Workspace",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "Workspace",
+							"href": null
+						}
+					],
+					"is_toggleable": false,
+					"color": "default"
+				}
+			},
+			{
+				"id": "3f5928cd-d576-80f7-a5d1-c5e41671f9fe",
+				"type": "bulleted_list_item",
+				"bulleted_list_item": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "여러 프로젝트를 하나의 저장소에서 관리하며, 프로젝트 간 로컬 의존성을 연결하고 명령을 실행할 수 있도록 지원",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "여러 프로젝트를 하나의 저장소에서 관리하며, 프로젝트 간 로컬 의존성을 연결하고 명령을 실행할 수 있도록 지원",
+							"href": null
+						}
+					],
+					"color": "default"
+				},
+				"children": [
+					{
+						"id": "3f5928cd-d576-80a7-b269-fb90ce112452",
+						"type": "bulleted_list_item",
+						"bulleted_list_item": {
+							"rich_text": [
+								{
+									"type": "text",
+									"text": {
+										"content": "‘어떤 프로젝트들을 하나의 모노레포로 묶을 것인가?’",
+										"link": null
+									},
+									"annotations": {
+										"bold": false,
+										"italic": true,
+										"strikethrough": false,
+										"underline": false,
+										"code": false,
+										"color": "default"
+									},
+									"plain_text": "‘어떤 프로젝트들을 하나의 모노레포로 묶을 것인가?’",
+									"href": null
+								}
+							],
+							"color": "default"
+						}
+					}
+				]
+			},
+			{
+				"id": "3f5928cd-d576-80cf-a342-e72662841f29",
+				"type": "bulleted_list_item",
+				"bulleted_list_item": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "pnpm이 모노레포를 지원하는 방식 — 여러 패키지를 하나의 작업 공간으로 연결, 관리",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "pnpm이 모노레포를 지원하는 방식 — 여러 패키지를 하나의 작업 공간으로 연결, 관리",
+							"href": null
+						}
+					],
+					"color": "default"
+				}
+			},
+			{
+				"id": "3f5928cd-d576-807f-a5e5-e8db80192426",
+				"type": "code",
+				"code": {
+					"caption": [],
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "# apps와 packages 아래의 프로젝트들은 각각 독립적인 패키지이면서,\n# 동시에 하나의 Workspace에 속한다.\npackages:\n  - \"apps/*\"\n  - \"packages/*\"",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "# apps와 packages 아래의 프로젝트들은 각각 독립적인 패키지이면서,\n# 동시에 하나의 Workspace에 속한다.\npackages:\n  - \"apps/*\"\n  - \"packages/*\"",
+							"href": null
+						}
+					],
+					"language": "yaml"
+				}
+			},
+			{
+				"id": "3f5928cd-d576-8025-af19-f6dcad94a065",
+				"type": "bulleted_list_item",
+				"bulleted_list_item": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "기능",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "기능",
+							"href": null
+						}
+					],
+					"color": "default"
+				},
+				"children": [
+					{
+						"id": "3f5928cd-d576-8039-a5fb-d741d16b5d5a",
+						"type": "bulleted_list_item",
+						"bulleted_list_item": {
+							"rich_text": [
+								{
+									"type": "text",
+									"text": {
+										"content": "내부 패키지 참조 : 각 애플리케이션이 공유 패키지를 로컬 의존성으로 사용할 수 있음",
+										"link": null
+									},
+									"annotations": {
+										"bold": false,
+										"italic": false,
+										"strikethrough": false,
+										"underline": false,
+										"code": false,
+										"color": "default"
+									},
+									"plain_text": "내부 패키지 참조 : 각 애플리케이션이 공유 패키지를 로컬 의존성으로 사용할 수 있음",
+									"href": null
+								}
+							],
+							"color": "default"
+						}
+					},
+					{
+						"id": "3f5928cd-d576-8086-9ae7-fcf631c5fe48",
+						"type": "bulleted_list_item",
+						"bulleted_list_item": {
+							"rich_text": [
+								{
+									"type": "text",
+									"text": {
+										"content": "통합 의존성 관리 : 루트의 ",
+										"link": null
+									},
+									"annotations": {
+										"bold": false,
+										"italic": false,
+										"strikethrough": false,
+										"underline": false,
+										"code": false,
+										"color": "default"
+									},
+									"plain_text": "통합 의존성 관리 : 루트의 ",
+									"href": null
+								},
+								{
+									"type": "text",
+									"text": {
+										"content": "pnpm install",
+										"link": null
+									},
+									"annotations": {
+										"bold": false,
+										"italic": false,
+										"strikethrough": false,
+										"underline": false,
+										"code": true,
+										"color": "default"
+									},
+									"plain_text": "pnpm install",
+									"href": null
+								},
+								{
+									"type": "text",
+									"text": {
+										"content": "로 전체 패키지 설치",
+										"link": null
+									},
+									"annotations": {
+										"bold": false,
+										"italic": false,
+										"strikethrough": false,
+										"underline": false,
+										"code": false,
+										"color": "default"
+									},
+									"plain_text": "로 전체 패키지 설치",
+									"href": null
+								}
+							],
+							"color": "default"
+						}
+					},
+					{
+						"id": "3f5928cd-d576-80bf-8b07-d56bada074d5",
+						"type": "bulleted_list_item",
+						"bulleted_list_item": {
+							"rich_text": [
+								{
+									"type": "text",
+									"text": {
+										"content": "공유 lockfile : 기본적으로 루트의 ",
+										"link": null
+									},
+									"annotations": {
+										"bold": false,
+										"italic": false,
+										"strikethrough": false,
+										"underline": false,
+										"code": false,
+										"color": "default"
+									},
+									"plain_text": "공유 lockfile : 기본적으로 루트의 ",
+									"href": null
+								},
+								{
+									"type": "text",
+									"text": {
+										"content": "pnpm-lock.yaml",
+										"link": null
+									},
+									"annotations": {
+										"bold": false,
+										"italic": false,
+										"strikethrough": false,
+										"underline": false,
+										"code": true,
+										"color": "default"
+									},
+									"plain_text": "pnpm-lock.yaml",
+									"href": null
+								},
+								{
+									"type": "text",
+									"text": {
+										"content": " 하나로 버전 관리",
+										"link": null
+									},
+									"annotations": {
+										"bold": false,
+										"italic": false,
+										"strikethrough": false,
+										"underline": false,
+										"code": false,
+										"color": "default"
+									},
+									"plain_text": " 하나로 버전 관리",
+									"href": null
+								}
+							],
+							"color": "default"
+						}
+					},
+					{
+						"id": "3f5928cd-d576-80d7-bb39-cd71f6544f92",
+						"type": "bulleted_list_item",
+						"bulleted_list_item": {
+							"rich_text": [
+								{
+									"type": "text",
+									"text": {
+										"content": "선택적 명령 실행 : ",
+										"link": null
+									},
+									"annotations": {
+										"bold": false,
+										"italic": false,
+										"strikethrough": false,
+										"underline": false,
+										"code": false,
+										"color": "default"
+									},
+									"plain_text": "선택적 명령 실행 : ",
+									"href": null
+								},
+								{
+									"type": "text",
+									"text": {
+										"content": "pnpm --filter @foo/api build",
+										"link": null
+									},
+									"annotations": {
+										"bold": false,
+										"italic": false,
+										"strikethrough": false,
+										"underline": false,
+										"code": true,
+										"color": "default"
+									},
+									"plain_text": "pnpm --filter @foo/api build",
+									"href": null
+								},
+								{
+									"type": "text",
+									"text": {
+										"content": " 처럼, 특정 패키지만 실행 가능",
+										"link": null
+									},
+									"annotations": {
+										"bold": false,
+										"italic": false,
+										"strikethrough": false,
+										"underline": false,
+										"code": false,
+										"color": "default"
+									},
+									"plain_text": " 처럼, 특정 패키지만 실행 가능",
+									"href": null
+								}
+							],
+							"color": "default"
+						},
+						"children": [
+							{
+								"id": "3f5928cd-d576-8076-85ec-d3a7ec322191",
+								"type": "bulleted_list_item",
+								"bulleted_list_item": {
+									"rich_text": [
+										{
+											"type": "text",
+											"text": {
+												"content": "workspace:*",
+												"link": null
+											},
+											"annotations": {
+												"bold": false,
+												"italic": false,
+												"strikethrough": false,
+												"underline": false,
+												"code": true,
+												"color": "default"
+											},
+											"plain_text": "workspace:*",
+											"href": null
+										},
+										{
+											"type": "text",
+											"text": {
+												"content": " 프로토콜 사용 시, 해당 의존성이 반드시 로컬 Workspace에서 해결되도록 강제 가능 → 같은 모노레포에 있는 다른 패키지를 의존성으로 사용할 때 선언",
+												"link": null
+											},
+											"annotations": {
+												"bold": false,
+												"italic": false,
+												"strikethrough": false,
+												"underline": false,
+												"code": false,
+												"color": "default"
+											},
+											"plain_text": " 프로토콜 사용 시, 해당 의존성이 반드시 로컬 Workspace에서 해결되도록 강제 가능 → 같은 모노레포에 있는 다른 패키지를 의존성으로 사용할 때 선언",
+											"href": null
+										}
+									],
+									"color": "default"
+								},
+								"children": [
+									{
+										"id": "3f5928cd-d576-8084-a0c5-eb4354094b74",
+										"type": "code",
+										"code": {
+											"caption": [],
+											"rich_text": [
+												{
+													"type": "text",
+													"text": {
+														"content": "{\n  \"name\": \"@foo/app\",\n  \"dependencies\": {\n\t  // @bar/types는 npm에서 내려받지 말고, 반드시 현재 Workspace 내부에서 찾아 연결할 것\n    \"@bar/types\": \"workspace:*\",\n    \"next\": \"^16.0.0\"\n  }\n}",
+														"link": null
+													},
+													"annotations": {
+														"bold": false,
+														"italic": false,
+														"strikethrough": false,
+														"underline": false,
+														"code": false,
+														"color": "default"
+													},
+													"plain_text": "{\n  \"name\": \"@foo/app\",\n  \"dependencies\": {\n\t  // @bar/types는 npm에서 내려받지 말고, 반드시 현재 Workspace 내부에서 찾아 연결할 것\n    \"@bar/types\": \"workspace:*\",\n    \"next\": \"^16.0.0\"\n  }\n}",
+													"href": null
+												}
+											],
+											"language": "json"
+										}
+									}
+								]
+							}
+						]
+					}
+				]
+			},
+			{
+				"id": "3f5928cd-d576-8032-a1e4-c55c5a5f992c",
+				"type": "heading_1",
+				"heading_1": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "Turborepo",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "Turborepo",
+							"href": null
+						}
+					],
+					"is_toggleable": false,
+					"color": "default"
+				}
+			},
+			{
+				"id": "3f5928cd-d576-8028-9693-d65b60e7cf23",
+				"type": "bulleted_list_item",
+				"bulleted_list_item": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "의존성 관계를 파악해서 공유 패키지를 먼저 빌드하고, 이후 독립적인 앱 빌드를 병렬로 진행한다던가를 가능케함",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "의존성 관계를 파악해서 공유 패키지를 먼저 빌드하고, 이후 독립적인 앱 빌드를 병렬로 진행한다던가를 가능케함",
+							"href": null
+						}
+					],
+					"color": "default"
+				},
+				"children": [
+					{
+						"id": "3f5928cd-d576-8073-89a0-c2ddd42dc5be",
+						"type": "bulleted_list_item",
+						"bulleted_list_item": {
+							"rich_text": [
+								{
+									"type": "text",
+									"text": {
+										"content": "소스 코드와 관련 input이 변경되지 않았다면 — 기존 결과를 캐시에서 복원하여 불필요한 빌드를 생략 가능 (작업 입출력, 환경 변수 등 구성 필요)",
+										"link": null
+									},
+									"annotations": {
+										"bold": false,
+										"italic": false,
+										"strikethrough": false,
+										"underline": false,
+										"code": false,
+										"color": "default"
+									},
+									"plain_text": "소스 코드와 관련 input이 변경되지 않았다면 — 기존 결과를 캐시에서 복원하여 불필요한 빌드를 생략 가능 (작업 입출력, 환경 변수 등 구성 필요)",
+									"href": null
+								}
+							],
+							"color": "default"
+						}
+					},
+					{
+						"id": "3f5928cd-d576-80f0-ba45-d4e8465413d5",
+						"type": "bulleted_list_item",
+						"bulleted_list_item": {
+							"rich_text": [
+								{
+									"type": "text",
+									"text": {
+										"content": "공유 패키지가 늘고, CI의 중복 빌드가 부담스러워지면 Turborepo의 캐싱과 작업 그래프가 효과적",
+										"link": null
+									},
+									"annotations": {
+										"bold": false,
+										"italic": false,
+										"strikethrough": false,
+										"underline": false,
+										"code": false,
+										"color": "default"
+									},
+									"plain_text": "공유 패키지가 늘고, CI의 중복 빌드가 부담스러워지면 Turborepo의 캐싱과 작업 그래프가 효과적",
+									"href": null
+								}
+							],
+							"color": "default"
+						}
+					}
+				]
+			},
+			{
+				"id": "3f5928cd-d576-8059-b1f8-f5d919aa84ae",
+				"type": "bulleted_list_item",
+				"bulleted_list_item": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "패키지들이 수행하는 작업의 실행 순서, 결과 재사용 최적화에 주안점",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "패키지들이 수행하는 작업의 실행 순서, 결과 재사용 최적화에 주안점",
+							"href": null
+						}
+					],
+					"color": "default"
+				}
+			},
+			{
+				"id": "3f5928cd-d576-80dd-8e9c-e7cead656994",
+				"type": "heading_3",
+				"heading_3": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "빌드 캐시",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "빌드 캐시",
+							"href": null
+						}
+					],
+					"is_toggleable": false,
+					"color": "default"
+				}
+			},
+			{
+				"id": "3f5928cd-d576-80bb-97cb-f620dbe7e81a",
+				"type": "bulleted_list_item",
+				"bulleted_list_item": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "다음 빌드에서 입력이 같다면 — 컴파일을 또 하는 대신, 이전 작업 산출물을 다시 가져오는 것",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "다음 빌드에서 입력이 같다면 — 컴파일을 또 하는 대신, 이전 작업 산출물을 다시 가져오는 것",
+							"href": null
+						}
+					],
+					"color": "default"
+				},
+				"children": [
+					{
+						"id": "3f5928cd-d576-8059-a84a-c03d6328d4d5",
+						"type": "bulleted_list_item",
+						"bulleted_list_item": {
+							"rich_text": [
+								{
+									"type": "text",
+									"text": {
+										"content": "빌드 : ",
+										"link": null
+									},
+									"annotations": {
+										"bold": false,
+										"italic": false,
+										"strikethrough": false,
+										"underline": false,
+										"code": false,
+										"color": "default"
+									},
+									"plain_text": "빌드 : ",
+									"href": null
+								},
+								{
+									"type": "text",
+									"text": {
+										"content": "dist",
+										"link": null
+									},
+									"annotations": {
+										"bold": false,
+										"italic": false,
+										"strikethrough": false,
+										"underline": false,
+										"code": true,
+										"color": "default"
+									},
+									"plain_text": "dist",
+									"href": null
+								},
+								{
+									"type": "text",
+									"text": {
+										"content": ", ",
+										"link": null
+									},
+									"annotations": {
+										"bold": false,
+										"italic": false,
+										"strikethrough": false,
+										"underline": false,
+										"code": false,
+										"color": "default"
+									},
+									"plain_text": ", ",
+									"href": null
+								},
+								{
+									"type": "text",
+									"text": {
+										"content": ".next",
+										"link": null
+									},
+									"annotations": {
+										"bold": false,
+										"italic": false,
+										"strikethrough": false,
+										"underline": false,
+										"code": true,
+										"color": "default"
+									},
+									"plain_text": ".next",
+									"href": null
+								},
+								{
+									"type": "text",
+									"text": {
+										"content": " 등의 산출물",
+										"link": null
+									},
+									"annotations": {
+										"bold": false,
+										"italic": false,
+										"strikethrough": false,
+										"underline": false,
+										"code": false,
+										"color": "default"
+									},
+									"plain_text": " 등의 산출물",
+									"href": null
+								}
+							],
+							"color": "default"
+						}
+					},
+					{
+						"id": "3f5928cd-d576-80a1-84e1-dbc96da014b5",
+						"type": "bulleted_list_item",
+						"bulleted_list_item": {
+							"rich_text": [
+								{
+									"type": "text",
+									"text": {
+										"content": "테스트·린트 : 작업 실행 결과 및 로그",
+										"link": null
+									},
+									"annotations": {
+										"bold": false,
+										"italic": false,
+										"strikethrough": false,
+										"underline": false,
+										"code": false,
+										"color": "default"
+									},
+									"plain_text": "테스트·린트 : 작업 실행 결과 및 로그",
+									"href": null
+								}
+							],
+							"color": "default"
+						}
+					},
+					{
+						"id": "3f5928cd-d576-803d-87f0-e3740447ef4d",
+						"type": "bulleted_list_item",
+						"bulleted_list_item": {
+							"rich_text": [
+								{
+									"type": "text",
+									"text": {
+										"content": "캐시할 파일은 ",
+										"link": null
+									},
+									"annotations": {
+										"bold": false,
+										"italic": false,
+										"strikethrough": false,
+										"underline": false,
+										"code": false,
+										"color": "default"
+									},
+									"plain_text": "캐시할 파일은 ",
+									"href": null
+								},
+								{
+									"type": "text",
+									"text": {
+										"content": "turbo.json",
+										"link": null
+									},
+									"annotations": {
+										"bold": false,
+										"italic": false,
+										"strikethrough": false,
+										"underline": false,
+										"code": true,
+										"color": "default"
+									},
+									"plain_text": "turbo.json",
+									"href": null
+								},
+								{
+									"type": "text",
+									"text": {
+										"content": "의 ",
+										"link": null
+									},
+									"annotations": {
+										"bold": false,
+										"italic": false,
+										"strikethrough": false,
+										"underline": false,
+										"code": false,
+										"color": "default"
+									},
+									"plain_text": "의 ",
+									"href": null
+								},
+								{
+									"type": "text",
+									"text": {
+										"content": "outputs",
+										"link": null
+									},
+									"annotations": {
+										"bold": false,
+										"italic": false,
+										"strikethrough": false,
+										"underline": false,
+										"code": true,
+										"color": "default"
+									},
+									"plain_text": "outputs",
+									"href": null
+								},
+								{
+									"type": "text",
+									"text": {
+										"content": "로 명시해야 함",
+										"link": null
+									},
+									"annotations": {
+										"bold": false,
+										"italic": false,
+										"strikethrough": false,
+										"underline": false,
+										"code": false,
+										"color": "default"
+									},
+									"plain_text": "로 명시해야 함",
+									"href": null
+								}
+							],
+							"color": "default"
+						}
+					},
+					{
+						"id": "3f5928cd-d576-8026-a35d-ff91010aa604",
+						"type": "bulleted_list_item",
+						"bulleted_list_item": {
+							"rich_text": [
+								{
+									"type": "text",
+									"text": {
+										"content": "입력에는 소스 코드뿐 아니라 패키지 의존성, 설정, 관련 환경변수 등이 포함될 수 있음",
+										"link": null
+									},
+									"annotations": {
+										"bold": false,
+										"italic": false,
+										"strikethrough": false,
+										"underline": false,
+										"code": false,
+										"color": "default"
+									},
+									"plain_text": "입력에는 소스 코드뿐 아니라 패키지 의존성, 설정, 관련 환경변수 등이 포함될 수 있음",
+									"href": null
+								}
+							],
+							"color": "default"
+						}
+					}
+				]
+			},
+			{
+				"id": "3f5928cd-d576-80a7-aa4a-cc48335ba65c",
+				"type": "bulleted_list_item",
+				"bulleted_list_item": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "Turborepo는 입력을 비교할 식별값을 만듦 — 일치하는 결과가 있으면 복원",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "Turborepo는 입력을 비교할 식별값을 만듦 — 일치하는 결과가 있으면 복원",
+							"href": null
+						}
+					],
+					"color": "default"
+				},
+				"children": [
+					{
+						"id": "3f5928cd-d576-8034-b8ad-f443cecabe83",
+						"type": "bulleted_list_item",
+						"bulleted_list_item": {
+							"rich_text": [
+								{
+									"type": "text",
+									"text": {
+										"content": "공유 패키지처럼 애플리케이션이 사용하는 코드를 수정하면, 입력이 달라지므로 다시 빌드",
+										"link": null
+									},
+									"annotations": {
+										"bold": false,
+										"italic": false,
+										"strikethrough": false,
+										"underline": false,
+										"code": false,
+										"color": "default"
+									},
+									"plain_text": "공유 패키지처럼 애플리케이션이 사용하는 코드를 수정하면, 입력이 달라지므로 다시 빌드",
+									"href": null
+								}
+							],
+							"color": "default"
+						}
+					}
+				]
+			},
+			{
+				"id": "3f5928cd-d576-8089-9eff-f759db46b233",
+				"type": "bulleted_list_item",
+				"bulleted_list_item": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "공유 패키지처럼 애플리케이션이 사용하는 코드를 수정하면, 입력이 달라지므로 다시 빌드",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "공유 패키지처럼 애플리케이션이 사용하는 코드를 수정하면, 입력이 달라지므로 다시 빌드",
+							"href": null
+						}
+					],
+					"color": "default"
+				}
+			},
+			{
+				"id": "3f5928cd-d576-802a-829a-fc493dfb6217",
+				"type": "bulleted_list_item",
+				"bulleted_list_item": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "pnpm의 다운로드 캐시",
+								"link": null
+							},
+							"annotations": {
+								"bold": true,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "pnpm의 다운로드 캐시",
+							"href": null
+						},
+						{
+							"type": "text",
+							"text": {
+								"content": "와 다름",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "와 다름",
+							"href": null
+						}
+					],
+					"color": "default"
+				},
+				"children": [
+					{
+						"id": "3f5928cd-d576-8030-b026-f234dff90975",
+						"type": "bulleted_list_item",
+						"bulleted_list_item": {
+							"rich_text": [
+								{
+									"type": "text",
+									"text": {
+										"content": "pnpm은 패키지를 다시 다운로드하는 시간을 줄일 수 있음",
+										"link": null
+									},
+									"annotations": {
+										"bold": false,
+										"italic": false,
+										"strikethrough": false,
+										"underline": false,
+										"code": false,
+										"color": "default"
+									},
+									"plain_text": "pnpm은 패키지를 다시 다운로드하는 시간을 줄일 수 있음",
+									"href": null
+								}
+							],
+							"color": "default"
+						}
+					},
+					{
+						"id": "3f5928cd-d576-8001-b951-c0cbde429749",
+						"type": "bulleted_list_item",
+						"bulleted_list_item": {
+							"rich_text": [
+								{
+									"type": "text",
+									"text": {
+										"content": "하지만 그것만으로 애플리케이션의 컴파일을 건너뛰지는 않음",
+										"link": null
+									},
+									"annotations": {
+										"bold": false,
+										"italic": false,
+										"strikethrough": false,
+										"underline": false,
+										"code": false,
+										"color": "default"
+									},
+									"plain_text": "하지만 그것만으로 애플리케이션의 컴파일을 건너뛰지는 않음",
+									"href": null
+								}
+							],
+							"color": "default"
+						}
+					},
+					{
+						"id": "3f5928cd-d576-8059-abf6-f4501f80457f",
+						"type": "bulleted_list_item",
+						"bulleted_list_item": {
+							"rich_text": [
+								{
+									"type": "text",
+									"text": {
+										"content": "CI가 매번 새 컴퓨터에서 실행된다면, 이전 빌드 결과를 재사용하기 위해 원격 캐시, 혹은 CI 캐시 저장소 필요",
+										"link": null
+									},
+									"annotations": {
+										"bold": false,
+										"italic": false,
+										"strikethrough": false,
+										"underline": false,
+										"code": false,
+										"color": "default"
+									},
+									"plain_text": "CI가 매번 새 컴퓨터에서 실행된다면, 이전 빌드 결과를 재사용하기 위해 원격 캐시, 혹은 CI 캐시 저장소 필요",
+									"href": null
+								}
+							],
+							"color": "default"
+						}
+					}
+				]
+			},
+			{
+				"id": "3f5928cd-d576-8035-9489-d47637eb1ea8",
+				"type": "bulleted_list_item",
+				"bulleted_list_item": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "pnpm은 패키지를 다시 다운로드하는 시간을 줄일 수 있음",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "pnpm은 패키지를 다시 다운로드하는 시간을 줄일 수 있음",
+							"href": null
+						}
+					],
+					"color": "default"
+				}
+			},
+			{
+				"id": "3f5928cd-d576-8020-b692-e1ede3fdd056",
+				"type": "bulleted_list_item",
+				"bulleted_list_item": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "하지만 그것만으로 애플리케이션의 컴파일을 건너뛰지는 않음",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "하지만 그것만으로 애플리케이션의 컴파일을 건너뛰지는 않음",
+							"href": null
+						}
+					],
+					"color": "default"
+				}
+			},
+			{
+				"id": "3f5928cd-d576-80f6-a685-cad413d40e9f",
+				"type": "bulleted_list_item",
+				"bulleted_list_item": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "CI가 매번 새 컴퓨터에서 실행된다면, 이전 빌드 결과를 재사용하기 위해 원격 캐시, 혹은 CI 캐시 저장소 필요",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "CI가 매번 새 컴퓨터에서 실행된다면, 이전 빌드 결과를 재사용하기 위해 원격 캐시, 혹은 CI 캐시 저장소 필요",
+							"href": null
+						}
+					],
+					"color": "default"
+				}
+			}
+		]
+	},
+	{
+		"id": "3f7928cd-d576-80d9-9f30-e455dd1f25b8",
+		"title": "Docker 이미지 배포 방식",
+		"slug": "oct-12th-docker-cd",
+		"type": "til",
+		"status": "Published",
+		"description": null,
+		"tags": [
+			"QEMU",
+			"Docker",
+			"GHCR",
+			"OCIR",
+			"Nexus3"
+		],
+		"lastUpdated": "2026-10-12T11:31:00.000Z",
+		"lastEditedTime": "2026-10-12T11:31:00.000Z",
+		"createdTime": "2026-10-12T10:09:00.000Z",
+		"publishedDate": "2026-10-12",
+		"blocks": [
+			{
+				"id": "3f7928cd-d576-80b6-a3b2-f7096f965ce9",
+				"type": "heading_1",
+				"heading_1": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "Docker 이미지, 레지스트리",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "Docker 이미지, 레지스트리",
+							"href": null
+						}
+					],
+					"is_toggleable": false,
+					"color": "default"
+				}
+			},
+			{
+				"id": "3f7928cd-d576-8005-9a0f-e996d9ea7933",
+				"type": "bulleted_list_item",
+				"bulleted_list_item": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "Docker 이미지란, 애플리케이션을 실행하는 데 필요한 파일을 묶은 결과물",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "Docker 이미지란, 애플리케이션을 실행하는 데 필요한 파일을 묶은 결과물",
+							"href": null
+						}
+					],
+					"color": "default"
+				}
+			},
+			{
+				"id": "3f7928cd-d576-809c-9ef8-e8d93b710946",
+				"type": "bulleted_list_item",
+				"bulleted_list_item": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "이 ‘이미지’로 실행한 프로세스가 ‘컨테이너’",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "이 ‘이미지’로 실행한 프로세스가 ‘컨테이너’",
+							"href": null
+						}
+					],
+					"color": "default"
+				},
+				"children": [
+					{
+						"id": "3f7928cd-d576-805c-a370-f64313bb732d",
+						"type": "bulleted_list_item",
+						"bulleted_list_item": {
+							"rich_text": [
+								{
+									"type": "text",
+									"text": {
+										"content": "이미지는 실행에 사용할 파일 묶음",
+										"link": null
+									},
+									"annotations": {
+										"bold": false,
+										"italic": false,
+										"strikethrough": false,
+										"underline": false,
+										"code": false,
+										"color": "default"
+									},
+									"plain_text": "이미지는 실행에 사용할 파일 묶음",
+									"href": null
+								}
+							],
+							"color": "default"
+						}
+					},
+					{
+						"id": "3f7928cd-d576-8096-8f99-e20392002a70",
+						"type": "bulleted_list_item",
+						"bulleted_list_item": {
+							"rich_text": [
+								{
+									"type": "text",
+									"text": {
+										"content": "컨테이너는 그것을 실제로 실행한 상태",
+										"link": null
+									},
+									"annotations": {
+										"bold": false,
+										"italic": false,
+										"strikethrough": false,
+										"underline": false,
+										"code": false,
+										"color": "default"
+									},
+									"plain_text": "컨테이너는 그것을 실제로 실행한 상태",
+									"href": null
+								}
+							],
+							"color": "default"
+						}
+					}
+				]
+			},
+			{
+				"id": "3f7928cd-d576-80f5-8fa8-d80b9d8c2a98",
+				"type": "bulleted_list_item",
+				"bulleted_list_item": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "빌드한 이미지를 실행할 서버로 전달하려면 저장할 장소 필요 — 컨테이너 레지스트리",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "빌드한 이미지를 실행할 서버로 전달하려면 저장할 장소 필요 — 컨테이너 레지스트리",
+							"href": null
+						}
+					],
+					"color": "default"
+				}
+			},
+			{
+				"id": "3f7928cd-d576-80ba-b8d7-cc5329bef8d9",
+				"type": "heading_1",
+				"heading_1": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "QEMU",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "QEMU",
+							"href": null
+						}
+					],
+					"is_toggleable": false,
+					"color": "default"
+				}
+			},
+			{
+				"id": "3f7928cd-d576-80b1-b2ad-d8d0f3b5365b",
+				"type": "bulleted_list_item",
+				"bulleted_list_item": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "다른 CPU 아키텍처용 프로그램을 실행할 수 있도록 해주는 에뮬레이터 — 다른 하드웨어의 동작을 소프트웨어로 재현하는 도구",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "다른 CPU 아키텍처용 프로그램을 실행할 수 있도록 해주는 에뮬레이터 — 다른 하드웨어의 동작을 소프트웨어로 재현하는 도구",
+							"href": null
+						}
+					],
+					"color": "default"
+				},
+				"children": [
+					{
+						"id": "3f7928cd-d576-80bf-944c-f31b86156257",
+						"type": "bulleted_list_item",
+						"bulleted_list_item": {
+							"rich_text": [
+								{
+									"type": "text",
+									"text": {
+										"content": "가령 GitHub Actions의 빌드 서버, 클라우드 인스턴스 서버의 CPU가 아래처럼 다를 수 있음",
+										"link": null
+									},
+									"annotations": {
+										"bold": false,
+										"italic": false,
+										"strikethrough": false,
+										"underline": false,
+										"code": false,
+										"color": "default"
+									},
+									"plain_text": "가령 GitHub Actions의 빌드 서버, 클라우드 인스턴스 서버의 CPU가 아래처럼 다를 수 있음",
+									"href": null
+								}
+							],
+							"color": "default"
+						},
+						"children": [
+							{
+								"id": "3f7928cd-d576-809c-8862-de5c8e1f7d6b",
+								"type": "table",
+								"table": {
+									"table_width": 2,
+									"has_column_header": true,
+									"has_row_header": false
+								},
+								"children": [
+									{
+										"id": "3f7928cd-d576-8004-aa28-e463ee321a60",
+										"type": "table_row",
+										"table_row": {
+											"cells": [
+												[
+													{
+														"type": "text",
+														"text": {
+															"content": "구분",
+															"link": null
+														},
+														"annotations": {
+															"bold": false,
+															"italic": false,
+															"strikethrough": false,
+															"underline": false,
+															"code": false,
+															"color": "default"
+														},
+														"plain_text": "구분",
+														"href": null
+													}
+												],
+												[
+													{
+														"type": "text",
+														"text": {
+															"content": "CPU 아키텍처",
+															"link": null
+														},
+														"annotations": {
+															"bold": false,
+															"italic": false,
+															"strikethrough": false,
+															"underline": false,
+															"code": false,
+															"color": "default"
+														},
+														"plain_text": "CPU 아키텍처",
+														"href": null
+													}
+												]
+											]
+										}
+									},
+									{
+										"id": "3f7928cd-d576-8070-b803-d9b05113be4a",
+										"type": "table_row",
+										"table_row": {
+											"cells": [
+												[
+													{
+														"type": "text",
+														"text": {
+															"content": "GitHub Actions Ubuntu 러너",
+															"link": null
+														},
+														"annotations": {
+															"bold": false,
+															"italic": false,
+															"strikethrough": false,
+															"underline": false,
+															"code": false,
+															"color": "default"
+														},
+														"plain_text": "GitHub Actions Ubuntu 러너",
+														"href": null
+													}
+												],
+												[
+													{
+														"type": "text",
+														"text": {
+															"content": "AMD64 (x86-64)",
+															"link": null
+														},
+														"annotations": {
+															"bold": false,
+															"italic": false,
+															"strikethrough": false,
+															"underline": false,
+															"code": false,
+															"color": "default"
+														},
+														"plain_text": "AMD64 (x86-64)",
+														"href": null
+													}
+												]
+											]
+										}
+									},
+									{
+										"id": "3f7928cd-d576-80f2-a87f-ce4f6624d83b",
+										"type": "table_row",
+										"table_row": {
+											"cells": [
+												[
+													{
+														"type": "text",
+														"text": {
+															"content": "클라우드 서버 인스턴스",
+															"link": null
+														},
+														"annotations": {
+															"bold": false,
+															"italic": false,
+															"strikethrough": false,
+															"underline": false,
+															"code": false,
+															"color": "default"
+														},
+														"plain_text": "클라우드 서버 인스턴스",
+														"href": null
+													}
+												],
+												[
+													{
+														"type": "text",
+														"text": {
+															"content": "ARM64",
+															"link": null
+														},
+														"annotations": {
+															"bold": false,
+															"italic": false,
+															"strikethrough": false,
+															"underline": false,
+															"code": false,
+															"color": "default"
+														},
+														"plain_text": "ARM64",
+														"href": null
+													}
+												]
+											]
+										}
+									},
+									{
+										"id": "3f7928cd-d576-80f9-a225-dc7893fdf4f3",
+										"type": "table_row",
+										"table_row": {
+											"cells": [
+												[
+													{
+														"type": "text",
+														"text": {
+															"content": "배포할 Docker 이미지",
+															"link": null
+														},
+														"annotations": {
+															"bold": false,
+															"italic": false,
+															"strikethrough": false,
+															"underline": false,
+															"code": false,
+															"color": "default"
+														},
+														"plain_text": "배포할 Docker 이미지",
+														"href": null
+													}
+												],
+												[
+													{
+														"type": "text",
+														"text": {
+															"content": "ARM64",
+															"link": null
+														},
+														"annotations": {
+															"bold": false,
+															"italic": false,
+															"strikethrough": false,
+															"underline": false,
+															"code": false,
+															"color": "default"
+														},
+														"plain_text": "ARM64",
+														"href": null
+													}
+												]
+											]
+										}
+									}
+								]
+							},
+							{
+								"id": "3f7928cd-d576-80a6-8a4c-d17c0cefa53f",
+								"type": "bulleted_list_item",
+								"bulleted_list_item": {
+									"rich_text": [
+										{
+											"type": "text",
+											"text": {
+												"content": "Docker 빌드는 파일을 묶는 과정만 있는 게 아니라, Dockerfile의 다음 명령처럼 이미지 안에서 프로그램을 실행하는 과정도 포함되어 있음",
+												"link": null
+											},
+											"annotations": {
+												"bold": false,
+												"italic": false,
+												"strikethrough": false,
+												"underline": false,
+												"code": false,
+												"color": "default"
+											},
+											"plain_text": "Docker 빌드는 파일을 묶는 과정만 있는 게 아니라, Dockerfile의 다음 명령처럼 이미지 안에서 프로그램을 실행하는 과정도 포함되어 있음",
+											"href": null
+										}
+									],
+									"color": "default"
+								},
+								"children": [
+									{
+										"id": "3f7928cd-d576-8076-b661-d9e4206c1b67",
+										"type": "code",
+										"code": {
+											"caption": [],
+											"rich_text": [
+												{
+													"type": "text",
+													"text": {
+														"content": "RUN pnpm install --frozen-lockfile\nRUN pnpm --filter @foo/bar build",
+														"link": null
+													},
+													"annotations": {
+														"bold": false,
+														"italic": false,
+														"strikethrough": false,
+														"underline": false,
+														"code": false,
+														"color": "default"
+													},
+													"plain_text": "RUN pnpm install --frozen-lockfile\nRUN pnpm --filter @foo/bar build",
+													"href": null
+												}
+											],
+											"language": "docker"
+										}
+									},
+									{
+										"id": "3f7928cd-d576-8008-8e9e-ebed72a69730",
+										"type": "bulleted_list_item",
+										"bulleted_list_item": {
+											"rich_text": [
+												{
+													"type": "text",
+													"text": {
+														"content": "ARM64 이미지를 만들면, 그 안의 Node.js도 ARM64 전용",
+														"link": null
+													},
+													"annotations": {
+														"bold": false,
+														"italic": false,
+														"strikethrough": false,
+														"underline": false,
+														"code": false,
+														"color": "default"
+													},
+													"plain_text": "ARM64 이미지를 만들면, 그 안의 Node.js도 ARM64 전용",
+													"href": null
+												}
+											],
+											"color": "default"
+										},
+										"children": [
+											{
+												"id": "3f7928cd-d576-800a-8228-e1ac11c8616b",
+												"type": "bulleted_list_item",
+												"bulleted_list_item": {
+													"rich_text": [
+														{
+															"type": "text",
+															"text": {
+																"content": "그런데 빌드를 수행하는 GitHub Actions 러너는 AMD64용이므로 ARM64용 Node.js 실행 불가 — 이미지 빌드 중에도 프로그램을 실제로 실행해야 함",
+																"link": null
+															},
+															"annotations": {
+																"bold": false,
+																"italic": false,
+																"strikethrough": false,
+																"underline": false,
+																"code": false,
+																"color": "default"
+															},
+															"plain_text": "그런데 빌드를 수행하는 GitHub Actions 러너는 AMD64용이므로 ARM64용 Node.js 실행 불가 — 이미지 빌드 중에도 프로그램을 실제로 실행해야 함",
+															"href": null
+														}
+													],
+													"color": "default"
+												}
+											}
+										]
+									},
+									{
+										"id": "3f7928cd-d576-80f5-b333-dc7850e5b9d4",
+										"type": "bulleted_list_item",
+										"bulleted_list_item": {
+											"rich_text": [
+												{
+													"type": "text",
+													"text": {
+														"content": "QEMU가 ARM64 프로그램의 명령을 AMD64 환경에서 실행할 수 있도록 처리해줌",
+														"link": null
+													},
+													"annotations": {
+														"bold": false,
+														"italic": false,
+														"strikethrough": false,
+														"underline": false,
+														"code": false,
+														"color": "default"
+													},
+													"plain_text": "QEMU가 ARM64 프로그램의 명령을 AMD64 환경에서 실행할 수 있도록 처리해줌",
+													"href": null
+												}
+											],
+											"color": "default"
+										}
+									}
+								]
+							}
+						]
+					}
+				]
+			},
+			{
+				"id": "3f7928cd-d576-803e-9941-e9d516a6c7d0",
+				"type": "bulleted_list_item",
+				"bulleted_list_item": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "다만 실제 ARM64 CPU에서 실행하는 것보다 빌드가 느려질 수 있음",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "다만 실제 ARM64 CPU에서 실행하는 것보다 빌드가 느려질 수 있음",
+							"href": null
+						}
+					],
+					"color": "default"
+				},
+				"children": [
+					{
+						"id": "3f7928cd-d576-8017-af10-ec6b50ab2e9b",
+						"type": "bulleted_list_item",
+						"bulleted_list_item": {
+							"rich_text": [
+								{
+									"type": "text",
+									"text": {
+										"content": "다른 CPU의 동작을 재현하는 작업이 추가되기 때문",
+										"link": null
+									},
+									"annotations": {
+										"bold": false,
+										"italic": false,
+										"strikethrough": false,
+										"underline": false,
+										"code": false,
+										"color": "default"
+									},
+									"plain_text": "다른 CPU의 동작을 재현하는 작업이 추가되기 때문",
+									"href": null
+								}
+							],
+							"color": "default"
+						}
+					}
+				]
+			},
+			{
+				"id": "3f7928cd-d576-80c9-895a-d24e56754ede",
+				"type": "bulleted_list_item",
+				"bulleted_list_item": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "사용 가능한 러너의 아키텍처와 빌드 타겟이 다르거나, 한 환경에서 여러 아키텍처의 이미지를 만들어야 할 때 유용",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "사용 가능한 러너의 아키텍처와 빌드 타겟이 다르거나, 한 환경에서 여러 아키텍처의 이미지를 만들어야 할 때 유용",
+							"href": null
+						}
+					],
+					"color": "default"
+				}
+			},
+			{
+				"id": "3f7928cd-d576-8052-ba0c-f03d46f45e09",
+				"type": "table",
+				"table": {
+					"table_width": 2,
+					"has_column_header": true,
+					"has_row_header": false
+				},
+				"children": [
+					{
+						"id": "3f7928cd-d576-8012-881b-c05cde053223",
+						"type": "table_row",
+						"table_row": {
+							"cells": [
+								[
+									{
+										"type": "text",
+										"text": {
+											"content": "아키텍처",
+											"link": null
+										},
+										"annotations": {
+											"bold": false,
+											"italic": false,
+											"strikethrough": false,
+											"underline": false,
+											"code": false,
+											"color": "default"
+										},
+										"plain_text": "아키텍처",
+										"href": null
+									}
+								],
+								[
+									{
+										"type": "text",
+										"text": {
+											"content": "대표적인 사용 환경",
+											"link": null
+										},
+										"annotations": {
+											"bold": false,
+											"italic": false,
+											"strikethrough": false,
+											"underline": false,
+											"code": false,
+											"color": "default"
+										},
+										"plain_text": "대표적인 사용 환경",
+										"href": null
+									}
+								]
+							]
+						}
+					},
+					{
+						"id": "3f7928cd-d576-80dd-8f90-e3f5b880467e",
+						"type": "table_row",
+						"table_row": {
+							"cells": [
+								[
+									{
+										"type": "text",
+										"text": {
+											"content": "AMD64, 또는 x86-64",
+											"link": null
+										},
+										"annotations": {
+											"bold": false,
+											"italic": false,
+											"strikethrough": false,
+											"underline": false,
+											"code": false,
+											"color": "default"
+										},
+										"plain_text": "AMD64, 또는 x86-64",
+										"href": null
+									}
+								],
+								[
+									{
+										"type": "text",
+										"text": {
+											"content": "Intel·AMD 기반 PC와 서버",
+											"link": null
+										},
+										"annotations": {
+											"bold": false,
+											"italic": false,
+											"strikethrough": false,
+											"underline": false,
+											"code": false,
+											"color": "default"
+										},
+										"plain_text": "Intel·AMD 기반 PC와 서버",
+										"href": null
+									}
+								]
+							]
+						}
+					},
+					{
+						"id": "3f7928cd-d576-8091-b91d-c99245d6e4d0",
+						"type": "table_row",
+						"table_row": {
+							"cells": [
+								[
+									{
+										"type": "text",
+										"text": {
+											"content": "ARM64",
+											"link": null
+										},
+										"annotations": {
+											"bold": false,
+											"italic": false,
+											"strikethrough": false,
+											"underline": false,
+											"code": false,
+											"color": "default"
+										},
+										"plain_text": "ARM64",
+										"href": null
+									}
+								],
+								[
+									{
+										"type": "text",
+										"text": {
+											"content": "Apple Silicon Mac, Oracle Ampere 인스턴스 등",
+											"link": null
+										},
+										"annotations": {
+											"bold": false,
+											"italic": false,
+											"strikethrough": false,
+											"underline": false,
+											"code": false,
+											"color": "default"
+										},
+										"plain_text": "Apple Silicon Mac, Oracle Ampere 인스턴스 등",
+										"href": null
+									}
+								]
+							]
+						}
+					}
+				]
+			},
+			{
+				"id": "3f7928cd-d576-806f-aefe-eaeb914ef0aa",
+				"type": "heading_1",
+				"heading_1": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "GHCR(GitHub Container Registry)",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "GHCR(GitHub Container Registry)",
+							"href": null
+						}
+					],
+					"is_toggleable": false,
+					"color": "default"
+				}
+			},
+			{
+				"id": "3f7928cd-d576-80bf-9e39-cad66fdbba64",
+				"type": "bulleted_list_item",
+				"bulleted_list_item": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "GitHub에서 Docker 이미지를 저장할 수 있도록 제공하는 서비스",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "GitHub에서 Docker 이미지를 저장할 수 있도록 제공하는 서비스",
+							"href": null
+						}
+					],
+					"color": "default"
+				},
+				"children": [
+					{
+						"id": "3f7928cd-d576-808d-a61a-f7b44aabc971",
+						"type": "bulleted_list_item",
+						"bulleted_list_item": {
+							"rich_text": [
+								{
+									"type": "text",
+									"text": {
+										"content": "ghcr.io/사용자or조직/이미지이름:태그",
+										"link": null
+									},
+									"annotations": {
+										"bold": false,
+										"italic": false,
+										"strikethrough": false,
+										"underline": false,
+										"code": true,
+										"color": "default"
+									},
+									"plain_text": "ghcr.io/사용자or조직/이미지이름:태그",
+									"href": null
+								}
+							],
+							"color": "default"
+						}
+					}
+				]
+			},
+			{
+				"id": "3f7928cd-d576-806f-9561-f73b202196ec",
+				"type": "bulleted_list_item",
+				"bulleted_list_item": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "GitHub Actions의 경우, 워크플로에서 사용하는 ",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "GitHub Actions의 경우, 워크플로에서 사용하는 ",
+							"href": null
+						},
+						{
+							"type": "text",
+							"text": {
+								"content": "GITHUB_TOKEN",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": true,
+								"color": "default"
+							},
+							"plain_text": "GITHUB_TOKEN",
+							"href": null
+						},
+						{
+							"type": "text",
+							"text": {
+								"content": "이 있음",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "이 있음",
+							"href": null
+						}
+					],
+					"color": "default"
+				},
+				"children": [
+					{
+						"id": "3f7928cd-d576-8066-9312-d994821d7149",
+						"type": "bulleted_list_item",
+						"bulleted_list_item": {
+							"rich_text": [
+								{
+									"type": "text",
+									"text": {
+										"content": "필요한 권한을 설정하면 이 토큰으로 GHCR에 이미지 업로드 가능",
+										"link": null
+									},
+									"annotations": {
+										"bold": false,
+										"italic": false,
+										"strikethrough": false,
+										"underline": false,
+										"code": false,
+										"color": "default"
+									},
+									"plain_text": "필요한 권한을 설정하면 이 토큰으로 GHCR에 이미지 업로드 가능",
+									"href": null
+								}
+							],
+							"color": "default"
+						}
+					}
+				]
+			},
+			{
+				"id": "3f7928cd-d576-80be-b048-d5bf8a259542",
+				"type": "bulleted_list_item",
+				"bulleted_list_item": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "별도 서버에서 비공개 이미지를 다운로드할 때는 인증 필요",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "별도 서버에서 비공개 이미지를 다운로드할 때는 인증 필요",
+							"href": null
+						}
+					],
+					"color": "default"
+				},
+				"children": [
+					{
+						"id": "3f7928cd-d576-80b9-aa1b-d0f810545831",
+						"type": "bulleted_list_item",
+						"bulleted_list_item": {
+							"rich_text": [
+								{
+									"type": "text",
+									"text": {
+										"content": "패키지 접근 권한, ",
+										"link": null
+									},
+									"annotations": {
+										"bold": false,
+										"italic": false,
+										"strikethrough": false,
+										"underline": false,
+										"code": false,
+										"color": "default"
+									},
+									"plain_text": "패키지 접근 권한, ",
+									"href": null
+								},
+								{
+									"type": "text",
+									"text": {
+										"content": "read:packages",
+										"link": null
+									},
+									"annotations": {
+										"bold": false,
+										"italic": false,
+										"strikethrough": false,
+										"underline": false,
+										"code": true,
+										"color": "default"
+									},
+									"plain_text": "read:packages",
+									"href": null
+								},
+								{
+									"type": "text",
+									"text": {
+										"content": " 권한을 지닌 PAT classic 토큰 등",
+										"link": null
+									},
+									"annotations": {
+										"bold": false,
+										"italic": false,
+										"strikethrough": false,
+										"underline": false,
+										"code": false,
+										"color": "default"
+									},
+									"plain_text": " 권한을 지닌 PAT classic 토큰 등",
+									"href": null
+								}
+							],
+							"color": "default"
+						}
+					}
+				]
+			},
+			{
+				"id": "3f7928cd-d576-806a-9539-c5abc1157cf9",
+				"type": "bulleted_list_item",
+				"bulleted_list_item": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "현재는 컨테이너 이미지 저장 공간, 대역폭 무료",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "현재는 컨테이너 이미지 저장 공간, 대역폭 무료",
+							"href": null
+						}
+					],
+					"color": "default"
+				},
+				"children": [
+					{
+						"id": "3f7928cd-d576-8017-b0e9-e984380f435a",
+						"type": "bulleted_list_item",
+						"bulleted_list_item": {
+							"rich_text": [
+								{
+									"type": "text",
+									"text": {
+										"content": "오래된 이미지 버전을 얼마나 보관할 지는 별도로 규정해야 함",
+										"link": null
+									},
+									"annotations": {
+										"bold": false,
+										"italic": false,
+										"strikethrough": false,
+										"underline": false,
+										"code": false,
+										"color": "default"
+									},
+									"plain_text": "오래된 이미지 버전을 얼마나 보관할 지는 별도로 규정해야 함",
+									"href": null
+								}
+							],
+							"color": "default"
+						}
+					}
+				]
+			},
+			{
+				"id": "3f7928cd-d576-8028-abe4-cdb6c0a0796b",
+				"type": "heading_1",
+				"heading_1": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "OCIR(Oracle Cloud Infrastructure Registry)",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "OCIR(Oracle Cloud Infrastructure Registry)",
+							"href": null
+						}
+					],
+					"is_toggleable": false,
+					"color": "default"
+				}
+			},
+			{
+				"id": "3f7928cd-d576-80f1-ae9f-d7046f97ae7b",
+				"type": "bulleted_list_item",
+				"bulleted_list_item": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "Oracle Cloud의 컨테이너 레지스트리",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "Oracle Cloud의 컨테이너 레지스트리",
+							"href": null
+						}
+					],
+					"color": "default"
+				}
+			},
+			{
+				"id": "3f7928cd-d576-802c-a09e-c1a1ac483f9a",
+				"type": "bulleted_list_item",
+				"bulleted_list_item": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "Oracle Cloud 안에서 권한, 리전, 네트워크, 이미지 관리를 함께 운영하고 싶을 때 유용",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "Oracle Cloud 안에서 권한, 리전, 네트워크, 이미지 관리를 함께 운영하고 싶을 때 유용",
+							"href": null
+						}
+					],
+					"color": "default"
+				},
+				"children": [
+					{
+						"id": "3f7928cd-d576-8038-b865-da85df331cef",
+						"type": "bulleted_list_item",
+						"bulleted_list_item": {
+							"rich_text": [
+								{
+									"type": "text",
+									"text": {
+										"content": "OCI의 IAM 정책 승계",
+										"link": null
+									},
+									"annotations": {
+										"bold": false,
+										"italic": false,
+										"strikethrough": false,
+										"underline": false,
+										"code": false,
+										"color": "default"
+									},
+									"plain_text": "OCI의 IAM 정책 승계",
+									"href": null
+								}
+							],
+							"color": "default"
+						}
+					},
+					{
+						"id": "3f7928cd-d576-80fb-9b8d-d18ce041c319",
+						"type": "bulleted_list_item",
+						"bulleted_list_item": {
+							"rich_text": [
+								{
+									"type": "text",
+									"text": {
+										"content": "이미지 관리 정책도 서비스에서 설정 가능",
+										"link": null
+									},
+									"annotations": {
+										"bold": false,
+										"italic": false,
+										"strikethrough": false,
+										"underline": false,
+										"code": false,
+										"color": "default"
+									},
+									"plain_text": "이미지 관리 정책도 서비스에서 설정 가능",
+									"href": null
+								}
+							],
+							"color": "default"
+						}
+					}
+				]
+			},
+			{
+				"id": "3f7928cd-d576-805e-98dd-dbf0c4dfda55",
+				"type": "bulleted_list_item",
+				"bulleted_list_item": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "OCI의 IAM 정책 승계",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "OCI의 IAM 정책 승계",
+							"href": null
+						}
+					],
+					"color": "default"
+				}
+			},
+			{
+				"id": "3f7928cd-d576-8023-bf28-c18eab31578a",
+				"type": "bulleted_list_item",
+				"bulleted_list_item": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "이미지 관리 정책도 서비스에서 설정 가능",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "이미지 관리 정책도 서비스에서 설정 가능",
+							"href": null
+						}
+					],
+					"color": "default"
+				}
+			},
+			{
+				"id": "3f7928cd-d576-8034-a264-ca33be08cb8f",
+				"type": "bulleted_list_item",
+				"bulleted_list_item": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "레지스트리 서비스 자체에는 별도 요금 X",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "레지스트리 서비스 자체에는 별도 요금 X",
+							"href": null
+						}
+					],
+					"color": "default"
+				},
+				"children": [
+					{
+						"id": "3f7928cd-d576-803b-8594-c03a6ae57078",
+						"type": "bulleted_list_item",
+						"bulleted_list_item": {
+							"rich_text": [
+								{
+									"type": "text",
+									"text": {
+										"content": "이미지 저장 공간 등 사용한 자원에 과금하는 방식",
+										"link": null
+									},
+									"annotations": {
+										"bold": false,
+										"italic": false,
+										"strikethrough": false,
+										"underline": false,
+										"code": false,
+										"color": "default"
+									},
+									"plain_text": "이미지 저장 공간 등 사용한 자원에 과금하는 방식",
+									"href": null
+								}
+							],
+							"color": "default"
+						}
+					},
+					{
+						"id": "3f7928cd-d576-80cb-910f-c6f32ff6b4ee",
+						"type": "bulleted_list_item",
+						"bulleted_list_item": {
+							"rich_text": [
+								{
+									"type": "text",
+									"text": {
+										"content": "이미지는 기본적으로 모두 보관 — 일정 기간 사용하지 않은 이미지 등을 정리하는 정책 설정 가능",
+										"link": null
+									},
+									"annotations": {
+										"bold": false,
+										"italic": false,
+										"strikethrough": false,
+										"underline": false,
+										"code": false,
+										"color": "default"
+									},
+									"plain_text": "이미지는 기본적으로 모두 보관 — 일정 기간 사용하지 않은 이미지 등을 정리하는 정책 설정 가능",
+									"href": null
+								}
+							],
+							"color": "default"
+						}
+					}
+				]
+			},
+			{
+				"id": "3f7928cd-d576-80fc-aa96-ecd46061c62c",
+				"type": "bulleted_list_item",
+				"bulleted_list_item": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "이미지 저장 공간 등 사용한 자원에 과금하는 방식",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "이미지 저장 공간 등 사용한 자원에 과금하는 방식",
+							"href": null
+						}
+					],
+					"color": "default"
+				}
+			},
+			{
+				"id": "3f7928cd-d576-809a-80ed-f54709135918",
+				"type": "bulleted_list_item",
+				"bulleted_list_item": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "이미지는 기본적으로 모두 보관 — 일정 기간 사용하지 않은 이미지 등을 정리하는 정책 설정 가능",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "이미지는 기본적으로 모두 보관 — 일정 기간 사용하지 않은 이미지 등을 정리하는 정책 설정 가능",
+							"href": null
+						}
+					],
+					"color": "default"
+				}
+			},
+			{
+				"id": "3f7928cd-d576-80a1-8c82-e945c3de7d3c",
+				"type": "heading_1",
+				"heading_1": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "Nexus3(Sonatype Nexus Repository 3)",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "Nexus3(Sonatype Nexus Repository 3)",
+							"href": null
+						}
+					],
+					"is_toggleable": false,
+					"color": "default"
+				}
+			},
+			{
+				"id": "3f7928cd-d576-8084-b043-c3f7ef06fb17",
+				"type": "bulleted_list_item",
+				"bulleted_list_item": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "Docker 이미지뿐 아니라 npm, Maven, PyPl 등 여러 형식의 패키지를 관리할 수 있는 저장소 관리자",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "Docker 이미지뿐 아니라 npm, Maven, PyPl 등 여러 형식의 패키지를 관리할 수 있는 저장소 관리자",
+							"href": null
+						}
+					],
+					"color": "default"
+				}
+			},
+			{
+				"id": "3f7928cd-d576-8003-8c09-e710e1100735",
+				"type": "bulleted_list_item",
+				"bulleted_list_item": {
+					"rich_text": [
+						{
+							"type": "text",
+							"text": {
+								"content": "외부 패키지 캐시도 가능 — Nexus가 패키지를 대신 받아 보관하고, 다음 요청에 재사용 → 여러 개발자나 빌드 서버가 같은 패키지를 반복해서 받을 때 유용",
+								"link": null
+							},
+							"annotations": {
+								"bold": false,
+								"italic": false,
+								"strikethrough": false,
+								"underline": false,
+								"code": false,
+								"color": "default"
+							},
+							"plain_text": "외부 패키지 캐시도 가능 — Nexus가 패키지를 대신 받아 보관하고, 다음 요청에 재사용 → 여러 개발자나 빌드 서버가 같은 패키지를 반복해서 받을 때 유용",
+							"href": null
+						}
+					],
+					"color": "default"
+				}
+			},
+			{
+				"id": "3f7928cd-d576-803f-a4df-ccb69c241938",
+				"type": "table",
+				"table": {
+					"table_width": 5,
+					"has_column_header": true,
+					"has_row_header": false
+				},
+				"children": [
+					{
+						"id": "3f7928cd-d576-807d-8842-dd7a394c3d04",
+						"type": "table_row",
+						"table_row": {
+							"cells": [
+								[
+									{
+										"type": "text",
+										"text": {
+											"content": "항목",
+											"link": null
+										},
+										"annotations": {
+											"bold": false,
+											"italic": false,
+											"strikethrough": false,
+											"underline": false,
+											"code": false,
+											"color": "default"
+										},
+										"plain_text": "항목",
+										"href": null
+									}
+								],
+								[
+									{
+										"type": "text",
+										"text": {
+											"content": "GHCR",
+											"link": null
+										},
+										"annotations": {
+											"bold": false,
+											"italic": false,
+											"strikethrough": false,
+											"underline": false,
+											"code": false,
+											"color": "default"
+										},
+										"plain_text": "GHCR",
+										"href": null
+									}
+								],
+								[
+									{
+										"type": "text",
+										"text": {
+											"content": "OCIR",
+											"link": null
+										},
+										"annotations": {
+											"bold": false,
+											"italic": false,
+											"strikethrough": false,
+											"underline": false,
+											"code": false,
+											"color": "default"
+										},
+										"plain_text": "OCIR",
+										"href": null
+									}
+								],
+								[
+									{
+										"type": "text",
+										"text": {
+											"content": "Docker Hub",
+											"link": null
+										},
+										"annotations": {
+											"bold": false,
+											"italic": false,
+											"strikethrough": false,
+											"underline": false,
+											"code": false,
+											"color": "default"
+										},
+										"plain_text": "Docker Hub",
+										"href": null
+									}
+								],
+								[
+									{
+										"type": "text",
+										"text": {
+											"content": "Nexus Repository 3",
+											"link": null
+										},
+										"annotations": {
+											"bold": false,
+											"italic": false,
+											"strikethrough": false,
+											"underline": false,
+											"code": false,
+											"color": "default"
+										},
+										"plain_text": "Nexus Repository 3",
+										"href": null
+									}
+								]
+							]
+						}
+					},
+					{
+						"id": "3f7928cd-d576-8010-950f-dc1aabd6b07a",
+						"type": "table_row",
+						"table_row": {
+							"cells": [
+								[
+									{
+										"type": "text",
+										"text": {
+											"content": "운영 주체",
+											"link": null
+										},
+										"annotations": {
+											"bold": false,
+											"italic": false,
+											"strikethrough": false,
+											"underline": false,
+											"code": false,
+											"color": "default"
+										},
+										"plain_text": "운영 주체",
+										"href": null
+									}
+								],
+								[
+									{
+										"type": "text",
+										"text": {
+											"content": "GitHub",
+											"link": null
+										},
+										"annotations": {
+											"bold": false,
+											"italic": false,
+											"strikethrough": false,
+											"underline": false,
+											"code": false,
+											"color": "default"
+										},
+										"plain_text": "GitHub",
+										"href": null
+									}
+								],
+								[
+									{
+										"type": "text",
+										"text": {
+											"content": "Oracle",
+											"link": null
+										},
+										"annotations": {
+											"bold": false,
+											"italic": false,
+											"strikethrough": false,
+											"underline": false,
+											"code": false,
+											"color": "default"
+										},
+										"plain_text": "Oracle",
+										"href": null
+									}
+								],
+								[
+									{
+										"type": "text",
+										"text": {
+											"content": "Docker",
+											"link": null
+										},
+										"annotations": {
+											"bold": false,
+											"italic": false,
+											"strikethrough": false,
+											"underline": false,
+											"code": false,
+											"color": "default"
+										},
+										"plain_text": "Docker",
+										"href": null
+									}
+								],
+								[
+									{
+										"type": "text",
+										"text": {
+											"content": "직접 설치하면 우리",
+											"link": null
+										},
+										"annotations": {
+											"bold": false,
+											"italic": false,
+											"strikethrough": false,
+											"underline": false,
+											"code": false,
+											"color": "default"
+										},
+										"plain_text": "직접 설치하면 우리",
+										"href": null
+									}
+								]
+							]
+						}
+					},
+					{
+						"id": "3f7928cd-d576-80e4-aa3d-df8ea76874db",
+						"type": "table_row",
+						"table_row": {
+							"cells": [
+								[
+									{
+										"type": "text",
+										"text": {
+											"content": "주요 용도",
+											"link": null
+										},
+										"annotations": {
+											"bold": false,
+											"italic": false,
+											"strikethrough": false,
+											"underline": false,
+											"code": false,
+											"color": "default"
+										},
+										"plain_text": "주요 용도",
+										"href": null
+									}
+								],
+								[
+									{
+										"type": "text",
+										"text": {
+											"content": "컨테이너 이미지 저장",
+											"link": null
+										},
+										"annotations": {
+											"bold": false,
+											"italic": false,
+											"strikethrough": false,
+											"underline": false,
+											"code": false,
+											"color": "default"
+										},
+										"plain_text": "컨테이너 이미지 저장",
+										"href": null
+									}
+								],
+								[
+									{
+										"type": "text",
+										"text": {
+											"content": "컨테이너 이미지 저장",
+											"link": null
+										},
+										"annotations": {
+											"bold": false,
+											"italic": false,
+											"strikethrough": false,
+											"underline": false,
+											"code": false,
+											"color": "default"
+										},
+										"plain_text": "컨테이너 이미지 저장",
+										"href": null
+									}
+								],
+								[
+									{
+										"type": "text",
+										"text": {
+											"content": "공개 이미지 유통과 자체 이미지 저장",
+											"link": null
+										},
+										"annotations": {
+											"bold": false,
+											"italic": false,
+											"strikethrough": false,
+											"underline": false,
+											"code": false,
+											"color": "default"
+										},
+										"plain_text": "공개 이미지 유통과 자체 이미지 저장",
+										"href": null
+									}
+								],
+								[
+									{
+										"type": "text",
+										"text": {
+											"content": "여러 종류의 패키지 저장·캐시",
+											"link": null
+										},
+										"annotations": {
+											"bold": false,
+											"italic": false,
+											"strikethrough": false,
+											"underline": false,
+											"code": false,
+											"color": "default"
+										},
+										"plain_text": "여러 종류의 패키지 저장·캐시",
+										"href": null
+									}
+								]
+							]
+						}
+					},
+					{
+						"id": "3f7928cd-d576-8080-883d-e523555c4b2e",
+						"type": "table_row",
+						"table_row": {
+							"cells": [
+								[
+									{
+										"type": "text",
+										"text": {
+											"content": "현재 비용 구조",
+											"link": null
+										},
+										"annotations": {
+											"bold": false,
+											"italic": false,
+											"strikethrough": false,
+											"underline": false,
+											"code": false,
+											"color": "default"
+										},
+										"plain_text": "현재 비용 구조",
+										"href": null
+									}
+								],
+								[
+									{
+										"type": "text",
+										"text": {
+											"content": "컨테이너 저장·대역폭 무료",
+											"link": null
+										},
+										"annotations": {
+											"bold": false,
+											"italic": false,
+											"strikethrough": false,
+											"underline": false,
+											"code": false,
+											"color": "default"
+										},
+										"plain_text": "컨테이너 저장·대역폭 무료",
+										"href": null
+									}
+								],
+								[
+									{
+										"type": "text",
+										"text": {
+											"content": "저장 공간 등 사용량 과금",
+											"link": null
+										},
+										"annotations": {
+											"bold": false,
+											"italic": false,
+											"strikethrough": false,
+											"underline": false,
+											"code": false,
+											"color": "default"
+										},
+										"plain_text": "저장 공간 등 사용량 과금",
+										"href": null
+									}
+								],
+								[
+									{
+										"type": "text",
+										"text": {
+											"content": "무료·유료 구독",
+											"link": null
+										},
+										"annotations": {
+											"bold": false,
+											"italic": false,
+											"strikethrough": false,
+											"underline": false,
+											"code": false,
+											"color": "default"
+										},
+										"plain_text": "무료·유료 구독",
+										"href": null
+									}
+								],
+								[
+									{
+										"type": "text",
+										"text": {
+											"content": "무료 CE·유료 Pro + 운영 인프라 비용",
+											"link": null
+										},
+										"annotations": {
+											"bold": false,
+											"italic": false,
+											"strikethrough": false,
+											"underline": false,
+											"code": false,
+											"color": "default"
+										},
+										"plain_text": "무료 CE·유료 Pro + 운영 인프라 비용",
+										"href": null
+									}
+								]
+							]
+						}
+					},
+					{
+						"id": "3f7928cd-d576-8011-b8d7-eeb63d26c59d",
+						"type": "table_row",
+						"table_row": {
+							"cells": [
+								[
+									{
+										"type": "text",
+										"text": {
+											"content": "주요 제약",
+											"link": null
+										},
+										"annotations": {
+											"bold": false,
+											"italic": false,
+											"strikethrough": false,
+											"underline": false,
+											"code": false,
+											"color": "default"
+										},
+										"plain_text": "주요 제약",
+										"href": null
+									}
+								],
+								[
+									{
+										"type": "text",
+										"text": {
+											"content": "패키지 권한과 이미지 정리 관리 ",
+											"link": null
+										},
+										"annotations": {
+											"bold": false,
+											"italic": false,
+											"strikethrough": false,
+											"underline": false,
+											"code": false,
+											"color": "default"
+										},
+										"plain_text": "패키지 권한과 이미지 정리 관리 ",
+										"href": null
+									}
+								],
+								[
+									{
+										"type": "text",
+										"text": {
+											"content": "OCI 권한·리전·사용량 관리",
+											"link": null
+										},
+										"annotations": {
+											"bold": false,
+											"italic": false,
+											"strikethrough": false,
+											"underline": false,
+											"code": false,
+											"color": "default"
+										},
+										"plain_text": "OCI 권한·리전·사용량 관리",
+										"href": null
+									}
+								],
+								[
+									{
+										"type": "text",
+										"text": {
+											"content": "무료 비공개 저장소 1개, 다운로드 제한",
+											"link": null
+										},
+										"annotations": {
+											"bold": false,
+											"italic": false,
+											"strikethrough": false,
+											"underline": false,
+											"code": false,
+											"color": "default"
+										},
+										"plain_text": "무료 비공개 저장소 1개, 다운로드 제한",
+										"href": null
+									}
+								],
+								[
+									{
+										"type": "text",
+										"text": {
+											"content": "CE 사용 한도, 서버 운영 부담",
+											"link": null
+										},
+										"annotations": {
+											"bold": false,
+											"italic": false,
+											"strikethrough": false,
+											"underline": false,
+											"code": false,
+											"color": "default"
+										},
+										"plain_text": "CE 사용 한도, 서버 운영 부담",
+										"href": null
+									}
+								]
+							]
+						}
+					},
+					{
+						"id": "3f7928cd-d576-80e4-84e4-dc052455601d",
+						"type": "table_row",
+						"table_row": {
+							"cells": [
+								[
+									{
+										"type": "text",
+										"text": {
+											"content": "오래된 이미지 정리 ",
+											"link": null
+										},
+										"annotations": {
+											"bold": false,
+											"italic": false,
+											"strikethrough": false,
+											"underline": false,
+											"code": false,
+											"color": "default"
+										},
+										"plain_text": "오래된 이미지 정리 ",
+										"href": null
+									}
+								],
+								[
+									{
+										"type": "text",
+										"text": {
+											"content": "별도 정리 방식 마련 ",
+											"link": null
+										},
+										"annotations": {
+											"bold": false,
+											"italic": false,
+											"strikethrough": false,
+											"underline": false,
+											"code": false,
+											"color": "default"
+										},
+										"plain_text": "별도 정리 방식 마련 ",
+										"href": null
+									}
+								],
+								[
+									{
+										"type": "text",
+										"text": {
+											"content": "서비스의 보관 정책 설정 가능",
+											"link": null
+										},
+										"annotations": {
+											"bold": false,
+											"italic": false,
+											"strikethrough": false,
+											"underline": false,
+											"code": false,
+											"color": "default"
+										},
+										"plain_text": "서비스의 보관 정책 설정 가능",
+										"href": null
+									}
+								],
+								[
+									{
+										"type": "text",
+										"text": {
+											"content": "UI·API 등을 통한 관리",
+											"link": null
+										},
+										"annotations": {
+											"bold": false,
+											"italic": false,
+											"strikethrough": false,
+											"underline": false,
+											"code": false,
+											"color": "default"
+										},
+										"plain_text": "UI·API 등을 통한 관리",
+										"href": null
+									}
+								],
+								[
+									{
+										"type": "text",
+										"text": {
+											"content": "정리 정책과 서버 저장 공간 관리",
+											"link": null
+										},
+										"annotations": {
+											"bold": false,
+											"italic": false,
+											"strikethrough": false,
+											"underline": false,
+											"code": false,
+											"color": "default"
+										},
+										"plain_text": "정리 정책과 서버 저장 공간 관리",
+										"href": null
+									}
+								]
+							]
+						}
+					}
+				]
+			}
+		]
 	}
 ]
