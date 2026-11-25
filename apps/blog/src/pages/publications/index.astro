@@ -7,7 +7,11 @@ const publishedDates = loadPublishedDates();
 const posts = sortByDate(getPostsByType("publication"), publishedDates);
 ---
 
-<Layout title="Publications" description="Long-form writing" showSearch>
+<Layout
+	title="Publications"
+	description="프론트엔드 아키텍처, React, TypeScript, 웹 성능 및 실무 문제 해결을 깊이 있게 다룬 기술 글 목록."
+	showSearch
+>
 	<h1>Publications</h1>
 
 	{posts.length === 0 ? (

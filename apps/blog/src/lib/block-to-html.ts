@@ -18,15 +18,61 @@ function getImageUrl(image: {
 
 type ImagePreviewState = { hasLink: boolean };
 
+type HeadingNormalizationState = {
+	levelMap: Map<number, number>;
+	lastLevel: number;
+};
+
 type ImageRenderOptions = {
 	loading?: "eager" | "lazy";
 	imagePreview?: ImagePreviewState;
+	headingLevel?: number;
 };
 
 type ImageRenderState = {
 	hasRenderedImage: boolean;
 	imagePreview?: ImagePreviewState;
+	normalizeHeadings?: boolean;
+	headingState?: HeadingNormalizationState;
 };
+
+const HEADING_BLOCK_LEVELS: Record<string, number> = {
+	heading_1: 1,
+	heading_2: 2,
+	heading_3: 3,
+	heading_4: 4,
+};
+
+function collectHeadingLevels(blocks: Block[], levels = new Set<number>()): Set<number> {
+	for (const block of blocks) {
+		const level = HEADING_BLOCK_LEVELS[block.type];
+		if (level !== undefined) levels.add(level);
+		if (block.children?.length) collectHeadingLevels(block.children, levels);
+	}
+	return levels;
+}
+
+function createHeadingNormalizationState(blocks: Block[]): HeadingNormalizationState {
+	const sortedLevels = [...collectHeadingLevels(blocks)].sort((a, b) => a - b);
+	const levelMap = new Map<number, number>();
+	sortedLevels.forEach((notionLevel, index) => {
+		levelMap.set(notionLevel, Math.min(6, 2 + index));
+	});
+	return { levelMap, lastLevel: 1 };
+}
+
+function resolveNormalizedHeadingLevel(
+	blockType: string,
+	headingState?: HeadingNormalizationState,
+): number | undefined {
+	if (!headingState) return undefined;
+	const notionLevel = HEADING_BLOCK_LEVELS[blockType];
+	if (notionLevel === undefined) return undefined;
+	const mapped = headingState.levelMap.get(notionLevel) ?? notionLevel + 1;
+	const level = Math.min(6, Math.min(mapped, headingState.lastLevel + 1));
+	headingState.lastLevel = level;
+	return level;
+}
 
 // Account for the body padding and the browser's default figure margins.
 const IMAGE_SIZES = "(max-width: 44rem) calc(100vw - 2rem - 80px), calc(42rem - 80px)";
@@ -200,22 +246,22 @@ export function blockToHtml(block: Block, options: ImageRenderOptions = {}): str
 
 		case "heading_1": {
 			const data = block.heading_1 as { rich_text: RichTextItem[]; is_toggleable?: boolean };
-			return headingToHtml(2, data);
+			return headingToHtml(options.headingLevel ?? 2, data);
 		}
 
 		case "heading_2": {
 			const data = block.heading_2 as { rich_text: RichTextItem[]; is_toggleable?: boolean };
-			return headingToHtml(3, data);
+			return headingToHtml(options.headingLevel ?? 3, data);
 		}
 
 		case "heading_3": {
 			const data = block.heading_3 as { rich_text: RichTextItem[]; is_toggleable?: boolean };
-			return headingToHtml(4, data);
+			return headingToHtml(options.headingLevel ?? 4, data);
 		}
 
 		case "heading_4": {
 			const data = block.heading_4 as { rich_text: RichTextItem[]; is_toggleable?: boolean };
-			return headingToHtml(5, data);
+			return headingToHtml(options.headingLevel ?? 5, data);
 		}
 
 		case "toggle": {
@@ -360,6 +406,11 @@ export function blocksToHtml(
 	blocks: Block[],
 	imageState: ImageRenderState = { hasRenderedImage: false },
 ): string {
+	const headingState =
+		imageState.headingState ??
+		(imageState.normalizeHeadings ? createHeadingNormalizationState(blocks) : undefined);
+	const childState =
+		headingState && !imageState.headingState ? { ...imageState, headingState } : imageState;
 	const result: string[] = [];
 	let i = 0;
 
@@ -373,15 +424,16 @@ export function blocksToHtml(
 
 			while (i < blocks.length && blocks[i].type === type) {
 				const currentBlock = blocks[i];
-				const imageLoading = imageState.hasRenderedImage ? "lazy" : "eager";
+				const imageLoading = childState.hasRenderedImage ? "lazy" : "eager";
 				let itemHtml = blockToHtml(currentBlock, {
 					loading: imageLoading,
-					imagePreview: imageState.imagePreview,
+					imagePreview: childState.imagePreview,
+					headingLevel: resolveNormalizedHeadingLevel(currentBlock.type, headingState),
 				});
-				if (currentBlock.type === "image" && itemHtml) imageState.hasRenderedImage = true;
+				if (currentBlock.type === "image" && itemHtml) childState.hasRenderedImage = true;
 
 				if (currentBlock.children && currentBlock.children.length > 0) {
-					const nestedHtml = blocksToHtml(currentBlock.children, imageState);
+					const nestedHtml = blocksToHtml(currentBlock.children, childState);
 					itemHtml = itemHtml.replace("</li>", `${nestedHtml}</li>`);
 				}
 
@@ -391,15 +443,16 @@ export function blocksToHtml(
 
 			result.push(`<${tag}>${items.join("")}</${tag}>`);
 		} else {
-			const imageLoading = imageState.hasRenderedImage ? "lazy" : "eager";
+			const imageLoading = childState.hasRenderedImage ? "lazy" : "eager";
 			let html = blockToHtml(block, {
 				loading: imageLoading,
-				imagePreview: imageState.imagePreview,
+				imagePreview: childState.imagePreview,
+				headingLevel: resolveNormalizedHeadingLevel(block.type, headingState),
 			});
-			if (block.type === "image" && html) imageState.hasRenderedImage = true;
+			if (block.type === "image" && html) childState.hasRenderedImage = true;
 			const childrenHtml =
 				block.type !== "table" && block.children?.length
-					? blocksToHtml(block.children, imageState)
+					? blocksToHtml(block.children, childState)
 					: "";
 			if (block.type === "synced_block" && !block.sync_error) {
 				if (childrenHtml) result.push(childrenHtml);
@@ -417,5 +470,6 @@ export function blocksToHtml(
 		}
 	}
 
+	imageState.hasRenderedImage = childState.hasRenderedImage;
 	return result.join("");
 }
