@@ -7,6 +7,12 @@ settings:
 importers:
 
   .:
+    devDependencies:
+      '@biomejs/biome':
+        specifier: ^2.3.12
+        version: 2.3.12
+
+  apps/blog:
     dependencies:
       '@astrojs/sitemap':
         specifier: ^3.7.0
@@ -21,9 +27,6 @@ importers:
         specifier: ^17.2.3
         version: 17.2.3
     devDependencies:
-      '@biomejs/biome':
-        specifier: ^2.3.12
-        version: 2.3.12
       '@lhci/cli':
         specifier: ^0.15.1
         version: 0.15.1

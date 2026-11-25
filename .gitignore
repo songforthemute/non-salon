@@ -27,15 +27,18 @@ npm-debug.log*
 pnpm-debug.log*
 
 # Data (빌드 시 생성)
-data/posts.json
-data/last-build.json
+apps/blog/data/posts.json
+apps/blog/data/last-build.json
 
-# Downloaded images (빌드 시 생성)
-public/images/
-public/media/
+# Downloaded images & media (빌드 시 생성)
+apps/blog/public/images/
+apps/blog/public/media/
 
 # Generated OG images (빌드 시 생성)
-public/og/
+apps/blog/public/og/
+
+# Lighthouse CI reports
+.lighthouseci/
 
 # Test coverage
 coverage/

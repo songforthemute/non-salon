@@ -1,15 +1,22 @@
-name: Lighthouse
+name: Blog CI
 
 on:
   pull_request:
     branches: [main]
     types: [opened, synchronize, reopened]
+    paths:
+      - "apps/blog/**"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "biome.json"
+      - ".github/workflows/blog-ci.yml"
 
 permissions:
   contents: read
 
 concurrency:
-  group: lighthouse-${{ github.workflow }}-${{ github.event.pull_request.number }}
+  group: blog-ci-${{ github.workflow }}-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 
 jobs:
@@ -37,7 +44,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Check TypeScript types
-        run: pnpm typecheck
+        run: pnpm --filter @non-salon/blog typecheck
 
   audit:
     name: Lighthouse
@@ -63,16 +70,18 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Run tests
-        run: pnpm test:run
+        run: pnpm --filter @non-salon/blog test:run
 
       - name: Build deterministic production output
-        run: pnpm build:ci
+        run: pnpm --filter @non-salon/blog build:ci
 
       - name: Audit production output
+        working-directory: apps/blog
         run: pnpm exec lhci autorun
 
       - name: Write Lighthouse summary
         if: always()
+        working-directory: apps/blog
         env:
           LIGHTHOUSE_SUMMARY: ${{ runner.temp }}/lighthouse-summary.md
         run: |
@@ -86,7 +95,7 @@ jobs:
         uses: actions/upload-artifact@v6
         with:
           name: lighthouse-reports-pr-${{ github.event.pull_request.number }}
-          path: .lighthouseci
+          path: apps/blog/.lighthouseci
           include-hidden-files: true
           if-no-files-found: warn
           retention-days: 30

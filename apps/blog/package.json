@@ -1,11 +1,11 @@
 {
-	"name": "non.salon",
+	"name": "@non-salon/blog",
 	"version": "1.0.0",
+	"private": true,
 	"type": "module",
 	"description": "Notion 기반 미니멀 정적 블로그",
 	"author": "songforthemute",
 	"license": "MIT",
-	"packageManager": "pnpm@10.13.1",
 	"scripts": {
 		"dev": "astro dev",
 		"build": "tsx scripts/build.ts",
@@ -28,7 +28,6 @@
 		"dotenv": "^17.2.3"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "^2.3.12",
 		"@lhci/cli": "^0.15.1",
 		"@resvg/resvg-js": "^2.6.2",
 		"@types/node": "^24.19.0",
