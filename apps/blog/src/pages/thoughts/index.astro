@@ -7,7 +7,11 @@ const publishedDates = loadPublishedDates();
 const posts = sortByDate(getPostsByType("thought"), publishedDates);
 ---
 
-<Layout title="Thoughts" description="Short essays" showSearch>
+<Layout
+	title="Thoughts"
+	description="소프트웨어 엔지니어링, AI 시대의 개발, 도메인 지식과 커리어에 대한 단상과 에세이 목록."
+	showSearch
+>
 	<h1>Thoughts</h1>
 
 	{posts.length === 0 ? (
@@ -19,7 +23,7 @@ const posts = sortByDate(getPostsByType("thought"), publishedDates);
 				return (
 					<article>
 						<time datetime={date}>{formatDate(date)}</time>
-						<h3><a href={`/thought/${post.slug}`}>{post.title}</a></h3>
+						<h2><a href={`/thought/${post.slug}`}>{post.title}</a></h2>
 					</article>
 				);
 			})}
@@ -47,15 +51,15 @@ const posts = sortByDate(getPostsByType("thought"), publishedDates);
 		color: var(--color-muted);
 		font-size: var(--font-size-sm);
 	}
-	article h3 {
+	article h2 {
 		margin: 0;
 		font-size: 1rem;
 		font-weight: normal;
 	}
-	article h3 a {
+	article h2 a {
 		text-decoration: none;
 	}
-	article h3 a:hover {
+	article h2 a:hover {
 		text-decoration: underline;
 	}
 </style>

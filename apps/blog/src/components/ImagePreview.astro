@@ -6,9 +6,11 @@
 			<button type="button" data-image-preview-action="fit" aria-label="화면에 맞추기" disabled>맞춤</button>
 		</div>
 		<div class="preview-actions">
-			<a data-image-preview-original target="_blank" rel="noopener" aria-label="원본 보기 (새 탭)">
-				원본 보기 <span aria-hidden="true">↗</span>
-			</a>
+			<template data-image-preview-original-template>
+				<a data-image-preview-original target="_blank" rel="noopener" aria-label="원본 보기 (새 탭)">
+					원본 보기 <span aria-hidden="true">↗</span>
+				</a>
+			</template>
 			<form method="dialog">
 				<button type="submit" data-image-preview-close autofocus>닫기</button>
 			</form>

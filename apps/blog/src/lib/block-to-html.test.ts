@@ -855,4 +855,30 @@ describe("additional Notion blocks", () => {
 		};
 		expect(blockToHtml(block)).toBe('<div class="notion-bookmark">javascript:alert(1)</div>');
 	});
+
+	it("normalizes skipped heading levels sequentially when normalizeHeadings is enabled", () => {
+		const heading2Only: Block[] = [
+			{ type: "heading_2", heading_2: { rich_text: text("Section A") } },
+		];
+		expect(blocksToHtml(heading2Only, { hasRenderedImage: false, normalizeHeadings: true })).toBe(
+			"<h2>Section A</h2>",
+		);
+
+		const heading1And3: Block[] = [
+			{ type: "heading_1", heading_1: { rich_text: text("Main") } },
+			{ type: "heading_3", heading_3: { rich_text: text("Sub") } },
+		];
+		expect(blocksToHtml(heading1And3, { hasRenderedImage: false, normalizeHeadings: true })).toBe(
+			"<h2>Main</h2><h3>Sub</h3>",
+		);
+
+		const outOfOrder: Block[] = [
+			{ type: "heading_3", heading_3: { rich_text: text("Early Sub") } },
+			{ type: "heading_1", heading_1: { rich_text: text("Main") } },
+			{ type: "heading_3", heading_3: { rich_text: text("Late Sub") } },
+		];
+		expect(blocksToHtml(outOfOrder, { hasRenderedImage: false, normalizeHeadings: true })).toBe(
+			"<h2>Early Sub</h2><h2>Main</h2><h3>Late Sub</h3>",
+		);
+	});
 });

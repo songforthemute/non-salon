@@ -79,3 +79,65 @@ export function getLatestPosts(
 export function getPublishedDate(post: Post, publishedDates: Record<string, string>): string {
 	return post.publishedDate || publishedDates[post.slug] || post.lastEditedTime.split("T")[0];
 }
+
+export function getAdjacentPosts(
+	currentPost: Post,
+	posts: Post[],
+	publishedDates: Record<string, string>,
+): { previous: Post | null; next: Post | null } {
+	const sameType = sortByDate(
+		posts.filter((post) => post.type === currentPost.type),
+		publishedDates,
+		"desc",
+	);
+	const index = sameType.findIndex((post) => post.slug === currentPost.slug);
+	if (index === -1) {
+		return { previous: null, next: null };
+	}
+
+	return {
+		previous: sameType[index + 1] ?? null,
+		next: sameType[index - 1] ?? null,
+	};
+}
+
+function normalizeTagSet(tags: string[]): Set<string> {
+	const set = new Set<string>();
+	for (const tag of tags) {
+		const normalized = tag.trim().toLowerCase();
+		if (normalized) set.add(normalized);
+	}
+	return set;
+}
+
+export function getRelatedPosts(
+	currentPost: Post,
+	posts: Post[],
+	publishedDates: Record<string, string>,
+	limit = 3,
+): Post[] {
+	const targetTags = normalizeTagSet(currentPost.tags);
+	if (targetTags.size === 0 || limit <= 0) return [];
+
+	const regularOrdered = sortByDate(getRegularPosts(posts), publishedDates, "desc");
+	const orderIndex = new Map(regularOrdered.map((post, index) => [post.slug, index]));
+
+	const scored = regularOrdered
+		.filter((candidate) => candidate.slug !== currentPost.slug)
+		.map((candidate) => {
+			let sharedTags = 0;
+			for (const tag of normalizeTagSet(candidate.tags)) {
+				if (targetTags.has(tag)) sharedTags++;
+			}
+			return {
+				post: candidate,
+				sharedTags,
+				sameType: candidate.type === currentPost.type ? 1 : 0,
+				order: orderIndex.get(candidate.slug) ?? Number.MAX_SAFE_INTEGER,
+			};
+		})
+		.filter((entry) => entry.sharedTags > 0)
+		.sort((a, b) => b.sharedTags - a.sharedTags || b.sameType - a.sameType || a.order - b.order);
+
+	return scored.slice(0, limit).map((entry) => entry.post);
+}

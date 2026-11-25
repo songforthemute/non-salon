@@ -1,18 +1,36 @@
 ---
 import PostArticle from "@/components/PostArticle.astro";
 import { ROUTE_TYPE_MAP, type RouteSegment } from "@/config";
-import { getPostsByType, loadPublishedDates } from "@/lib/posts";
+import {
+	getAdjacentPosts,
+	getPostsByType,
+	getRelatedPosts,
+	loadPosts,
+	loadPublishedDates,
+} from "@/lib/posts";
 import type { Post } from "@/types";
 
 export function getStaticPaths() {
-	const paths: Array<{ params: { type: RouteSegment; slug: string }; props: { post: Post } }> = [];
+	const allPosts = loadPosts();
+	const publishedDates = loadPublishedDates();
+	const paths: Array<{
+		params: { type: RouteSegment; slug: string };
+		props: {
+			post: Post;
+			previousPost: Post | null;
+			nextPost: Post | null;
+			relatedPosts: Post[];
+		};
+	}> = [];
 
 	for (const [routeSegment, contentType] of Object.entries(ROUTE_TYPE_MAP)) {
 		const posts = getPostsByType(contentType);
 		for (const post of posts) {
+			const { previous, next } = getAdjacentPosts(post, posts, publishedDates);
+			const relatedPosts = getRelatedPosts(post, allPosts, publishedDates, 3);
 			paths.push({
 				params: { type: routeSegment as RouteSegment, slug: post.slug },
-				props: { post },
+				props: { post, previousPost: previous, nextPost: next, relatedPosts },
 			});
 		}
 	}
@@ -20,8 +38,19 @@ export function getStaticPaths() {
 	return paths;
 }
 
-const { post } = Astro.props as { post: Post };
+const { post, previousPost, nextPost, relatedPosts } = Astro.props as {
+	post: Post;
+	previousPost: Post | null;
+	nextPost: Post | null;
+	relatedPosts: Post[];
+};
 const publishedDates = loadPublishedDates();
 ---
 
-<PostArticle post={post} publishedDates={publishedDates} />
+<PostArticle
+	post={post}
+	publishedDates={publishedDates}
+	previousPost={previousPost}
+	nextPost={nextPost}
+	relatedPosts={relatedPosts}
+/>

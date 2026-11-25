@@ -17,7 +17,10 @@ const posts = getLatestPosts(getRegularPosts(allPosts), publishedDates, 5);
 const tilPosts = getLatestPosts(getTilPosts(allPosts), publishedDates, 3);
 ---
 
-<Layout title="Root">
+<Layout
+	title="Root"
+	description="TypeScript, React, 웹 프론트엔드 아키텍처와 시스템 설계, 인지 부하를 줄이는 인터페이스를 기록하는 기술 블로그 non.salon."
+>
   <h1>{SITE.name}</h1>
   <p>
     디자인을 전공하고, 지금은 대한민국에서 소프트웨어 엔지니어로 일하고

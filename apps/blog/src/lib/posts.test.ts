@@ -1,6 +1,14 @@
 import { describe, expect, it } from "vitest";
 import type { Post } from "@/types";
-import { getLatestPosts, getRegularPosts, getTilPosts, getTilTopics, isTilPost } from "./posts";
+import {
+	getAdjacentPosts,
+	getLatestPosts,
+	getRegularPosts,
+	getRelatedPosts,
+	getTilPosts,
+	getTilTopics,
+	isTilPost,
+} from "./posts";
 
 function makePost(overrides: Partial<Post>): Post {
 	return {
@@ -57,5 +65,79 @@ describe("TIL content classification", () => {
 		expect(getRegularPosts(posts)).toEqual([regular]);
 		expect(getTilPosts(posts)).toEqual([tilCss, tilTypescript]);
 		expect(getTilTopics(posts)).toEqual(["CSS", "TypeScript"]);
+	});
+});
+
+describe("getAdjacentPosts", () => {
+	it("returns older (previous) and newer (next) posts within the same type", () => {
+		const oldest = makePost({ slug: "oldest", type: "publication", publishedDate: "2026-01-01" });
+		const middle = makePost({ slug: "middle", type: "publication", publishedDate: "2026-02-01" });
+		const newest = makePost({ slug: "newest", type: "publication", publishedDate: "2026-03-01" });
+		const otherType = makePost({ slug: "other", type: "thought", publishedDate: "2026-02-15" });
+		const posts = [oldest, newest, otherType, middle];
+
+		expect(getAdjacentPosts(middle, posts, {})).toEqual({ previous: oldest, next: newest });
+		expect(getAdjacentPosts(newest, posts, {})).toEqual({ previous: middle, next: null });
+		expect(getAdjacentPosts(oldest, posts, {})).toEqual({ previous: null, next: middle });
+	});
+});
+
+describe("getRelatedPosts", () => {
+	it("ranks regular posts by shared tags, same type, and recency while excluding TIL", () => {
+		const current = makePost({
+			slug: "current",
+			type: "publication",
+			tags: ["React", "Frontend"],
+			publishedDate: "2026-03-01",
+		});
+		const twoTags = makePost({
+			slug: "two-tags",
+			type: "thought",
+			tags: ["react", "frontend"],
+			publishedDate: "2026-01-01",
+		});
+		const oneTagSameType = makePost({
+			slug: "one-tag-same-type",
+			type: "publication",
+			tags: ["React"],
+			publishedDate: "2026-01-10",
+		});
+		const oneTagOtherTypeNewer = makePost({
+			slug: "one-tag-other-type",
+			type: "notebook",
+			tags: ["Frontend"],
+			publishedDate: "2026-04-01",
+		});
+		const tilMatch = makePost({
+			slug: "til-match",
+			type: "til",
+			tags: ["React", "Frontend"],
+			publishedDate: "2026-05-01",
+		});
+		const unrelated = makePost({
+			slug: "unrelated",
+			type: "publication",
+			tags: ["Docker"],
+			publishedDate: "2026-05-01",
+		});
+
+		const related = getRelatedPosts(
+			current,
+			[current, unrelated, tilMatch, oneTagOtherTypeNewer, oneTagSameType, twoTags],
+			{},
+			3,
+		);
+
+		expect(related.map((post) => post.slug)).toEqual([
+			"two-tags",
+			"one-tag-same-type",
+			"one-tag-other-type",
+		]);
+	});
+
+	it("returns an empty array when the current post has no tags", () => {
+		const current = makePost({ slug: "no-tags", type: "thought", tags: [] });
+		const other = makePost({ slug: "other", type: "thought", tags: ["AI"] });
+		expect(getRelatedPosts(current, [current, other], {})).toEqual([]);
 	});
 });

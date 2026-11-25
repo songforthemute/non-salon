@@ -10,15 +10,30 @@ import type { Post } from "@/types";
 interface Props {
 	post: Post;
 	publishedDates: Record<string, string>;
+	previousPost?: Post | null;
+	nextPost?: Post | null;
+	relatedPosts?: Post[];
 }
 
-const { post, publishedDates } = Astro.props;
+const {
+	post,
+	publishedDates,
+	previousPost = null,
+	nextPost = null,
+	relatedPosts = [],
+} = Astro.props;
 const til = isTilPost(post);
 const publishedDate = getPublishedDate(post, publishedDates);
 const modifiedDate = getArticleModifiedDate(post, publishedDate);
 const imagePreview = { hasLink: false };
-const content = blocksToHtml(post.blocks, { hasRenderedImage: false, imagePreview });
+const content = blocksToHtml(post.blocks, {
+	hasRenderedImage: false,
+	imagePreview,
+	normalizeHeadings: true,
+});
 const topics = post.tags;
+const hasAdjacent = !til && Boolean(previousPost || nextPost);
+const hasRelated = !til && relatedPosts.length > 0;
 ---
 
 <Layout
@@ -41,6 +56,45 @@ const topics = post.tags;
 		</header>
 		<div class="content" data-pagefind-body data-image-preview-content set:html={content} />
 	</article>
+
+	{hasAdjacent && (
+		<nav class="post-nav" aria-label="Adjacent posts">
+			<div class="post-nav-item">
+				{previousPost && (
+					<>
+						<span class="post-nav-label">Previous</span>
+						<a href={`/${previousPost.type}/${previousPost.slug}`}>{previousPost.title}</a>
+					</>
+				)}
+			</div>
+			<div class="post-nav-item post-nav-next">
+				{nextPost && (
+					<>
+						<span class="post-nav-label">Next</span>
+						<a href={`/${nextPost.type}/${nextPost.slug}`}>{nextPost.title}</a>
+					</>
+				)}
+			</div>
+		</nav>
+	)}
+
+	{hasRelated && (
+		<section class="related-posts">
+			<h2>Related Posts</h2>
+			<ul class="related-list" role="list">
+				{relatedPosts.map((item) => {
+					const itemDate = getPublishedDate(item, publishedDates);
+					return (
+						<li>
+							<time datetime={itemDate}>{formatDate(itemDate)}</time>
+							<a href={`/${item.type}/${item.slug}`}>{item.title}</a>
+						</li>
+					);
+				})}
+			</ul>
+		</section>
+	)}
+
 	{imagePreview.hasLink && <ImagePreview />}
 </Layout>
 
@@ -50,4 +104,84 @@ const topics = post.tags;
 	article time { color: var(--color-muted); }
 	.summary { margin-top: 1rem; color: var(--color-subtle); }
 	.tags { margin-top: 0.5rem; font-size: var(--font-size-sm); color: var(--color-muted); }
+
+	.post-nav {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 1.5rem;
+		margin-top: 3.5rem;
+		padding-top: 1.5rem;
+		border-top: 1px solid var(--color-border);
+	}
+	.post-nav-item {
+		display: flex;
+		flex-direction: column;
+		gap: 0.25rem;
+		min-width: 0;
+	}
+	.post-nav-next {
+		text-align: right;
+		align-items: flex-end;
+	}
+	.post-nav-label {
+		color: var(--color-muted);
+		font-size: var(--font-size-sm);
+	}
+	.post-nav a {
+		text-decoration: none;
+		word-break: keep-all;
+		overflow-wrap: anywhere;
+	}
+	.post-nav a:hover {
+		text-decoration: underline;
+	}
+
+	.related-posts {
+		margin-top: 3rem;
+		padding-top: 1.5rem;
+		border-top: 1px solid var(--color-border);
+	}
+	.related-posts h2 {
+		margin: 0 0 1rem;
+		font-size: 1rem;
+		font-weight: normal;
+		color: var(--color-muted);
+	}
+	.related-list {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 0.625rem;
+	}
+	.related-list li {
+		display: flex;
+		align-items: baseline;
+		gap: 1rem;
+	}
+	.related-list time {
+		flex-shrink: 0;
+		width: 6rem;
+		color: var(--color-muted);
+		font-size: var(--font-size-sm);
+	}
+	.related-list a {
+		text-decoration: none;
+		word-break: keep-all;
+		overflow-wrap: anywhere;
+	}
+	.related-list a:hover {
+		text-decoration: underline;
+	}
+
+	@media (max-width: 36rem) {
+		.post-nav {
+			grid-template-columns: 1fr;
+		}
+		.post-nav-next {
+			text-align: left;
+			align-items: flex-start;
+		}
+	}
 </style>
