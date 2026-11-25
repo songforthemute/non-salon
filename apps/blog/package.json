@@ -1,0 +1,40 @@
+{
+	"name": "@non-salon/blog",
+	"version": "1.0.0",
+	"private": true,
+	"type": "module",
+	"description": "Notion 기반 미니멀 정적 블로그",
+	"author": "songforthemute",
+	"license": "MIT",
+	"scripts": {
+		"dev": "astro dev",
+		"build": "tsx scripts/build.ts",
+		"build:ci": "tsx scripts/build-ci.ts",
+		"lighthouse:summary": "node scripts/lighthouse-summary.mjs",
+		"build:astro": "astro build",
+		"preview": "astro preview",
+		"fetch:notion": "tsx scripts/fetch-notion.ts",
+		"test": "vitest",
+		"test:run": "vitest run",
+		"typecheck": "tsc --noEmit",
+		"lint": "biome check .",
+		"lint:fix": "biome check --write .",
+		"format": "biome format --write ."
+	},
+	"dependencies": {
+		"@astrojs/sitemap": "^3.7.0",
+		"@notionhq/client": "^5.7.0",
+		"astro": "^5.16.15",
+		"dotenv": "^17.2.3"
+	},
+	"devDependencies": {
+		"@lhci/cli": "^0.15.1",
+		"@resvg/resvg-js": "^2.6.2",
+		"@types/node": "^24.19.0",
+		"pagefind": "^1.4.0",
+		"sharp": "0.34.5",
+		"tsx": "^4.21.0",
+		"typescript": "^5.9.3",
+		"vitest": "^4.0.18"
+	}
+}
